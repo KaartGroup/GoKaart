@@ -49,7 +49,7 @@ static const NSInteger CACHE_SECTION            = 3;
 
 -(void)setButtonLayoutTitle
 {
-    NSString * title = AppDelegate.shared.mapView.mainViewController.buttonLayout == BUTTON_LAYOUT_ADD_ON_LEFT ? @"Left" : @"Right";
+    NSString * title = AppDelegate.shared.mapView.mainViewController.buttonLayout == BUTTON_LAYOUT_ADD_ON_LEFT ? NSLocalizedString(@"Left",@"Left side of screen") : NSLocalizedString(@"Right",@"Right side of screen");
     [_addButtonPosition setTitle:title forState:UIControlStateNormal];
 }
 
@@ -71,8 +71,6 @@ static const NSInteger CACHE_SECTION            = 3;
     _gpxLoggingSwitch.on        = mapView.enableGpxLogging;
     _turnRestrictionSwitch.on    = mapView.enableTurnRestriction;
     _objectFiltersSwitch.on        = mapView.editorLayer.enableObjectFilters;
-    _enhancedHwyEditorSwitch.on = mapView.enableEnhancedHwyEditor;
-    
 
     [self setButtonLayoutTitle];
 }
@@ -142,8 +140,7 @@ static const NSInteger CACHE_SECTION            = 3;
     mapView.enableUnnamedRoadHalo    = _unnamedRoadSwitch.on;
     mapView.enableGpxLogging        = _gpxLoggingSwitch.on;
     mapView.enableTurnRestriction    = _turnRestrictionSwitch.on;
-    mapView.enableEnhancedHwyEditor = _enhancedHwyEditorSwitch.on;
-    
+
     [mapView.editorLayer setNeedsLayout];
 }
 
