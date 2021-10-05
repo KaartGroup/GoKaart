@@ -1149,17 +1149,17 @@ Clear the Mapnik or Overlay tile caches  to download the latest tiles that refle
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="Vg0-lU-nhi">
-                                        <rect key="frame" x="0.0" y="518.5" width="320" height="44"/>
+                                        <rect key="frame" x="0.0" y="518.5" width="320" height="39.5"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Vg0-lU-nhi" id="xPK-ox-EKB">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="320" height="39.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Urg-E3-Jnm">
-                                                    <rect key="frame" x="251" y="6.5" width="51" height="31"/>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Urg-E3-Jnm">
+                                                    <rect key="frame" x="251" y="4.5" width="51" height="31"/>
                                                 </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Others" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uum-Wn-9CF">
-                                                    <rect key="frame" x="20" y="11" width="46" height="22"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Others" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Uum-Wn-9CF">
+                                                    <rect key="frame" x="20" y="11" width="46" height="17.5"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -1524,7 +1524,7 @@ Clear the Mapnik or Overlay tile caches  to download the latest tiles that refle
                                         <rect key="frame" x="0.0" y="659.5" width="320" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="aQI-EZ-rd6" id="pIi-Ie-btg">
-                                            <rect key="frame" x="0.0" y="0.0" width="302.5" height="44"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="294.5" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enable Filters" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LxX-tl-ZLH">
@@ -1555,9 +1555,12 @@ Clear the Mapnik or Overlay tile caches  to download the latest tiles that refle
                                 </cells>
                             </tableViewSection>
                             <tableViewSection headerTitle="Kaart Power Modes" id="3TX-KF-IdU" userLabel="Kaart Power Modes">
+                                <cells/>
+                            </tableViewSection>
+                            <tableViewSection headerTitle="Interactions" id="RJU-Z2-QFh">
                                 <cells>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="j9N-M6-cfl">
-                                        <rect key="frame" x="0.0" y="745.5" width="320" height="44"/>
+                                        <rect key="frame" x="0.0" y="787.5" width="320" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="j9N-M6-cfl" id="3bH-9K-aZZ">
                                             <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
@@ -1582,10 +1585,6 @@ Clear the Mapnik or Overlay tile caches  to download the latest tiles that refle
                                             </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
-                                </cells>
-                            </tableViewSection>
-                            <tableViewSection headerTitle="Interactions" id="RJU-Z2-QFh">
-                                <cells>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="WpQ-Uc-2gz">
                                         <rect key="frame" x="0.0" y="831.5" width="320" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>

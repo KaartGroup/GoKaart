@@ -71,7 +71,7 @@ static const NSInteger CACHE_SECTION            = 3;
     _gpxLoggingSwitch.on        = mapView.enableGpxLogging;
     _turnRestrictionSwitch.on    = mapView.enableTurnRestriction;
     _objectFiltersSwitch.on        = mapView.editorLayer.enableObjectFilters;
-
+    _enhancedHwyEditorSwitch.on = mapView.enableEnhancedHwyEditor;
     [self setButtonLayoutTitle];
 }
 
@@ -140,7 +140,7 @@ static const NSInteger CACHE_SECTION            = 3;
     mapView.enableUnnamedRoadHalo    = _unnamedRoadSwitch.on;
     mapView.enableGpxLogging        = _gpxLoggingSwitch.on;
     mapView.enableTurnRestriction    = _turnRestrictionSwitch.on;
-
+    mapView.enableEnhancedHwyEditor = _enhancedHwyEditorSwitch.on;
     [mapView.editorLayer setNeedsLayout];
 }
 
