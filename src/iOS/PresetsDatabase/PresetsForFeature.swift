@@ -124,9 +124,17 @@ class PresetsForFeature: NSObject {
                 keyboard: UIKeyboardType.default,
                 capitalize: UITextAutocapitalizationType.words,
                 presets:nil)
-        let typeGroup = PresetGroup(name: "Type", tags: [typeTag, nameTag].compactMap { $0 })
+        
+        let altNameTag = PresetKey(name: "Alt Name",
+                                   tagKey: "Alt name",
+                                   defaultValue: nil, placeholder: "",
+                                   keyboard: UIKeyboardType.default,
+                                   capitalize: UITextAutocapitalizationType.words,
+                                   presets: nil)
+        
+        let typeGroup = PresetGroup(name: "Type", tags: [typeTag, nameTag, altNameTag].compactMap { $0 })
         _sectionList = [typeGroup]
-
+        
         // Add user-defined presets
         var customGroup: [AnyHashable] = []
         for custom in PresetKeyUserDefinedList.shared.list {

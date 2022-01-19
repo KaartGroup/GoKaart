@@ -451,6 +451,7 @@ NSDictionary * MergeTags( NSDictionary * ourTags, NSDictionary * otherTags, BOOL
                           @"unclassified":@(USES_NAME),
                           @"residential":@(USES_NAME),
                           @"road":@(USES_NAME),
+                          @"alt name":@(USES_NAME),
                           @"living_street":@(USES_NAME) };
     }
 
