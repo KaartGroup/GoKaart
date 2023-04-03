@@ -42,9 +42,11 @@ extern const double MinIconSizeInPixels;
 @property (assign,nonatomic)    BOOL            showLevel;                // filter for building level
 @property (copy,nonatomic)         NSString    *    showLevelRange;            // range of levels for building level
 @property (assign,nonatomic)    BOOL            showPoints;
+@property (assign,nonatomic)    BOOL            showBarriers;
 @property (assign,nonatomic)    BOOL            showTrafficRoads;
 @property (assign,nonatomic)    BOOL            showServiceRoads;
-@property (assign,nonatomic)    BOOL            showPaths;
+@property (assign,nonatomic)    BOOL            showPedestrian;
+@property (assign,nonatomic)    BOOL            showConstructionRoads;
 @property (assign,nonatomic)    BOOL            showBuildings;
 @property (assign,nonatomic)    BOOL            showLanduse;
 @property (assign,nonatomic)    BOOL            showBoundaries;

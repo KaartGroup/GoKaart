@@ -25,9 +25,11 @@
     self.levelsText.text        = editor.showLevelRange;
     self.switchLevel.on            = editor.showLevel;
     self.switchPoints.on        = editor.showPoints;
+    self.switchBarriers.on        = editor.showBarriers;
     self.switchTrafficRoads.on    = editor.showTrafficRoads;
     self.switchServiceRoads.on    = editor.showServiceRoads;
-    self.switchPaths.on            = editor.showPaths;
+    self.switchPedestrian.on      = editor.showPedestrian;
+    self.switchConstructionRoads.on    = editor.showConstructionRoads;
     self.switchBuildings.on        = editor.showBuildings;
     self.switchLanduse.on        = editor.showLanduse;
     self.switchBoundaries.on    = editor.showBoundaries;
@@ -47,9 +49,11 @@
     editor.showLevelRange        = self.levelsText.text;
     editor.showLevel            = self.switchLevel.on;
     editor.showPoints            = self.switchPoints.on;
+    editor.showBarriers            = self.switchBarriers.on;
     editor.showTrafficRoads        = self.switchTrafficRoads.on;
     editor.showServiceRoads        = self.switchServiceRoads.on;
-    editor.showPaths            = self.switchPaths.on;
+    editor.showPedestrian          = self.switchPedestrian.on;
+    editor.showConstructionRoads        = self.switchConstructionRoads.on;
     editor.showBuildings        = self.switchBuildings.on;
     editor.showLanduse            = self.switchLanduse.on;
     editor.showBoundaries        = self.switchBoundaries.on;
