@@ -13,9 +13,11 @@
 @property (weak)    IBOutlet UITextField    *    levelsText;
 @property (weak)    IBOutlet UISwitch        *    switchLevel;
 @property (weak)    IBOutlet UISwitch        *    switchPoints;
+@property (weak)    IBOutlet UISwitch        *    switchBarriers;
 @property (weak)    IBOutlet UISwitch        *    switchTrafficRoads;
 @property (weak)    IBOutlet UISwitch        *    switchServiceRoads;
-@property (weak)    IBOutlet UISwitch        *    switchPaths;
+@property (weak)    IBOutlet UISwitch        *    switchPedestrian;
+@property (weak)    IBOutlet UISwitch        *    switchConstructionRoads;
 @property (weak)    IBOutlet UISwitch        *    switchBuildings;
 @property (weak)    IBOutlet UISwitch        *    switchLanduse;
 @property (weak)    IBOutlet UISwitch        *    switchBoundaries;
