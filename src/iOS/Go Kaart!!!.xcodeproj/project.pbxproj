@@ -127,6 +127,9 @@
 		0EE6655725EECCEF000A333E /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 02ACBA4B16713CCB00BB4414 /* MainStoryboard.storyboard */; };
 		0EF1807125F01A0300084B6C /* RenderInfo.json in Resources */ = {isa = PBXBuildFile; fileRef = 0EF1807025F01A0300084B6C /* RenderInfo.json */; };
 		0EF9944D249D644E004E82C1 /* EnhancedHwyEditorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0EF9944C249D644E004E82C1 /* EnhancedHwyEditorController.m */; };
+		4DA0B98529EF3BF9005DB9D6 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DA0B98429EF3BF9005DB9D6 /* MapKit.framework */; };
+		4DEBF41C29EDBB8C009D8E07 /* MapView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DEBF41B29EDBB8C009D8E07 /* MapView+Extensions.swift */; };
+		4DEBF41E29EDBC0D009D8E07 /* DallasCityLimit.json in Resources */ = {isa = PBXBuildFile; fileRef = 4DEBF41D29EDBC0D009D8E07 /* DallasCityLimit.json */; };
 		64305F7223E7224E00232BB9 /* LocationURLParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 64305F7123E7224E00232BB9 /* LocationURLParser.m */; };
 		64305F7423E723B200232BB9 /* GeoURLParserTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64305F7323E723B200232BB9 /* GeoURLParserTestCase.swift */; };
 		64348CED225E7CD900ADE7FB /* GoMapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64348CEC225E7CD900ADE7FB /* GoMapTests.swift */; };
@@ -480,6 +483,9 @@
 		0EF9944C249D644E004E82C1 /* EnhancedHwyEditorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EnhancedHwyEditorController.m; sourceTree = "<group>"; };
 		0EF9944E249D6463004E82C1 /* EnhancedHwyEditorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EnhancedHwyEditorController.h; sourceTree = "<group>"; };
 		0EF99452249D6D9C004E82C1 /* EnhancedHwyEditorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EnhancedHwyEditorView.h; sourceTree = "<group>"; };
+		4DA0B98429EF3BF9005DB9D6 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		4DEBF41B29EDBB8C009D8E07 /* MapView+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "MapView+Extensions.swift"; path = "../Shared/MapView+Extensions.swift"; sourceTree = "<group>"; };
+		4DEBF41D29EDBC0D009D8E07 /* DallasCityLimit.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = DallasCityLimit.json; path = ../Shared/DallasCityLimit.json; sourceTree = "<group>"; };
 		64305F7023E7224E00232BB9 /* LocationURLParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LocationURLParser.h; sourceTree = "<group>"; };
 		64305F7123E7224E00232BB9 /* LocationURLParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LocationURLParser.m; sourceTree = "<group>"; };
 		64305F7323E723B200232BB9 /* GeoURLParserTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoURLParserTestCase.swift; sourceTree = "<group>"; };
@@ -527,6 +533,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4DA0B98529EF3BF9005DB9D6 /* MapKit.framework in Frameworks */,
 				02401F361DE021EE00F32AF5 /* ExternalAccessory.framework in Frameworks */,
 				02EDCC081683EC2D007F9934 /* CFNetwork.framework in Frameworks */,
 				027AD5D219F5A18700120654 /* CoreFoundation.framework in Frameworks */,
@@ -653,6 +660,7 @@
 		02ACBA3216713CCB00BB4414 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4DA0B98429EF3BF9005DB9D6 /* MapKit.framework */,
 				02401F3A1DE157B800F32AF5 /* CoreBluetooth.framework */,
 				02401F351DE021EE00F32AF5 /* ExternalAccessory.framework */,
 				02072AD51BD46B1700F1CAB4 /* StoreKit.framework */,
@@ -769,6 +777,7 @@
 				02ACBA3B16713CCB00BB4414 /* Go Map!!-Info.plist */,
 				02ACBA4116713CCB00BB4414 /* Go Map!!-Prefix.pch */,
 				0E9970A125E844CF009E94B5 /* Images.xcassets */,
+				4DEBF41D29EDBC0D009D8E07 /* DallasCityLimit.json */,
 				0EE664D025EEB560000A333E /* InfoPlist.strings */,
 				0E569CD925EDEBF90010DDDB /* Localizable.strings */,
 				02ACBA3F16713CCB00BB4414 /* main.m */,
@@ -819,6 +828,7 @@
 				02BED99B168CBC5400357B94 /* LocationBallLayer.m */,
 				02ACBA7F16713F2A00BB4414 /* MapView.h */,
 				02ACBA8016713F2A00BB4414 /* MapView.m */,
+				4DEBF41B29EDBB8C009D8E07 /* MapView+Extensions.swift */,
 				02ACBA8116713F2A00BB4414 /* MercatorTileLayer.h */,
 				02ACBA8216713F2A00BB4414 /* MercatorTileLayer.m */,
 				0259E4061BCAEC88006C354C /* MyApplication.h */,
@@ -1142,6 +1152,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4DEBF41E29EDBC0D009D8E07 /* DallasCityLimit.json in Resources */,
 				0E80819F25EDEDFD00CF82A8 /* POI-Icons.xcassets in Resources */,
 				0E839D0E25F7127B0047C2B1 /* Height.storyboard in Resources */,
 				0E839D3A25F7DA200047C2B1 /* Launch Screen.storyboard in Resources */,
@@ -1190,6 +1201,7 @@
 				02ACBA5A16713CCB00BB4414 /* SettingsViewController.m in Sources */,
 				6453776623D38D4600656A1C /* OsmBaseObject.m in Sources */,
 				02ACBBC316713F2B00BB4414 /* DownloadThreadPool.m in Sources */,
+				4DEBF41C29EDBB8C009D8E07 /* MapView+Extensions.swift in Sources */,
 				02A194B019C69701002338DA /* Database.m in Sources */,
 				02ACBBC416713F2B00BB4414 /* EditorMapLayer.m in Sources */,
 				02C3C73419A5A40C003B6783 /* AerialListViewController.m in Sources */,

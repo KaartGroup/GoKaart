@@ -10,6 +10,8 @@
 #import <SafariServices/SafariServices.h>
 
 #import "iosapi.h"
+#import <MapKit/MapKit.h>
+#import "Go_Kaart__-Swift.h"
 
 #import "AerialList.h"
 #import "BingMapsGeometry.h"
@@ -48,6 +50,7 @@ static const CGFloat Z_NONAME           = -99;
 static const CGFloat Z_MAPNIK            = -98;
 static const CGFloat Z_LOCATOR            = -50;
 static const CGFloat Z_GPSTRACE            = -40;
+//static const CGFloat Z_CITYLIMIT            = -30;
 static const CGFloat Z_EDITOR            = -20;
 static const CGFloat Z_GPX                = -15;
 //static const CGFloat Z_BUILDINGS        = -18;
@@ -78,6 +81,7 @@ static const CGFloat Z_FLASH            = 110;
 @synthesize pushpinView            = _pushpinView;
 @synthesize viewState            = _viewState;
 @synthesize screenFromMapTransform    = _screenFromMapTransform;
+@synthesize mapKitView             = _mapKitView;
 
 const CGFloat kEditControlCornerRadius = 4;
 
@@ -122,6 +126,12 @@ const CGFloat kEditControlCornerRadius = 4;
 
         // this option needs to be set before the editor is initialized
         self.enableAutomaticCacheManagement    = [[NSUserDefaults standardUserDefaults] boolForKey:@"automaticCacheManagement"];
+        
+        // display mapKitView geoJSON polygons
+        _mapKitView = [[MKMapView alloc] initWithFrame:self.bounds];
+        _mapKitView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _mapKitView.delegate = self;
+        [self addSubview:_mapKitView];
 
         // get aerial database
         self.customAerials = [AerialList new];

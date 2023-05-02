@@ -9,6 +9,7 @@
 #if TARGET_OS_IPHONE
 #import "iosapi.h"
 #import <Foundation/Foundation.h>
+#import <MapKit/MapKit.h>
 #import <StoreKit/StoreKit.h>
 #else
 #import <Cocoa/Cocoa.h>
@@ -224,6 +225,8 @@ typedef enum {
 @property (readonly,nonatomic)    CLLocationCoordinate2D            countryCodeLocation;
 
 @property (readonly,nonatomic)    CGPoint                            pushpinPosition;
+
+@property (nonatomic, strong) MKMapView *mapKitView;
 
 -(void)viewDidAppear;
 

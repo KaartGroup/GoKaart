@@ -6,6 +6,8 @@
 //  Copyright (c) 2012 Bryce Cogswell. All rights reserved.
 //
 
+#import "Go_Kaart__-Swift.h"
+
 #import "AppDelegate.h"
 #import "AerialList.h"
 #import "DLog.h"
@@ -63,6 +65,7 @@
     [super viewDidLoad];
     
     self.mapView.mainViewController = self;
+    [self.mapView addCityLimit:@"DallasCityLimit"];
     
     AppDelegate * delegate = AppDelegate.shared;
     delegate.mapView = self.mapView;

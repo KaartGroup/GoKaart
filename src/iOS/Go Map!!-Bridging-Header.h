@@ -10,6 +10,7 @@
 #import "LocationURLParser.h"
 #import "LoginViewController.h"
 #import "MainViewController.h"
+#import "MapView.h"
 #import "OsmMapData.h"
 #import "OsmMember.h"
 #import "OsmNode.h"
