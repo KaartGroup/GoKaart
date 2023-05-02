@@ -220,13 +220,14 @@ typedef enum {
 @property (assign, nonatomic)   BOOL                             enableEnhancedHwyEditor;
 
 @property (readonly,nonatomic)    CAShapeLayer                *    crossHairs;
+@property (readonly,nonatomic)    CAShapeLayer                *    cityLimits;
 
 @property (readonly,nonatomic)    NSString                    *    countryCodeForLocation;
 @property (readonly,nonatomic)    CLLocationCoordinate2D            countryCodeLocation;
 
 @property (readonly,nonatomic)    CGPoint                            pushpinPosition;
 
-@property (nonatomic, strong) MKMapView *mapKitView;
+//@property (nonatomic, strong) MKMapView *mapKitView;
 
 -(void)viewDidAppear;
 
