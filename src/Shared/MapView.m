@@ -10,8 +10,6 @@
 #import <SafariServices/SafariServices.h>
 
 #import "iosapi.h"
-#import <MapKit/MapKit.h>
-#import "Go_Kaart__-Swift.h"
 
 #import "AerialList.h"
 #import "BingMapsGeometry.h"
@@ -55,7 +53,6 @@ static const CGFloat Z_GPX                = -15;
 //static const CGFloat Z_BUILDINGS        = -18;
 static const CGFloat Z_ROTATEGRAPHIC    = -3;
 //static const CGFloat Z_BING_LOGO        = 2;
-static const CGFloat Z_CITYLIMIT        = 3;
 static const CGFloat Z_BLINK            = 4;
 static const CGFloat Z_CROSSHAIRS        = 5;
 static const CGFloat Z_BALL                = 6;
@@ -81,7 +78,6 @@ static const CGFloat Z_FLASH            = 110;
 @synthesize pushpinView            = _pushpinView;
 @synthesize viewState            = _viewState;
 @synthesize screenFromMapTransform    = _screenFromMapTransform;
-//@synthesize mapKitView             = _mapKitView;
 
 const CGFloat kEditControlCornerRadius = 4;
 
@@ -126,12 +122,6 @@ const CGFloat kEditControlCornerRadius = 4;
 
         // this option needs to be set before the editor is initialized
         self.enableAutomaticCacheManagement    = [[NSUserDefaults standardUserDefaults] boolForKey:@"automaticCacheManagement"];
-        
-        // display mapKitView geoJSON polygons
-//        _mapKitView = [[MKMapView alloc] initWithFrame:self.bounds];
-//        _mapKitView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-//        _mapKitView.delegate = self;
-//        [self addSubview:_mapKitView];
 
         // get aerial database
         self.customAerials = [AerialList new];
@@ -177,6 +167,10 @@ const CGFloat kEditControlCornerRadius = 4;
         _gpxLayer.zPosition = Z_GPX;
         _gpxLayer.hidden = YES;
         [bg addObject:_gpxLayer];
+        
+        //Import Dallas City Limits
+        NSString *filePath = [[NSBundle mainBundle] pathForResource:@"DallasCityLimits" ofType:@"json"];
+        [_gpxLayer importGPXFromJSON:filePath];
 
         _backgroundLayers = [NSArray arrayWithArray:bg];
         for ( CALayer * layer in _backgroundLayers ) {
@@ -215,48 +209,6 @@ const CGFloat kEditControlCornerRadius = 4;
             [self.layer addSublayer:_crossHairs];
         }
         
-        _cityLimits = [CAShapeLayer new];
-        NSString *filePath = [[NSBundle mainBundle] pathForResource:@"DallasCityLimits" ofType:@"json"];
-        NSError *error = nil;
-        NSString *fileContents = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:&error];
-        if (error) {
-            NSLog(@"Error reading file: %@", error.localizedDescription);
-        }
-        NSData *data = [fileContents dataUsingEncoding:NSUTF8StringEncoding];
-
-        NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&error];
-        NSArray *features = [jsonDict objectForKey:@"features"];
-        NSLog(@"Number of features: %lu", (unsigned long)features.count);
-
-        UIBezierPath *path = [UIBezierPath bezierPath];
-        for (NSDictionary *feature in features) {
-            NSDictionary *geometry = [feature objectForKey:@"geometry"];
-            NSString *type = [geometry objectForKey:@"type"];
-            if ([type isEqualToString:@"Polygon"]) {
-                NSArray *coordinates = [geometry objectForKey:@"coordinates"];
-                NSArray *firstRing = [coordinates firstObject];
-                CGPoint firstPoint = CGPointMake([firstRing[0][0] floatValue], [firstRing[0][1] floatValue]);
-                [path moveToPoint:firstPoint];
-                NSLog(@"Moved to point: %@", NSStringFromCGPoint(firstPoint));
-                for (int i = 1; i < [firstRing count]; i++) {
-                    CGPoint point = CGPointMake([firstRing[i][0] floatValue], [firstRing[i][1] floatValue]);
-                    [path addLineToPoint:point];
-                    //NSLog(@"Added line to point: %@", NSStringFromCGPoint(point));
-                }
-                [path closePath];
-                NSLog(@"Closed path");
-            }
-        }
-
-        _cityLimits.fillColor = [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.5].CGColor;
-        _cityLimits.strokeColor = [UIColor redColor].CGColor;
-        _cityLimits.path = path.CGPath;
-        _cityLimits.zPosition = Z_CITYLIMIT;
-        _cityLimits.hidden = NO;
-        NSLog(@"City limits layer added to map");
-
-        [self.layer addSublayer:_cityLimits];
-
 
 #if 0
         _voiceAnnouncement = [VoiceAnnouncement new];

@@ -9,7 +9,6 @@
 #if TARGET_OS_IPHONE
 #import "iosapi.h"
 #import <Foundation/Foundation.h>
-#import <MapKit/MapKit.h>
 #import <StoreKit/StoreKit.h>
 #else
 #import <Cocoa/Cocoa.h>
@@ -220,14 +219,12 @@ typedef enum {
 @property (assign, nonatomic)   BOOL                             enableEnhancedHwyEditor;
 
 @property (readonly,nonatomic)    CAShapeLayer                *    crossHairs;
-@property (readonly,nonatomic)    CAShapeLayer                *    cityLimits;
 
 @property (readonly,nonatomic)    NSString                    *    countryCodeForLocation;
 @property (readonly,nonatomic)    CLLocationCoordinate2D            countryCodeLocation;
 
 @property (readonly,nonatomic)    CGPoint                            pushpinPosition;
 
-//@property (nonatomic, strong) MKMapView *mapKitView;
 
 -(void)viewDidAppear;
 
