@@ -6,6 +6,8 @@
 //  Copyright (c) 2012 Bryce Cogswell. All rights reserved.
 //
 
+#import <AWSS3/AWSS3.h>\
+
 #import "AppDelegate.h"
 #import "AerialList.h"
 #import "DLog.h"
@@ -665,7 +667,51 @@ API_AVAILABLE(ios(13.0)) API_AVAILABLE(ios(13.0)){
         }
         
     }
+    
+    // Upload the photo to DigitalOcean Spaces
+    [self uploadPhotoToDigitalOcean:photoTaken];
+    
     [picker dismissViewControllerAnimated:YES completion:NULL];
+}
+
+- (void)uploadPhotoToDigitalOcean:(UIImage *)photo {
+    // Configure AWS credentials
+    AWSStaticCredentialsProvider *credentialsProvider = [[AWSStaticCredentialsProvider alloc] initWithAccessKey:@"ACCESS_KEY"
+        secretKey:@"SECRET_KEY"];
+    
+    // Configure AWS service configuration
+    AWSEndpoint *endpoint = [[AWSEndpoint alloc] initWithURL:[NSURL URLWithString:@"https://sfo3.digitaloceanspaces.com"]];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSWest2
+                                                                                    endpoint:endpoint
+                                                                         credentialsProvider:credentialsProvider];
+
+    [AWSS3TransferUtility registerS3TransferUtilityWithConfiguration:configuration forKey:@"com.kaart.GoKaart.transferutility"];
+    
+    // Generate a unique file name
+    NSString *fileName = [NSString stringWithFormat:@"GoKaart/photo-%@", [NSUUID UUID].UUIDString];
+    
+    // Convert the photo to data
+    NSData *photoData = UIImageJPEGRepresentation(photo, 1.0);
+    
+    // Start the upload
+    AWSS3TransferUtilityUploadExpression *expression = [AWSS3TransferUtilityUploadExpression new];
+    AWSS3TransferUtility *transferUtility = [AWSS3TransferUtility S3TransferUtilityForKey:@"com.kaart.GoKaart.transferutility"];
+    
+    [[transferUtility uploadData:photoData
+                          bucket:@"BUCKET_NAME"
+                             key:fileName
+                     contentType:@"image/jpeg"
+                      expression:expression
+               completionHandler:^(AWSS3TransferUtilityUploadTask * _Nonnull task, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"Error uploading photo to DigitalOcean Spaces: %@", error);
+        } else {
+            NSLog(@"Photo uploaded successfully!");
+        }
+    }] continueWithBlock:^id(AWSTask *task) {
+        // Display alert confirmation
+        return nil;
+    }];
 }
 
 - (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo: (void *)contextInfo

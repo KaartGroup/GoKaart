@@ -38,6 +38,8 @@ typedef enum {
 - (IBAction)takePhoto:(UIButton *_Nullable)sender;
 - (IBAction)selectPhoto:(UIButton *_Nullable)sender;
 
+- (void)uploadPhotoToDigitalOcean:(UIImage *_Nullable)photo;
+
 -(void)setGpsState:(GPS_STATE)state;
 
 - (void)updateUndoRedoButtonState;
