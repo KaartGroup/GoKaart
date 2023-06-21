@@ -1068,12 +1068,16 @@ static inline ViewOverlayMask OverlaysFor(MapViewState state, ViewOverlayMask ma
 #pragma mark Download GPX Tracks
 
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
-    if (urls.count > 0) {
-        NSURL *fileURL = urls.firstObject;
-        
-        // Get the file path
+    for (NSURL *url in urls) {
+        // Handle each selected file
+        [self importFileAtURL:url];
+    }
+}
+
+- (void)importFileAtURL:(NSURL *)fileURL {
         NSString *filePath = [fileURL path];
         
+        // Handle file based on file type
         if ([[filePath pathExtension] isEqualToString:@"json"]) {
             NSData *jsonData = [NSData dataWithContentsOfFile:filePath];
             
@@ -1096,13 +1100,13 @@ static inline ViewOverlayMask OverlaysFor(MapViewState state, ViewOverlayMask ma
             // Unsupported file type
             [self showInvalidFileTypeAlert];
         }
-    }
 }
 
 - (void)downloadTrack {
     UIDocumentPickerViewController *documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[@"public.json", @"public.xml"] inMode:UIDocumentPickerModeImport];
     documentPicker.delegate = self;
     documentPicker.modalPresentationStyle = UIModalPresentationFormSheet;
+    documentPicker.allowsMultipleSelection = YES;
     
     // Present the document picker
     UIViewController *topViewController = [self topmostViewController];
