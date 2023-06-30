@@ -98,7 +98,7 @@ typedef enum {
 
 
 #if TARGET_OS_IPHONE
-@interface MapView : UIView <MapViewProgress,CLLocationManagerDelegate,UIActionSheetDelegate,UIGestureRecognizerDelegate,SKStoreProductViewControllerDelegate>
+@interface MapView : UIView <MapViewProgress,CLLocationManagerDelegate,UIDocumentPickerDelegate,UIActionSheetDelegate,UIGestureRecognizerDelegate,SKStoreProductViewControllerDelegate>
 #else
 @interface MapView : NSView <CLLocationManagerDelegate>
 #endif
@@ -225,6 +225,7 @@ typedef enum {
 
 @property (readonly,nonatomic)    CGPoint                            pushpinPosition;
 
+
 -(void)viewDidAppear;
 
 -(void)updateAerialAttributionButton;
@@ -294,5 +295,7 @@ typedef enum {
 -(void)refreshNoteButtonsFromDatabase;
 
 -(void)askToRate:(NSInteger)uploadCount;
+
+- (void)downloadTrack;
 
 @end

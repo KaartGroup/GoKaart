@@ -78,6 +78,7 @@
 -(void)purgeTileCache;
 
 -(BOOL)loadGPXData:(NSData *)data center:(BOOL)center;
+- (void)importGPXFromJSON:(NSString *)filePath;
 
 -(GpxTrack *)createGpxRect:(CGRect)rect;
 

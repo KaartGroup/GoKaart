@@ -204,6 +204,7 @@ const CGFloat kEditControlCornerRadius = 4;
             _crossHairs.position = CGRectCenter( self.bounds );
             [self.layer addSublayer:_crossHairs];
         }
+        
 
 #if 0
         _voiceAnnouncement = [VoiceAnnouncement new];
@@ -1063,6 +1064,101 @@ static inline ViewOverlayMask OverlaysFor(MapViewState state, ViewOverlayMask ma
         _enableEnhancedHwyEditor = enableEnhancedHwyEditor;
     }
 }
+
+#pragma mark Download GPX Tracks
+
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
+    for (NSURL *url in urls) {
+        // Handle each selected file
+        [self importFileAtURL:url];
+    }
+}
+
+- (void)importFileAtURL:(NSURL *)fileURL {
+        NSString *filePath = [fileURL path];
+        
+        // Handle file based on file type
+        if ([[filePath pathExtension] isEqualToString:@"json"]) {
+            NSData *jsonData = [NSData dataWithContentsOfFile:filePath];
+            
+            if (jsonData != nil) {
+                [_gpxLayer importGPXFromJSON:filePath];
+            } else {
+                // Failed to read JSON file
+                [self showFileReadErrorAlert];
+            }
+        } else if ([[filePath pathExtension] isEqualToString:@"gpx"]) {
+            NSData *gpxData = [NSData dataWithContentsOfFile:filePath];
+            
+            if (gpxData != nil) {
+                [_gpxLayer loadGPXData:gpxData center:YES];
+            } else {
+                // Failed to read GPX file
+                [self showFileReadErrorAlert];
+            }
+        } else {
+            // Unsupported file type
+            [self showInvalidFileTypeAlert];
+        }
+}
+
+- (void)downloadTrack {
+    UIDocumentPickerViewController *documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[@"public.json", @"public.xml"] inMode:UIDocumentPickerModeImport];
+    documentPicker.delegate = self;
+    documentPicker.modalPresentationStyle = UIModalPresentationFormSheet;
+    documentPicker.allowsMultipleSelection = YES;
+    
+    // Present the document picker
+    UIViewController *topViewController = [self topmostViewController];
+    [topViewController presentViewController:documentPicker animated:YES completion:nil];
+}
+
+- (void)showFileReadErrorAlert {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"File Read Error"
+    message:@"Failed to read the selected file."
+    preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+    [alertController addAction:okAction];
+    
+    UIViewController *topViewController = [self topmostViewController];
+    [topViewController presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void)showInvalidFileTypeAlert {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"File Type Error"
+    message:@"Invalid file type. Only JSON and GPX files are supported."
+    preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+    [alertController addAction:okAction];
+    
+    UIViewController *topViewController = [self topmostViewController];
+    [topViewController presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void)showFilePermissionDeniedAlert {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"File Permission Denied"
+    message:@"Permission to access files and folders is required to import tracks."
+    preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *settingsAction = [UIAlertAction actionWithTitle:@"Settings" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSURL *settingsURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+        [[UIApplication sharedApplication] openURL:settingsURL options:@{} completionHandler:nil];
+    }];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [alertController addAction:settingsAction];
+    [alertController addAction:cancelAction];
+    
+    UIViewController *topViewController = [self topmostViewController];
+    [topViewController presentViewController:alertController animated:YES completion:nil];
+}
+
+- (UIViewController *)topmostViewController {
+    UIViewController *topViewController = UIApplication.sharedApplication.keyWindow.rootViewController;
+    while (topViewController.presentedViewController) {
+        topViewController = topViewController.presentedViewController;
+    }
+    return topViewController;
+}
+
 
 #pragma mark Coordinate Transforms
 
