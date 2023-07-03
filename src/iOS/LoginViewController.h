@@ -23,3 +23,19 @@
 - (IBAction)verifyAccount:(id)sender;
 
 @end
+
+@interface KaartLoginViewController : UITableViewController
+{
+    IBOutlet UIBarButtonItem            *    _saveButton;
+    IBOutlet UITextField                *    _kaartUsername;
+    IBOutlet UITextField                *    _kaartPassword;
+    IBOutlet UIActivityIndicatorView    *    _activityIndicator;
+}
+
+- (IBAction)kaartTextFieldReturn:(id)sender;
+- (IBAction)kaartTextFieldDidChange:(id)sender;
+
+- (IBAction)kaartRegisterAccount:(id)sender;
+- (IBAction)kaartVerifyAccount:(id)sender;
+
+@end
