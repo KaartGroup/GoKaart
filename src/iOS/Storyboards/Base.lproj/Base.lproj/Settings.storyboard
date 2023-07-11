@@ -327,27 +327,51 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection headerTitle="I don't have an account" id="1Mo-xe-IbY">
+                            <tableViewSection headerTitle="Manage Account" id="1Mo-xe-IbY">
                                 <cells>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="eda-Zf-yNy">
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="ab5-IC-Mxl">
                                         <rect key="frame" x="0.0" y="227.33333015441895" width="393" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="eda-Zf-yNy" id="yUP-FJ-FGA">
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="ab5-IC-Mxl" id="c8K-Yk-jhG">
                                             <rect key="frame" x="0.0" y="0.0" width="393" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DY5-Ls-XZ1">
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="l7Q-Gs-zJf">
                                                     <rect key="frame" x="110.66666666666669" y="9" width="172" height="26"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="height" constant="26" id="1lE-t0-k6H"/>
+                                                        <constraint firstAttribute="height" constant="26" id="1S5-LO-VLM"/>
                                                     </constraints>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                                     <state key="normal" title="Register new account">
                                                         <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     </state>
                                                     <connections>
-                                                        <action selector="registerAccount:" destination="kl3-Fg-1QU" eventType="touchUpInside" id="0CV-fd-0kD"/>
+                                                        <action selector="registerAccount:" destination="kl3-Fg-1QU" eventType="touchUpInside" id="smW-PR-ooP"/>
                                                     </connections>
+                                                </button>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                        <constraints>
+                                            <constraint firstItem="l7Q-Gs-zJf" firstAttribute="centerX" secondItem="ab5-IC-Mxl" secondAttribute="centerX" id="eeV-PA-lEw"/>
+                                            <constraint firstItem="l7Q-Gs-zJf" firstAttribute="centerY" secondItem="ab5-IC-Mxl" secondAttribute="centerY" id="hGy-qM-vHY"/>
+                                        </constraints>
+                                    </tableViewCell>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="eda-Zf-yNy">
+                                        <rect key="frame" x="0.0" y="271.33333015441895" width="393" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="eda-Zf-yNy" id="yUP-FJ-FGA">
+                                            <rect key="frame" x="0.0" y="0.0" width="393" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DY5-Ls-XZ1">
+                                                    <rect key="frame" x="166.66666666666666" y="9" width="60" height="26"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="26" id="1lE-t0-k6H"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                    <state key="normal" title="Log out">
+                                                        <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    </state>
                                                 </button>
                                             </subviews>
                                         </tableViewCellContentView>
@@ -967,7 +991,7 @@ http://glyphish.com
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="groupTableViewBackgroundColor"/>
                         <sections>
-                            <tableViewSection headerTitle="Kaart account" footerTitle="When signed in to Kaart, your photos will be uploaded to Kaart's online bucket." id="zo7-Oq-JgB">
+                            <tableViewSection headerTitle="Kaart account" footerTitle="In order to upload photos to DigitalOcean you need an account registered at kaart.com." id="zo7-Oq-JgB">
                                 <cells>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="14N-6p-WSw">
                                         <rect key="frame" x="0.0" y="55.333332061767578" width="393" height="44"/>
@@ -1048,29 +1072,82 @@ http://glyphish.com
                                             <constraint firstItem="l16-Wg-ypa" firstAttribute="centerY" secondItem="XbT-eo-oNn" secondAttribute="centerY" id="oDr-oi-QOZ"/>
                                         </constraints>
                                     </tableViewCell>
-                                </cells>
-                            </tableViewSection>
-                            <tableViewSection headerTitle="I don't have an account" id="TRq-Ul-0ew">
-                                <cells>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="1lz-Vl-FCK">
-                                        <rect key="frame" x="0.0" y="227.33333015441895" width="393" height="44"/>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="Zk9-pj-2pp">
+                                        <rect key="frame" x="0.0" y="143.33333206176758" width="393" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="1lz-Vl-FCK" id="xFB-a3-xvc">
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Zk9-pj-2pp" id="boq-tK-Av6">
                                             <rect key="frame" x="0.0" y="0.0" width="393" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="skl-6F-AFR">
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="kZr-79-8IH">
+                                                    <rect key="frame" x="326" y="6.6666666666666679" width="51" height="31.000000000000004"/>
+                                                </switch>
+                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Automatic Uploads" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="H56-PX-eC1">
+                                                    <rect key="frame" x="20" y="11" width="152" height="21"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                    <nil key="textColor"/>
+                                                    <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <attributedString key="userComments">
+                                                        <fragment content="Display the app's frames/second while running"/>
+                                                    </attributedString>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="H56-PX-eC1" firstAttribute="leading" secondItem="boq-tK-Av6" secondAttribute="leading" constant="20" id="1Ai-QU-awg"/>
+                                                <constraint firstItem="kZr-79-8IH" firstAttribute="centerY" secondItem="boq-tK-Av6" secondAttribute="centerY" id="4N5-Uu-upX"/>
+                                                <constraint firstAttribute="trailing" secondItem="kZr-79-8IH" secondAttribute="trailing" constant="18" id="FPW-VK-HwG"/>
+                                                <constraint firstItem="kZr-79-8IH" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="H56-PX-eC1" secondAttribute="trailing" constant="4" id="ZkY-aE-lnK"/>
+                                                <constraint firstItem="H56-PX-eC1" firstAttribute="top" secondItem="boq-tK-Av6" secondAttribute="top" constant="11" id="v1V-zL-boR"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
+                            <tableViewSection headerTitle="Manage Account" id="TRq-Ul-0ew">
+                                <cells>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="pqT-xY-srZ">
+                                        <rect key="frame" x="0.0" y="271.33333015441895" width="393" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="pqT-xY-srZ" id="011-Kc-fO0">
+                                            <rect key="frame" x="0.0" y="0.0" width="393" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CwJ-td-OSg">
                                                     <rect key="frame" x="110.66666666666669" y="9" width="172" height="26"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="height" constant="26" id="fKC-E7-xL1"/>
+                                                        <constraint firstAttribute="height" constant="26" id="XQX-Yv-yp3"/>
                                                     </constraints>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                                     <state key="normal" title="Register new account">
                                                         <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     </state>
                                                     <connections>
-                                                        <action selector="registerAccount:" destination="s3P-Fn-eBf" eventType="touchUpInside" id="eDf-yg-Hq9"/>
+                                                        <action selector="registerAccount:" destination="s3P-Fn-eBf" eventType="touchUpInside" id="hl6-7W-Lp7"/>
                                                     </connections>
+                                                </button>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                        <constraints>
+                                            <constraint firstItem="CwJ-td-OSg" firstAttribute="centerY" secondItem="pqT-xY-srZ" secondAttribute="centerY" id="gyA-s4-1gX"/>
+                                            <constraint firstItem="CwJ-td-OSg" firstAttribute="centerX" secondItem="pqT-xY-srZ" secondAttribute="centerX" id="vKA-Xh-LYX"/>
+                                        </constraints>
+                                    </tableViewCell>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="1lz-Vl-FCK">
+                                        <rect key="frame" x="0.0" y="315.33333015441895" width="393" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="1lz-Vl-FCK" id="xFB-a3-xvc">
+                                            <rect key="frame" x="0.0" y="0.0" width="393" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="skl-6F-AFR">
+                                                    <rect key="frame" x="166.66666666666666" y="9" width="60" height="26"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="26" id="fKC-E7-xL1"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                    <state key="normal" title="Log out">
+                                                        <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    </state>
                                                 </button>
                                             </subviews>
                                         </tableViewCellContentView>

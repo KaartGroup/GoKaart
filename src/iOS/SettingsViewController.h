@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 
-@interface SettingsViewController : UITableViewController <UITableViewDataSource, MFMailComposeViewControllerDelegate>
+@interface SettingsViewController : UITableViewController <MFMailComposeViewControllerDelegate>
 {
     IBOutlet UILabel            *    _username;
     IBOutlet UILabel            *    _kaartUsername;

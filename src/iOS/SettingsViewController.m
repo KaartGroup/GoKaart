@@ -16,28 +16,11 @@
 #import "SettingsViewController.h"
 
 
-@interface OsmLoginCell : UITableViewCell
-@end
-@implementation OsmLoginCell
-@end
-
-@interface KaartLoginCell : UITableViewCell
-@end
-@implementation KaartLoginCell
-@end
-
 @implementation SettingsViewController
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    self.tableView.delegate = self;
-    self.tableView.dataSource = self;
-    
-    [self.tableView registerClass:[OsmLoginCell class] forCellReuseIdentifier:@"OsmLoginCell"];
-    [self.tableView registerClass:[KaartLoginCell class] forCellReuseIdentifier:@"KaartLoginCell"];
-
 
     self.tableView.estimatedRowHeight = 44.0;
     self.tableView.rowHeight = UITableViewAutomaticDimension;
@@ -58,9 +41,9 @@
     AppDelegate * appDelegate = AppDelegate.shared;
 
     _username.text = @"";
-    //NSLog(@"%@", appDelegate.userName.length);
-    if (appDelegate.userName != nil && appDelegate.userName.length > 0) {
-        //NSLog(@"%@", appDelegate.userName);
+    _kaartUsername.text = @"";
+    
+    if ( appDelegate.userName.length > 0 ) {
         [appDelegate.mapView.editorLayer.mapData verifyUserCredentialsWithCompletion:^(NSString * errorMessage) {
             if ( errorMessage ) {
                 _username.text = NSLocalizedString(@"<unknown>",@"unknown user name");
@@ -71,6 +54,18 @@
             [self.tableView reloadData];
         }];
     }
+    
+//    if ( appDelegate.kaartUserName.length > 0 ) {
+//        [appDelegate.mapView.editorLayer.mapData verifyUserCredentialsWithCompletion:^(NSString * errorMessage) {
+//            if ( errorMessage ) {
+//                _kaartUsername.text = NSLocalizedString(@"<unknown>",@"unknown user name");
+//            } else {
+//                _kaartUsername.text = appDelegate.kaartUserName;
+//            }
+//
+//            [self.tableView reloadData];
+//        }];
+//    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -90,24 +85,6 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 2;
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    //NSLog(@"IndexPath.row: %ld", (long)indexPath.row); // Log the indexPath.row
-    if (indexPath.row == 0) {
-        OsmLoginCell *cell = [tableView dequeueReusableCellWithIdentifier:@"OsmLoginCell" forIndexPath:indexPath];
-        // Configure the cell properties
-        return cell;
-    } else if (indexPath.row == 1) {
-        KaartLoginCell *cell = [tableView dequeueReusableCellWithIdentifier:@"KaartLoginCell" forIndexPath:indexPath];
-        // Configure the new cell properties
-        return cell;
-    }
-    return nil;
 }
 
 @end
