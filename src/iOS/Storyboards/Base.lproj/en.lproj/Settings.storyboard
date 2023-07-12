@@ -43,8 +43,8 @@
                                             <rect key="frame" x="0.0" y="0.0" width="362.66666666666669" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="OpenStreetMap Login" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" id="34N-Ep-rpf">
-                                                    <rect key="frame" x="20" y="11.999999999999998" width="174" height="20.333333333333332"/>
+                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="OpenStreetMap" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" id="34N-Ep-rpf">
+                                                    <rect key="frame" x="19.999999999999993" y="11.999999999999998" width="126.33333333333333" height="20.333333333333332"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                                     <nil key="textColor"/>
@@ -70,8 +70,8 @@
                                             <rect key="frame" x="0.0" y="0.0" width="362.66666666666669" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="Kaart Login" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" id="sYs-0y-A9W">
-                                                    <rect key="frame" x="20.000000000000007" y="11.999999999999998" width="90.666666666666671" height="20.333333333333332"/>
+                                                <label opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="left" text="Kaart" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" id="sYs-0y-A9W">
+                                                    <rect key="frame" x="20" y="11.999999999999998" width="43" height="20.333333333333332"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                                     <nil key="textColor"/>
@@ -372,6 +372,9 @@
                                                     <state key="normal" title="Log out">
                                                         <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     </state>
+                                                    <connections>
+                                                        <action selector="logout:" destination="kl3-Fg-1QU" eventType="touchUpInside" id="aEk-uA-NKF"/>
+                                                    </connections>
                                                 </button>
                                             </subviews>
                                         </tableViewCellContentView>
@@ -405,7 +408,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="CzF-UG-rbA" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1766" y="222"/>
+            <point key="canvasLocation" x="1766" y="232"/>
         </scene>
         <!--Nearby Mappers-->
         <scene sceneID="Tnx-bm-RHs">
@@ -985,7 +988,7 @@ http://glyphish.com
         <!--Kaart Login-->
         <scene sceneID="q5g-0w-hsA">
             <objects>
-                <tableViewController storyboardIdentifier="KaartLoginViewController" title="Kaart Login" id="s3P-Fn-eBf" customClass="LoginViewController" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="KaartLoginViewController" title="Kaart Login" id="s3P-Fn-eBf" customClass="KaartLoginViewController" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="10" sectionFooterHeight="10" id="jjE-lm-emp">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1009,13 +1012,13 @@ http://glyphish.com
                                                     <nil key="textColor"/>
                                                     <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 </label>
-                                                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="240" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="username" translatesAutoresizingMaskIntoConstraints="NO" id="OqW-22-2jn">
+                                                <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="240" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="email" translatesAutoresizingMaskIntoConstraints="NO" id="OqW-22-2jn">
                                                     <rect key="frame" x="142" y="11" width="232" height="22"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                     <textInputTraits key="textInputTraits" spellCheckingType="no" returnKeyType="done" textContentType="username"/>
                                                     <connections>
-                                                        <action selector="textFieldDidChange:" destination="s3P-Fn-eBf" eventType="editingChanged" id="DZy-af-gz2"/>
-                                                        <action selector="textFieldReturn:" destination="s3P-Fn-eBf" eventType="editingDidEndOnExit" id="CQG-zh-NYi"/>
+                                                        <action selector="kaartTextFieldDidChange:" destination="s3P-Fn-eBf" eventType="editingChanged" id="DZy-af-gz2"/>
+                                                        <action selector="kaartTextFieldReturn:" destination="s3P-Fn-eBf" eventType="editingDidEndOnExit" id="CQG-zh-NYi"/>
                                                     </connections>
                                                 </textField>
                                                 <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="dlF-BQ-v9N">
@@ -1056,8 +1059,8 @@ http://glyphish.com
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                     <textInputTraits key="textInputTraits" returnKeyType="done" secureTextEntry="YES" textContentType="password"/>
                                                     <connections>
-                                                        <action selector="textFieldDidChange:" destination="s3P-Fn-eBf" eventType="editingChanged" id="zn7-Mh-x3p"/>
-                                                        <action selector="textFieldReturn:" destination="s3P-Fn-eBf" eventType="editingDidEndOnExit" id="eQn-L1-XQo"/>
+                                                        <action selector="kaartTextFieldDidChange:" destination="s3P-Fn-eBf" eventType="editingChanged" id="zn7-Mh-x3p"/>
+                                                        <action selector="kaartTextFieldReturn:" destination="s3P-Fn-eBf" eventType="editingDidEndOnExit" id="eQn-L1-XQo"/>
                                                     </connections>
                                                 </textField>
                                             </subviews>
@@ -1072,41 +1075,12 @@ http://glyphish.com
                                             <constraint firstItem="l16-Wg-ypa" firstAttribute="centerY" secondItem="XbT-eo-oNn" secondAttribute="centerY" id="oDr-oi-QOZ"/>
                                         </constraints>
                                     </tableViewCell>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="Zk9-pj-2pp">
-                                        <rect key="frame" x="0.0" y="143.33333206176758" width="393" height="44"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Zk9-pj-2pp" id="boq-tK-Av6">
-                                            <rect key="frame" x="0.0" y="0.0" width="393" height="44"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="kZr-79-8IH">
-                                                    <rect key="frame" x="326" y="6.6666666666666679" width="51" height="31.000000000000004"/>
-                                                </switch>
-                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Automatic Uploads" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="H56-PX-eC1">
-                                                    <rect key="frame" x="20" y="11" width="152" height="21"/>
-                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
-                                                    <nil key="textColor"/>
-                                                    <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                    <attributedString key="userComments">
-                                                        <fragment content="Display the app's frames/second while running"/>
-                                                    </attributedString>
-                                                </label>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstItem="H56-PX-eC1" firstAttribute="leading" secondItem="boq-tK-Av6" secondAttribute="leading" constant="20" id="1Ai-QU-awg"/>
-                                                <constraint firstItem="kZr-79-8IH" firstAttribute="centerY" secondItem="boq-tK-Av6" secondAttribute="centerY" id="4N5-Uu-upX"/>
-                                                <constraint firstAttribute="trailing" secondItem="kZr-79-8IH" secondAttribute="trailing" constant="18" id="FPW-VK-HwG"/>
-                                                <constraint firstItem="kZr-79-8IH" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="H56-PX-eC1" secondAttribute="trailing" constant="4" id="ZkY-aE-lnK"/>
-                                                <constraint firstItem="H56-PX-eC1" firstAttribute="top" secondItem="boq-tK-Av6" secondAttribute="top" constant="11" id="v1V-zL-boR"/>
-                                            </constraints>
-                                        </tableViewCellContentView>
-                                    </tableViewCell>
                                 </cells>
                             </tableViewSection>
                             <tableViewSection headerTitle="Manage Account" id="TRq-Ul-0ew">
                                 <cells>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="pqT-xY-srZ">
-                                        <rect key="frame" x="0.0" y="271.33333015441895" width="393" height="44"/>
+                                        <rect key="frame" x="0.0" y="227.33333015441895" width="393" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="pqT-xY-srZ" id="011-Kc-fO0">
                                             <rect key="frame" x="0.0" y="0.0" width="393" height="44"/>
@@ -1122,7 +1096,7 @@ http://glyphish.com
                                                         <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     </state>
                                                     <connections>
-                                                        <action selector="registerAccount:" destination="s3P-Fn-eBf" eventType="touchUpInside" id="hl6-7W-Lp7"/>
+                                                        <action selector="kaartRegisterAccount:" destination="s3P-Fn-eBf" eventType="touchUpInside" id="74t-AO-i4o"/>
                                                     </connections>
                                                 </button>
                                             </subviews>
@@ -1133,7 +1107,7 @@ http://glyphish.com
                                         </constraints>
                                     </tableViewCell>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="1lz-Vl-FCK">
-                                        <rect key="frame" x="0.0" y="315.33333015441895" width="393" height="44"/>
+                                        <rect key="frame" x="0.0" y="271.33333015441895" width="393" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="1lz-Vl-FCK" id="xFB-a3-xvc">
                                             <rect key="frame" x="0.0" y="0.0" width="393" height="44"/>
@@ -1148,6 +1122,9 @@ http://glyphish.com
                                                     <state key="normal" title="Log out">
                                                         <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     </state>
+                                                    <connections>
+                                                        <action selector="kaartLogout:" destination="s3P-Fn-eBf" eventType="touchUpInside" id="FSb-KH-VEF"/>
+                                                    </connections>
                                                 </button>
                                             </subviews>
                                         </tableViewCellContentView>
@@ -1168,19 +1145,20 @@ http://glyphish.com
                         <barButtonItem key="backBarButtonItem" title="Back" id="jng-Sq-cGq"/>
                         <barButtonItem key="rightBarButtonItem" title="Save" style="done" id="5yr-cP-Bhe">
                             <connections>
-                                <action selector="verifyAccount:" destination="kl3-Fg-1QU" id="IOW-8A-F5k"/>
+                                <action selector="kaartVerifyAccount:" destination="s3P-Fn-eBf" id="jjN-zh-EZN"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="_activityIndicator" destination="dlF-BQ-v9N" id="mya-VW-Unb"/>
-                        <outlet property="_password" destination="l16-Wg-ypa" id="jpv-Pv-jly"/>
-                        <outlet property="_username" destination="OqW-22-2jn" id="8t4-wO-FhL"/>
+                        <outlet property="_kaartPassword" destination="l16-Wg-ypa" id="jpv-Pv-jly"/>
+                        <outlet property="_kaartUsername" destination="OqW-22-2jn" id="8t4-wO-FhL"/>
+                        <outlet property="_saveButton" destination="5yr-cP-Bhe" id="uI2-bA-VsZ"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tSf-ug-nFd" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1766" y="879"/>
+            <point key="canvasLocation" x="1766" y="873"/>
         </scene>
     </scenes>
     <resources>
