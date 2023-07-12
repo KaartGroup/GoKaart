@@ -82,6 +82,22 @@
     }];
 }
 
+- (IBAction)logout:(id)sender {
+    _username.text = @"";
+    _password.text = @"";
+    
+    [KeyChain deleteStringForIdentifier:@"username"];
+    [KeyChain deleteStringForIdentifier:@"password"];
+    
+    AppDelegate *appDelegate = (id)[[UIApplication sharedApplication] delegate];
+    appDelegate.userName = @"";
+    appDelegate.userPassword = @"";
+    
+    OsmMapData *mapData = [appDelegate.mapView editorLayer].mapData;
+    mapData.credentialsUserName = @"";
+    mapData.credentialsPassword = @"";
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
@@ -158,6 +174,18 @@
     }];
 }
 
+- (IBAction)kaartLogout:(id)sender {
+    _kaartUsername.text = @"";
+    _kaartPassword.text = @"";
+    
+    [KeyChain deleteStringForIdentifier:@"kaartUsername"];
+    [KeyChain deleteStringForIdentifier:@"kaartPassword"];
+    
+    AppDelegate *appDelegate = (id)[[UIApplication sharedApplication] delegate];
+    appDelegate.kaartUserName = @"";
+    appDelegate.kaartPassword = @"";
+}
+
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 
@@ -169,8 +197,8 @@
 }
 
 - (void)saveVerifiedCredentialsWithKaartUsername:(NSString *)kaartUsername kaartPassword:(NSString *)kaartPassword {
-    [KeyChain setString:kaartUsername forIdentifier:@"KaartUsername"];
-    [KeyChain setString:kaartPassword forIdentifier:@"KaartPassword"];
+    [KeyChain setString:kaartUsername forIdentifier:@"kaartUsername"];
+    [KeyChain setString:kaartPassword forIdentifier:@"kaartPassword"];
 
     // Update the app delegate as well
     AppDelegate *appDelegate = (id)[[UIApplication sharedApplication] delegate];

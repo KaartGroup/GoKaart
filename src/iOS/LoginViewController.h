@@ -21,6 +21,7 @@
 
 - (IBAction)registerAccount:(id)sender;
 - (IBAction)verifyAccount:(id)sender;
+- (IBAction)logout:(id)sender;
 
 @end
 
@@ -37,5 +38,6 @@
 
 - (IBAction)kaartRegisterAccount:(id)sender;
 - (IBAction)kaartVerifyAccount:(id)sender;
+- (IBAction)kaartLogout:(id)sender;
 
 @end

@@ -56,7 +56,7 @@
     }
     
 //    if ( appDelegate.kaartUserName.length > 0 ) {
-//        [appDelegate.mapView.editorLayer.mapData verifyUserCredentialsWithCompletion:^(NSString * errorMessage) {
+//        [appDelegate.mapView.editorLayer.mapData verifyKaartCredentialsWithCompletion:^(NSString * errorMessage) {
 //            if ( errorMessage ) {
 //                _kaartUsername.text = NSLocalizedString(@"<unknown>",@"unknown user name");
 //            } else {
