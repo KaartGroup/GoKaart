@@ -130,7 +130,7 @@
 }
 
 - (IBAction)kaartRegisterAccount:(id)sender {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://my.kaart.com/"]
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://viewer.kaart.com/registerUser/"]
                                        options:@{}
                              completionHandler:nil];
 }
@@ -150,7 +150,7 @@
     _activityIndicator.color = UIColor.darkGrayColor;
     [_activityIndicator startAnimating];
 
-    [appDelegate.mapView.editorLayer.mapData verifyUserCredentialsWithCompletion:^(NSString *errorMessage) {
+    [appDelegate.mapView.editorLayer.mapData verifyKaartCredentialsWithCompletion:^(NSString *errorMessage) {
         [_activityIndicator stopAnimating];
 
         if (errorMessage) {
