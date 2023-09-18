@@ -55,17 +55,17 @@
         }];
     }
     
-//    if ( appDelegate.kaartUserName.length > 0 ) {
-//        [appDelegate.mapView.editorLayer.mapData verifyKaartCredentialsWithCompletion:^(NSString * errorMessage) {
-//            if ( errorMessage ) {
-//                _kaartUsername.text = NSLocalizedString(@"<unknown>",@"unknown user name");
-//            } else {
-//                _kaartUsername.text = appDelegate.kaartUserName;
-//            }
-//
-//            [self.tableView reloadData];
-//        }];
-//    }
+    if ( appDelegate.kaartUserName.length > 0 ) {
+        [appDelegate.mapView.editorLayer.mapData verifyKaartCredentialsWithCompletion:^(NSString * errorMessage) {
+            if ( errorMessage ) {
+                _kaartUsername.text = NSLocalizedString(@"<unknown>",@"unknown user name");
+            } else {
+                _kaartUsername.text = appDelegate.kaartUserName;
+            }
+
+            [self.tableView reloadData];
+        }];
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated
