@@ -718,7 +718,7 @@ static double metersApart( double lat1, double lon1, double lat2, double lon2 )
     NSError *error;
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&error];
     if (error) {
-        NSLog(@"Error reading JSON file: %@", error.localizedDescription);
+        NSLog(@"Error reading JSON/GEOJSON file: %@", error.localizedDescription);
         return;
     }
 

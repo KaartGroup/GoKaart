@@ -1078,7 +1078,7 @@ static inline ViewOverlayMask OverlaysFor(MapViewState state, ViewOverlayMask ma
         NSString *filePath = [fileURL path];
         
         // Handle file based on file type
-        if ([[filePath pathExtension] isEqualToString:@"json"]) {
+        if ([filePath isEqualToString:@"json"] || [filePath isEqualToString:@"geojson"]) {
             NSData *jsonData = [NSData dataWithContentsOfFile:filePath];
             
             if (jsonData != nil) {
@@ -1103,7 +1103,7 @@ static inline ViewOverlayMask OverlaysFor(MapViewState state, ViewOverlayMask ma
 }
 
 - (void)downloadTrack {
-    UIDocumentPickerViewController *documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[@"public.json", @"public.xml"] inMode:UIDocumentPickerModeImport];
+    UIDocumentPickerViewController *documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:@[@"public.json", @"public.geojson", @"public.xml"] inMode:UIDocumentPickerModeImport];
     documentPicker.delegate = self;
     documentPicker.modalPresentationStyle = UIModalPresentationFormSheet;
     documentPicker.allowsMultipleSelection = YES;
@@ -1126,7 +1126,7 @@ static inline ViewOverlayMask OverlaysFor(MapViewState state, ViewOverlayMask ma
 
 - (void)showInvalidFileTypeAlert {
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"File Type Error"
-    message:@"Invalid file type. Only JSON and GPX files are supported."
+    message:@"Invalid file type. Only JSON, GEOJSON, and GPX files are supported."
     preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
     [alertController addAction:okAction];
