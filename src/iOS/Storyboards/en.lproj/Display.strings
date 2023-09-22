@@ -59,8 +59,8 @@
 /* Class = "UILabel"; text = "Power Features"; ObjectID = "Idx-2G-6F7"; */
 "Idx-2G-6F7.text" = "Power Features";
 
-/* Class = "UILabel"; text = "Paths"; ObjectID = "Jz1-GP-Wbe"; */
-"Jz1-GP-Wbe.text" = "Paths";
+/* Class = "UILabel"; text = "Pedestrian"; ObjectID = "Jz1-GP-Wbe"; */
+"Jz1-GP-Wbe.text" = "Pedestrian";
 
 /* Class = "UILabel"; text = "Enable Filters"; ObjectID = "LxX-tl-ZLH"; */
 "LxX-tl-ZLH.text" = "Enable Filters";

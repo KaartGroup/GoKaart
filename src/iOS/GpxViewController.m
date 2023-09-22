@@ -85,6 +85,19 @@
 @implementation GpxTrackExpirationCell
 @end
 
+@interface GpxTrackDownloadCell : UITableViewCell
+@property (assign,nonatomic)    IBOutlet    UIButton *    downloadButton;
+@property (strong,nonatomic) MapView *mapView;
+@end
+@implementation GpxTrackDownloadCell
+- (IBAction)downloadTrackButtonPressed:(id)sender {
+    //NSLog(@"Select file.");
+    if (self.mapView) {
+        [self.mapView downloadTrack];
+    }
+}
+@end
+
 
 @implementation GpxViewController
 
@@ -171,7 +184,7 @@
         return appDelegate.mapView.gpxLayer.previousTracks.count;
     } else if ( section == SECTION_CONFIGURE ) {
         // configuration
-        return 2;
+        return 3;
     } else {
         return 0;
     }
@@ -214,6 +227,13 @@
     if ( indexPath.section == SECTION_CONFIGURE ) {
         // configuration section
         if ( indexPath.row == 0 ) {
+            // enable background use
+            GpxTrackBackgroundCollection * cell = [tableView dequeueReusableCellWithIdentifier:@"GpxTrackBackgroundCollection" forIndexPath:indexPath];
+            [cell.enableBackground setOn:mapView.gpsInBackground];
+            return cell;
+        }
+        
+        else if ( indexPath.row == 1 ) {
             // days before deleting
             GpxTrackExpirationCell * cell = [tableView dequeueReusableCellWithIdentifier:@"GpxTrackExpirationCell" forIndexPath:indexPath];
             NSNumber * expirationDays = [[NSUserDefaults standardUserDefaults] objectForKey:USER_DEFAULTS_GPX_EXPIRATIION_KEY];
@@ -222,10 +242,12 @@
             [cell.expirationButton setTitle:title forState:UIControlStateNormal];
             [cell.expirationButton sizeToFit];
             return cell;
-        } else {
-            // enable background use
-            GpxTrackBackgroundCollection * cell = [tableView dequeueReusableCellWithIdentifier:@"GpxTrackBackgroundCollection" forIndexPath:indexPath];
-            [cell.enableBackground setOn:mapView.gpsInBackground];
+        }
+        
+        else {
+            // download track
+            GpxTrackDownloadCell * cell = [tableView dequeueReusableCellWithIdentifier:@"GpxTrackDownloadCell" forIndexPath:indexPath];
+            cell.mapView = mapView;
             return cell;
         }
     }

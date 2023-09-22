@@ -52,6 +52,9 @@
     // read name/password from keychain
     self.userName        = [KeyChain getStringForIdentifier:@"username"];
     self.userPassword    = [KeyChain getStringForIdentifier:@"password"];
+    
+    self.kaartUserName   = [KeyChain getStringForIdentifier:@"kaartUsername"];
+    self.kaartPassword   = [KeyChain getStringForIdentifier:@"kaartPassword"];
 
     [self removePlaintextCredentialsFromUserDefaults];
 
@@ -81,6 +84,9 @@
 - (void)removePlaintextCredentialsFromUserDefaults {
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"username"];
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"password"];
+    
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"kaartUsername"];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"kaartPassword"];
 }
 
 -(void)setMapLocation:(MapLocation *)location

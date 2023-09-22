@@ -22,6 +22,8 @@
 
 @property (strong,nonatomic)    NSString            *    userName;
 @property (strong,nonatomic)    NSString            *    userPassword;
+@property (strong,nonatomic)    NSString            *    kaartUserName;
+@property (strong,nonatomic)    NSString            *    kaartPassword;
 
 @property (readonly,nonatomic)    BOOL                    isAppUpgrade;
 

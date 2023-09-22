@@ -1688,6 +1688,73 @@ static NSDictionary * DictWithTagsTruncatedTo255( NSDictionary * tags )
     }];
 }
 
+- (void)verifyKaartCredentialsWithCompletion:(void(^)(NSString * errorMessage))completion
+{
+    AppDelegate * appDelegate = AppDelegate.shared;
+
+    self.credentialsUserName = appDelegate.kaartUserName;
+    self.credentialsPassword = appDelegate.kaartPassword;
+
+    // Construct the URL for kaart.com's login endpoint
+    NSString *urlString = @"https://my.kaart.com/api/auth/login";
+    NSURL *url = [NSURL URLWithString:urlString];
+        
+    // Create a URL session configuration
+    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
+        
+    // Create a request and set its method to POST
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"POST"];
+        
+    // Create a dictionary with the login parameters
+    NSDictionary *params = @{
+        @"email": _credentialsUserName,
+        @"password": _credentialsPassword
+    };
+    
+    // Set the request's Content-Type header to application/json
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+        
+    // Convert the parameters to JSON
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:params options:0 error:nil];
+        
+    // Set the JSON data as the request body
+    [request setHTTPBody:jsonData];
+        
+    // Create a data task to perform the request
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{    // Perform UI-related operations on the main thread
+            if (error) {
+                NSLog(@"Error: %@", error.localizedDescription);
+                // Log the HTTP status code if available
+                NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+                if (httpResponse && [httpResponse isKindOfClass:[NSHTTPURLResponse class]]) {
+                    NSLog(@"HTTP Status Code: %ld", (long)httpResponse.statusCode);
+                }
+                completion(error.localizedDescription);
+                return;
+            }
+            
+            // Process the response data (assuming JSON response)
+            NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+            //NSLog(@"Response Dictionary: %@", responseDict);
+            
+            // Check if the login was successful based on the HTTP status code
+            NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+            if (statusCode == 200) {
+                NSDictionary *result = responseDict[@"result"];
+                NSLog(@"LOGIN SUCCESSFUL for user: %@", result[@"email"]);
+                completion(nil);
+            } else {
+                NSLog(@"LOGIN FAILED with status code: %ld", (long)statusCode);
+                completion(@"Login failed");
+            }
+        });
+    }];
+    
+    [task resume];
+}
 
 
 #pragma mark Pretty print changeset

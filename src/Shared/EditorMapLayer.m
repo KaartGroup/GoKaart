@@ -83,9 +83,11 @@ static const CGFloat NodeHighlightRadius = 6.0;
             @"editor.showLevel" : @NO,
             @"editor.showLevelRange" : @"",
             @"editor.showPoints" : @YES,
+            @"editor.showBarriers" : @YES,
             @"editor.showTrafficRoads" : @YES,
             @"editor.showServiceRoads" : @YES,
-            @"editor.showPaths" : @YES,
+            @"editor.showPedestrian" : @YES,
+            @"editor.showConstructionRoads" : @YES,
             @"editor.showBuildings" : @YES,
             @"editor.showLanduse" : @YES,
             @"editor.showBoundaries" : @YES,
@@ -101,9 +103,11 @@ static const CGFloat NodeHighlightRadius = 6.0;
         _showLevel                = [defaults boolForKey:@"editor.showLevel"];
         _showLevelRange         = [defaults objectForKey:@"editor.showLevelRange"];
         _showPoints                = [defaults boolForKey:@"editor.showPoints"];
+        _showBarriers            = [defaults boolForKey:@"editor.showBarriers"];
         _showTrafficRoads        = [defaults boolForKey:@"editor.showTrafficRoads"];
         _showServiceRoads        = [defaults boolForKey:@"editor.showServiceRoads"];
-        _showPaths                 = [defaults boolForKey:@"editor.showPaths"];
+        _showPedestrian          = [defaults boolForKey:@"editor.showPedestrian"];
+        _showConstructionRoads        = [defaults boolForKey:@"editor.showConstructionRoads"];
         _showBuildings             = [defaults boolForKey:@"editor.showBuildings"];
         _showLanduse             = [defaults boolForKey:@"editor.showLanduse"];
         _showBoundaries         = [defaults boolForKey:@"editor.showBoundaries"];
@@ -228,9 +232,11 @@ static const CGFloat NodeHighlightRadius = 6.0;
 }
 SET_FILTER(Level)
 SET_FILTER(Points)
+SET_FILTER(Barriers)
 SET_FILTER(TrafficRoads)
 SET_FILTER(ServiceRoads)
-SET_FILTER(Paths)
+SET_FILTER(Pedestrian)
+SET_FILTER(ConstructionRoads)
 SET_FILTER(Buildings)
 SET_FILTER(Landuse)
 SET_FILTER(Boundaries)
@@ -2036,7 +2042,7 @@ const static CGFloat Z_HIGHLIGHT_ARROW    = Z_BASE + 14 * ZSCALE;
 {
 #if TARGET_OS_IPHONE
     BOOL (^predLevel)(OsmBaseObject *) = nil;
-
+    
     if ( _showLevel ) {
         // set level predicate dynamically since it depends on the the text range
         NSArray * levelFilter = [FilterObjectsViewController levelsForString:self.showLevelRange];
@@ -2096,67 +2102,92 @@ const static CGFloat Z_HIGHLIGHT_ARROW    = Z_BASE + 14 * ZSCALE;
         }
     }
     
-    static NSDictionary *traffic_roads, *service_roads, *paths, *past_futures, *parking_buildings, *natural_water, *landuse_water;
+    static NSDictionary *barriers, *traffic_roads, *service_roads, *pedestrian, *construction_roads, *past_futures, *parking_buildings, *natural_water, *landuse_water;
     if ( traffic_roads == nil ) {
+        barriers = @{
+            @"gate": @YES,
+            @"lift_gate": @YES,
+            @"swing_gate": @YES,
+            @"sliding_gate": @YES,
+            @"bollard": @YES,
+            @"block": @YES,
+            @"chain": @YES,
+            @"spikes": @YES,
+            @"jersey_barrier": @YES,
+            @"cycle_barrier": @YES,
+            @"toll_booth": @YES,
+            @"border_control": @YES,
+            @"checkpoint": @YES,
+            @"height_restrictor": @YES,
+            @"debris": @YES,
+            @"yes": @YES
+        };
         traffic_roads = @{
-             @"motorway": @YES,
-             @"motorway_link": @YES,
-             @"trunk": @YES,
-             @"trunk_link": @YES,
-             @"primary": @YES,
-             @"primary_link": @YES,
-             @"secondary": @YES,
-             @"secondary_link": @YES,
-             @"tertiary": @YES,
-             @"tertiary_link": @YES,
-             @"residential": @YES,
-             @"unclassified": @YES,
-             @"living_street": @YES
-             };
+            @"motorway": @YES,
+            @"motorway_link": @YES,
+            @"trunk": @YES,
+            @"trunk_link": @YES,
+            @"primary": @YES,
+            @"primary_link": @YES,
+            @"secondary": @YES,
+            @"secondary_link": @YES,
+            @"tertiary": @YES,
+            @"tertiary_link": @YES,
+            @"residential": @YES,
+            @"unclassified": @YES,
+            @"living_street": @YES
+        };
         service_roads = @{
-             @"service": @YES,
-             @"road": @YES,
-             @"track": @YES
-             };
-        paths = @{
-              @"path": @YES,
-              @"footway": @YES,
-              @"cycleway": @YES,
-              @"bridleway": @YES,
-              @"steps": @YES,
-              @"pedestrian": @YES,
-              @"corridor": @YES
-              };
+            @"service": @YES,
+            @"busway": @YES,
+            @"road": @YES,
+            @"track": @YES
+        };
+        pedestrian = @{
+            @"path": @YES,
+            @"footway": @YES,
+            @"cycleway": @YES,
+            @"bridleway": @YES,
+            @"steps": @YES,
+            @"pedestrian": @YES,
+            @"corridor": @YES
+        };
+        construction_roads = @{
+            @"construction": @YES
+        };
         past_futures = @{
-                @"proposed": @YES,
-                @"construction": @YES,
-                @"abandoned": @YES,
-                @"dismantled": @YES,
-                @"disused": @YES,
-                @"razed": @YES,
-                @"demolished": @YES,
-                @"obliterated": @YES
-                };
+            @"proposed": @YES,
+            @"construction": @YES,
+            @"abandoned": @YES,
+            @"dismantled": @YES,
+            @"disused": @YES,
+            @"razed": @YES,
+            @"demolished": @YES,
+            @"obliterated": @YES
+        };
         parking_buildings = @{
-               @"multi-storey" : @YES,
-               @"sheds" : @YES,
-               @"carports" : @YES,
-               @"garage_boxes" : @YES
-               };
+            @"multi-storey" : @YES,
+            @"sheds" : @YES,
+            @"carports" : @YES,
+            @"garage_boxes" : @YES
+        };
         natural_water = @{
-              @"water" : @YES,
-              @"coastline" : @YES,
-              @"bay" : @YES
-              };
+            @"water" : @YES,
+            @"coastline" : @YES,
+            @"bay" : @YES
+        };
         landuse_water = @{
-              @"pond": @YES,
-              @"basin" : @YES,
-              @"reservoir" : @YES,
-              @"salt_pond" : @YES
-              };
+            @"pond": @YES,
+            @"basin" : @YES,
+            @"reservoir" : @YES,
+            @"salt_pond" : @YES
+        };
     }
     static BOOL (^predPoints)(OsmBaseObject *) = ^BOOL(OsmBaseObject * object) {
         return object.isNode && object.isNode.wayCount == 0;
+    };
+    static BOOL (^predBarriers)(OsmBaseObject *) = ^BOOL(OsmBaseObject * object) {
+        return object.isNode && barriers[ object.tags[@"barrier"] ];
     };
     static BOOL (^predTrafficRoads)(OsmBaseObject *) = ^BOOL(OsmBaseObject * object) {
         return object.isWay && traffic_roads[ object.tags[@"highway"] ];
@@ -2164,21 +2195,24 @@ const static CGFloat Z_HIGHLIGHT_ARROW    = Z_BASE + 14 * ZSCALE;
     static BOOL (^predServiceRoads)(OsmBaseObject *) = ^BOOL(OsmBaseObject * object) {
         return object.isWay && service_roads[ object.tags[@"highway"] ];
     };
-    static BOOL (^predPaths)(OsmBaseObject *) = ^BOOL(OsmBaseObject * object) {
-        return object.isWay && paths[ object.tags[@"highway"] ];
+    static BOOL (^predPedestrian)(OsmBaseObject *) = ^BOOL(OsmBaseObject * object) {
+        return object.isWay && !object.tags[@"area"] && pedestrian[ object.tags[@"highway"] ];
+    };
+    static BOOL (^predConstructionRoads)(OsmBaseObject *) = ^BOOL(OsmBaseObject * object) {
+        return object.isWay && !object.tags[@"area"] && construction_roads[ object.tags[@"highway"] ];
     };
     static BOOL (^predBuildings)(OsmBaseObject *) = ^BOOL(OsmBaseObject * object) {
         NSString * v;
         return object.tags[ @"building:part" ] ||
-                ((v = object.tags[@"building"]) && ![v isEqualToString:@"no"]) ||
-                [object.tags[@"amenity"] isEqualToString:@"shelter"] ||
-                parking_buildings[ object.tags[@"parking"] ];
+        ((v = object.tags[@"building"]) && ![v isEqualToString:@"no"]) ||
+        [object.tags[@"amenity"] isEqualToString:@"shelter"] ||
+        parking_buildings[ object.tags[@"parking"] ];
     };
     static BOOL (^predWater)(OsmBaseObject *) = ^BOOL(OsmBaseObject * object) {
         return object.tags[@"waterway"] ||
-                natural_water[ object.tags[@"natural"] ] ||
-                landuse_water[ object.tags[@"landuse"] ];
-
+        natural_water[ object.tags[@"natural"] ] ||
+        landuse_water[ object.tags[@"landuse"] ];
+        
     };
     static BOOL (^predLanduse)(OsmBaseObject *) = ^BOOL(OsmBaseObject * object) {
         return (object.isWay.isArea || object.isRelation.isMultipolygon) && !predBuildings(object) && !predWater(object);
@@ -2186,14 +2220,14 @@ const static CGFloat Z_HIGHLIGHT_ARROW    = Z_BASE + 14 * ZSCALE;
     static BOOL (^predBoundaries)(OsmBaseObject *) = ^BOOL(OsmBaseObject * object) {
         if ( object.tags[ @"boundary" ] ) {
             NSString * highway = object.tags[ @"highway" ];
-            return !( traffic_roads[highway] || service_roads[highway] || paths[highway] );
+            return !( traffic_roads[highway] || service_roads[highway] || pedestrian[highway] || construction_roads[highway] );
         }
         return NO;
     };
     static BOOL (^predRail)(OsmBaseObject *) = ^BOOL(OsmBaseObject * object) {
         if ( object.tags[ @"railway" ] || [object.tags[ @"landuse" ] isEqualToString:@"railway"] ) {
             NSString * highway = object.tags[ @"highway" ];
-            return !( traffic_roads[highway] || service_roads[highway] || paths[highway] );
+            return !( traffic_roads[highway] || service_roads[highway] || pedestrian[highway] || construction_roads[highway] );
         }
         return NO;
     };
@@ -2203,7 +2237,7 @@ const static CGFloat Z_HIGHLIGHT_ARROW    = Z_BASE + 14 * ZSCALE;
     static BOOL (^predPastFuture)(OsmBaseObject *) = ^BOOL(OsmBaseObject * object) {
         // contains a past/future tag, but not in active use as a road/path/cycleway/etc..
         NSString * highway = object.tags[ @"highway" ];
-        if ( traffic_roads[highway] || service_roads[highway] || paths[highway] )
+        if ( traffic_roads[highway] || service_roads[highway] || pedestrian[highway] || construction_roads[highway] )
             return NO;
         __block BOOL ok = NO;
         [object.tags enumerateKeysAndObjectsUsingBlock:^(NSString * key, NSString * value, BOOL * stop) {
@@ -2227,9 +2261,11 @@ const static CGFloat Z_HIGHLIGHT_ARROW    = Z_BASE + 14 * ZSCALE;
             matchAny |= match; \
         }
         MATCH(Points);
+        MATCH(Barriers);
         MATCH(TrafficRoads);
         MATCH(ServiceRoads);
-        MATCH(Paths);
+        MATCH(Pedestrian);
+        MATCH(ConstructionRoads);
         MATCH(PastFuture);
         MATCH(Buildings);
         MATCH(Landuse);

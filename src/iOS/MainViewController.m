@@ -65,6 +65,7 @@
     [super viewDidLoad];
     
     self.mapView.mainViewController = self;
+    //[self.mapView addCityLimit:@"DallasCityLimits"];
     
     AppDelegate * delegate = AppDelegate.shared;
     delegate.mapView = self.mapView;

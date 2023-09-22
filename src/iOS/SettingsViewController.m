@@ -21,7 +21,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
+
     self.tableView.estimatedRowHeight = 44.0;
     self.tableView.rowHeight = UITableViewAutomaticDimension;
 }
@@ -41,6 +41,8 @@
     AppDelegate * appDelegate = AppDelegate.shared;
 
     _username.text = @"";
+    _kaartUsername.text = @"";
+    
     if ( appDelegate.userName.length > 0 ) {
         [appDelegate.mapView.editorLayer.mapData verifyUserCredentialsWithCompletion:^(NSString * errorMessage) {
             if ( errorMessage ) {
@@ -49,6 +51,18 @@
                 _username.text = appDelegate.userName;
             }
             
+            [self.tableView reloadData];
+        }];
+    }
+    
+    if ( appDelegate.kaartUserName.length > 0 ) {
+        [appDelegate.mapView.editorLayer.mapData verifyKaartCredentialsWithCompletion:^(NSString * errorMessage) {
+            if ( errorMessage ) {
+                _kaartUsername.text = NSLocalizedString(@"<unknown>",@"unknown user name");
+            } else {
+                _kaartUsername.text = appDelegate.kaartUserName;
+            }
+
             [self.tableView reloadData];
         }];
     }

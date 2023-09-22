@@ -104,7 +104,7 @@
     "lineWidth" : 1
   },
   "highway/cycleway" : {
-    "lineColor" : "B100FF",
+    "lineColor" : "008080",
     "lineWidth" : 1
   },
   "highway/emergency_access_point" : {

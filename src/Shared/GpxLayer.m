@@ -712,6 +712,47 @@ static double metersApart( double lat1, double lon1, double lat2, double lon2 )
     return YES;
 }
 
+- (void)importGPXFromJSON:(NSString *)filePath {
+    NSData *jsonData = [NSData dataWithContentsOfFile:filePath];
+
+    NSError *error;
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&error];
+    if (error) {
+        NSLog(@"Error reading JSON/GEOJSON file: %@", error.localizedDescription);
+        return;
+    }
+
+    NSArray *features = json[@"features"];
+    for (NSDictionary *feature in features) {
+        NSDictionary *geometry = feature[@"geometry"];
+        if ([geometry[@"type"] isEqualToString:@"Polygon"]) {
+            NSArray *polygon = geometry[@"coordinates"][0];
+            NSMutableString *gpx = [NSMutableString string];
+            [gpx appendString:@"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n"];
+            [gpx appendString:@"<gpx version=\"1.1\" creator=\"Your Application\">\n"];
+            [gpx appendString:@"<trk>\n"];
+            [gpx appendString:@"<trkseg>\n"];
+            for (NSArray *point in polygon) {
+                CLLocationDegrees longitude = [point[0] doubleValue];
+                CLLocationDegrees latitude = [point[1] doubleValue];
+                CLLocation *location = [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
+                [gpx appendString:@"<trkpt lat=\""];
+                [gpx appendFormat:@"%f", location.coordinate.latitude];
+                [gpx appendString:@"\" lon=\""];
+                [gpx appendFormat:@"%f", location.coordinate.longitude];
+                [gpx appendString:@"\">\n"];
+                [gpx appendString:@"</trkpt>\n"];
+            }
+            [gpx appendString:@"</trkseg>\n"];
+            [gpx appendString:@"</trk>\n"];
+            [gpx appendString:@"</gpx>\n"];
+            NSData *gpxData = [gpx dataUsingEncoding:NSUTF8StringEncoding];
+            [self loadGPXData:gpxData center:YES];
+        }
+    }
+}
+
+
 #pragma mark Drawing
 
 

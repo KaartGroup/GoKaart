@@ -145,6 +145,7 @@ typedef OsmNode   * (^EditActionReturnNode)(void);
 - (void)uploadChangesetWithComment:(NSString *)comment source:(NSString *)source imagery:(NSString *)imagery completion:(void(^)(NSString * error))completion;
 - (void)uploadChangesetXml:(NSXMLDocument *)xmlDoc comment:(NSString *)comment source:(NSString *)source imagery:(NSString *)imagery completion:(void(^)(NSString * error))completion;
 - (void)verifyUserCredentialsWithCompletion:(void(^)(NSString * errorMessage))completion;
+- (void)verifyKaartCredentialsWithCompletion:(void(^)(NSString * errorMessage))completion;
 - (void)putRequest:(NSString *)url method:(NSString *)method xml:(NSXMLDocument *)xml completion:(void(^)(NSData * data,NSString * error))completion;
 +(NSString *)encodeBase64:(NSString *)plainText;
 
