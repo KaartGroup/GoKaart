@@ -69,6 +69,18 @@
     AppDelegate * delegate = AppDelegate.shared;
     delegate.mapView = self.mapView;
     
+    // Initialize location and heading managers
+    self.locationManager = [[CLLocationManager alloc] init];
+    self.locationManager.delegate = self;
+    self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    self.locationManager.distanceFilter = kCLDistanceFilterNone;
+    [self.locationManager requestWhenInUseAuthorization];
+    
+    self.headingManager = [[CLLocationManager alloc] init];
+    self.headingManager.delegate = self;
+    [self.headingManager requestWhenInUseAuthorization];
+    self.headingCaptured = NO;
+    
     // undo/redo buttons
     [self updateUndoRedoButtonState];
     [self updateUploadButtonState];
@@ -576,11 +588,34 @@ API_AVAILABLE(ios(13.0)) API_AVAILABLE(ios(13.0)){
     }
 }
 
-// Camera Feature
+#pragma mark - Camera Feature
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
+    // Capture the latest location and heading
+    self.currentLocation = [locations lastObject];
+    
+    if (!self.headingCaptured) {
+            NSLog(@"Heading: %f", manager.heading.trueHeading);
+            self.currentHeading = manager.heading.trueHeading;
+            self.headingCaptured = YES;
+        }
+
+    // Stop updating location to save battery
+    [self.locationManager stopUpdatingLocation];
+    [self.locationManager stopUpdatingHeading];
+}
+
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
+    NSLog(@"Location update failed with error: %@", [error localizedDescription]);
+}
+
 - (IBAction)takePhoto:(UIButton *)sender {
     if([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
         NSArray *media = [UIImagePickerController
                           availableMediaTypesForSourceType: UIImagePickerControllerSourceTypeCamera];
+        
+        [self.locationManager startUpdatingLocation];
+        [self.locationManager startUpdatingHeading];
         
         if ([media containsObject:(NSString*)kUTTypeImage] == YES) {
             UIImagePickerController *picker = [[UIImagePickerController alloc] init];
@@ -676,42 +711,144 @@ API_AVAILABLE(ios(13.0)) API_AVAILABLE(ios(13.0)){
 
 - (void)uploadPhotoToDigitalOcean:(UIImage *)photo {
     // Configure AWS credentials
-    AWSStaticCredentialsProvider *credentialsProvider = [[AWSStaticCredentialsProvider alloc] initWithAccessKey:@"ACCESS_KEY"
-        secretKey:@"SECRET_KEY"];
+    AWSStaticCredentialsProvider *credentialsProvider = [[AWSStaticCredentialsProvider alloc] 
+        initWithAccessKey:@"DO00RGXKJWU7NCRZVNEZ"
+                secretKey:@"UycuhwDSY4zObDkouDLmGNDIO4U8DJV2XgbcBK59GoU"];
     
     // Configure AWS service configuration
     AWSEndpoint *endpoint = [[AWSEndpoint alloc] initWithURL:[NSURL URLWithString:@"https://sfo3.digitaloceanspaces.com"]];
-    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] initWithRegion:AWSRegionUSWest2
-                                                                                    endpoint:endpoint
-                                                                         credentialsProvider:credentialsProvider];
+    AWSServiceConfiguration *configuration = [[AWSServiceConfiguration alloc] 
+             initWithRegion:AWSRegionUSWest2
+                   endpoint:endpoint
+        credentialsProvider:credentialsProvider];
 
     [AWSS3TransferUtility registerS3TransferUtilityWithConfiguration:configuration forKey:@"com.kaart.GoKaart.transferutility"];
     
-    // Generate a unique file name
-    NSString *fileName = [NSString stringWithFormat:@"GoKaart/photo-%@", [NSUUID UUID].UUIDString];
+    // Generate a unique file name based on date and time
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyyMMdd_HHmmss"];
+    NSString *currentDateTime = [dateFormatter stringFromDate:[NSDate date]];
+    
+    NSString *photoFileName = [NSString stringWithFormat:@"GoKaart/%@.jpeg", currentDateTime];
+    NSString *jsonFileName = [NSString stringWithFormat:@"GoKaart/%@.json", currentDateTime];
+    
+    NSDictionary *photoDict = @{
+        @"cloud_path": photoFileName,
+        @"latitude": @(self.currentLocation.coordinate.latitude),
+        @"longitude": @(self.currentLocation.coordinate.longitude),
+        @"heading": @(self.currentHeading)
+    };
+    
+    NSLog(@"Photo Dictionary: %@", photoDict);
+    
+    NSError *jsonError;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:photoDict options:NSJSONWritingPrettyPrinted error:&jsonError];
+    if (jsonError) {
+        NSLog(@"Error creating JSON data: %@", jsonError);
+        return;
+    }
     
     // Convert the photo to data
     NSData *photoData = UIImageJPEGRepresentation(photo, 1.0);
     
-    // Start the upload
-    AWSS3TransferUtilityUploadExpression *expression = [AWSS3TransferUtilityUploadExpression new];
+    // Flag to track whether uploads are completed
+    __block BOOL photoUploadCompleted = NO;
+    __block BOOL jsonUploadCompleted = NO;
+    
     AWSS3TransferUtility *transferUtility = [AWSS3TransferUtility S3TransferUtilityForKey:@"com.kaart.GoKaart.transferutility"];
     
+    // JSON upload
+    AWSS3TransferUtilityUploadExpression *jsonExpression = [AWSS3TransferUtilityUploadExpression new];
+        
+    [[transferUtility uploadData:jsonData
+                          bucket:@"kaart"
+                             key:jsonFileName
+                     contentType:@"application/json"
+                      expression:jsonExpression
+               completionHandler:^(AWSS3TransferUtilityUploadTask * _Nonnull task, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"Error uploading JSON to DigitalOcean: %@", error);
+        } else {
+            NSLog(@"JSON uploaded successfully!");
+            jsonUploadCompleted = YES;
+        }
+    }] continueWithBlock:^id(AWSTask *task) {
+        return nil;
+    }];
+    
+    // Photo upload
+    AWSS3TransferUtilityUploadExpression *expression = [AWSS3TransferUtilityUploadExpression new];
+    
     [[transferUtility uploadData:photoData
-                          bucket:@"BUCKET_NAME"
-                             key:fileName
+                          bucket:@"kaart"
+                             key:photoFileName
                      contentType:@"image/jpeg"
                       expression:expression
                completionHandler:^(AWSS3TransferUtilityUploadTask * _Nonnull task, NSError * _Nullable error) {
         if (error) {
-            NSLog(@"Error uploading photo to DigitalOcean Spaces: %@", error);
+            NSLog(@"Error uploading photo to DigitalOcean: %@", error);
         } else {
             NSLog(@"Photo uploaded successfully!");
+            photoUploadCompleted = YES;
+            
+            // Alert the user of successful upload
+            dispatch_async(dispatch_get_main_queue(), ^{
+                UIAlertController *successAlert = [UIAlertController alertControllerWithTitle:@"Success"
+                message:@"Photo uploaded successfully!"
+                preferredStyle:UIAlertControllerStyleAlert];
+
+                UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+                [successAlert addAction:okAction];
+
+                [self presentViewController:successAlert animated:YES completion:nil];
+            });
+            
+            //if (photoUploadCompleted && jsonUploadCompleted) {
+                //[self transferPhotoToViewer:photoDict];
+            //}
         }
     }] continueWithBlock:^id(AWSTask *task) {
-        // Display alert confirmation
         return nil;
     }];
+}
+
+- (void)transferPhotoToViewer:(NSDictionary *)photoDict {
+    // Construct the URL for the API endpoint
+    NSString *apiEndpoint = @"https://viewer.kaart.com/api/upload/add_single_image";
+    NSURL *url = [NSURL URLWithString:apiEndpoint];
+    
+    // Convert the photoDict to JSON
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:photoDict options:0 error:nil];
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    request.HTTPMethod = @"POST";
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    request.HTTPBody = jsonData;
+
+    // Create a session and send the request
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"Error sending POST request: %@", error);
+        } else {
+            if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+                NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+                NSLog(@"Response status code: %ld", (long)httpResponse.statusCode);
+                
+                if (data) {
+                    NSError *jsonError;
+                    NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
+                    if (jsonError) {
+                        NSLog(@"Error parsing JSON response: %@", jsonError);
+                    } else {
+                        NSLog(@"Response: %@", responseDict);
+                    }
+                }
+            }
+        }
+    }];
+    
+    [dataTask resume];
 }
 
 - (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo: (void *)contextInfo

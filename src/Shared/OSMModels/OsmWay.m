@@ -243,6 +243,18 @@
     return YES;
 }
 
+-(BOOL)needsNarrowHighlight
+{
+    NSString * highway = _tags[@"highway"];
+    if ( highway == nil )
+        return NO;
+    if ( [_tags[@"motorcar"] isEqualToString:@"no"] )
+        return YES;
+    if ( [_tags[@"motor_vehicle"] isEqualToString:@"no"] )
+        return YES;
+    return NO;
+}
+
 -(double)wayArea
 {
     assert(NO);

@@ -1271,6 +1271,26 @@ const static CGFloat Z_HIGHLIGHT_ARROW    = Z_BASE + 14 * ZSCALE;
 
                     [layers addObject:haloLayer];
                 }
+                
+                // provide a halo for streets that are narrow
+                if ( _mapView.enableUnnamedRoadHalo && (object.isWay.needsNarrowHighlight)) {
+                    // it has motorcar or motor_vehicle value of "no"
+                    CAShapeLayerWithProperties * haloLayer = [CAShapeLayerWithProperties new];
+                    haloLayer.anchorPoint    = CGPointMake(0, 0);
+                    haloLayer.position        = CGPointFromOSMPoint( refPoint );
+                    haloLayer.path            = path;
+                    haloLayer.strokeColor    = UIColor.yellowColor.CGColor;
+                    haloLayer.fillColor        = nil;
+                    haloLayer.lineWidth        = (2+renderInfo.lineWidth)*_highwayScale;
+                    haloLayer.lineCap        = DEFAULT_LINECAP;
+                    haloLayer.lineJoin        = DEFAULT_LINEJOIN;
+                    haloLayer.zPosition        = Z_HALO;
+                    LayerProperties * haloProps = haloLayer.properties;
+                    haloProps->position = refPoint;
+                    haloProps->lineWidth = haloLayer.lineWidth;
+
+                    [layers addObject:haloLayer];
+                }
 
                 CGPathRelease(path);
             }

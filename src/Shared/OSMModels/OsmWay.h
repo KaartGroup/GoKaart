@@ -36,6 +36,7 @@
 +(CGPathRef)shapePathForNodes:(NSArray *)nodes forward:(BOOL)forward withRefPoint:(OSMPoint *)pRefPoint CF_RETURNS_RETAINED;
 -(BOOL)hasDuplicatedNode;
 -(BOOL)needsNoNameHighlight;
+-(BOOL)needsNarrowHighlight;
 -(OsmNode *)connectsToWay:(OsmWay *)way;
 -(NSInteger)segmentClosestToPoint:(OSMPoint)point;
 @end

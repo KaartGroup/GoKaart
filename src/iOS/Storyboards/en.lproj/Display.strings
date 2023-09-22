@@ -107,8 +107,8 @@
 /* Class = "UINavigationItem"; title = "GPX Tracks"; ObjectID = "Z8C-Ef-iJE"; */
 "Z8C-Ef-iJE.title" = "GPX Tracks";
 
-/* Class = "UILabel"; text = "Unnamed Roads"; ObjectID = "ZP1-qY-kXe"; */
-"ZP1-qY-kXe.text" = "Unnamed Roads";
+/* Class = "UILabel"; text = "Unnamed and Narrow Roads"; ObjectID = "ZP1-qY-kXe"; */
+"ZP1-qY-kXe.text" = "Unnamed and Narrow Roads";
 
 /* Class = "UITableViewSection"; footerTitle = "If specifying a WMS URL you must also provide the projection used"; ObjectID = "Zn9-Sg-9fS"; */
 "Zn9-Sg-9fS.footerTitle" = "If specifying a WMS URL you must also provide the projection used";
