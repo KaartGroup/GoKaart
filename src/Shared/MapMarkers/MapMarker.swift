@@ -44,34 +44,58 @@ class OsmMapMarker {
 		self.latLon = latLon
 	}
 
-	var buttonLabel: String { "?" }
+    struct ButtonStyle {
+        let backgroundColor: UIColor
+        let borderColor: UIColor
+        let borderWidth: CGFloat
+        let size: CGSize
+        
+        init(
+            backgroundColor: UIColor = .blue,
+            borderColor: UIColor = .white,
+            borderWidth: CGFloat = 2.0,
+            size: CGSize = CGSize(width: 34, height: 34)
+        ) {
+            self.backgroundColor = backgroundColor
+            self.borderColor = borderColor
+            self.borderWidth = borderWidth
+            self.size = size
+        }
+    }
+    
+    var buttonStyle: ButtonStyle {
+        return ButtonStyle()
+    }
+    
+    var buttonLabel: String { "?" }
 
-	func makeButton() -> UIButton {
-		let button: MapView.MapViewButton
-		if self is QuestMarker {
-			button = LocationButton(withLabel: buttonLabel)
-		} else {
-			button = MapView.MapViewButton(type: .custom)
-			button.layer.backgroundColor = UIColor.blue.cgColor
-			button.layer.borderColor = UIColor.white.cgColor
-			if buttonLabel.count > 1 {
-				// icon button
-				button.bounds = CGRect(x: 0, y: 0, width: 34, height: 34)
-				button.layer.cornerRadius = button.bounds.width / 2
-				button.setImage(UIImage(named: buttonLabel), for: .normal)
-				button.layer.borderColor = UIColor.white.cgColor
-				button.layer.borderWidth = 2.0
-			} else {
-				// text button
-				button.bounds = CGRect(x: 0, y: 0, width: 20, height: 20)
-				button.layer.cornerRadius = 5
-				button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .headline)
-				button.titleLabel?.textColor = UIColor.white
-				button.titleLabel?.textAlignment = .center
-				button.setTitle(buttonLabel, for: .normal)
-			}
-		}
-		self.button = button
-		return button
-	}
+    func makeButton() -> UIButton {
+        let button: MapView.MapViewButton
+        if self is QuestMarker {
+            button = LocationButton(withLabel: buttonLabel)
+        } else {
+            button = MapView.MapViewButton(type: .custom)
+            let style = buttonStyle
+            
+            button.bounds = CGRect(origin: .zero, size: style.size)
+            button.layer.backgroundColor = style.backgroundColor.cgColor
+            button.layer.borderColor = style.borderColor.cgColor
+            button.layer.borderWidth = style.borderWidth
+            
+            if buttonLabel.count > 1 {
+                // icon button
+                button.layer.cornerRadius = style.size.width / 2
+                button.setImage(UIImage(named: buttonLabel), for: .normal)
+            } else {
+                // text button
+                button.layer.cornerRadius = 5
+                button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .headline)
+                button.titleLabel?.textColor = .white
+                button.titleLabel?.textAlignment = .center
+                button.setTitle(buttonLabel, for: .normal)
+            }
+        }
+        self.button = button
+        return button
+    }
 }

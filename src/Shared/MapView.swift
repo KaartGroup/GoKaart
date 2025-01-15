@@ -132,7 +132,7 @@ private let DisplayLinkPanning = "Panning" // disable gestures inside toolbar bu
 final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActionSheetDelegate,
 	UIGestureRecognizerDelegate, SKStoreProductViewControllerDelegate, DPadDelegate,
 	UISheetPresentationControllerDelegate
-//, EventMarkerPresenting
+, WayPointMarkerSelectionPresenting
 {
 	var lastMouseDragPos = CGPoint.zero
 	var progressActive = AtomicInt(0)
@@ -175,9 +175,9 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 
 	private var editControlActions: [EDIT_ACTION] = []
     
-//    private lazy var eventMarker: EventMarker = {
-//        return EventMarker(owner: self)
-//    }()
+    private lazy var wayPointMarkerHandler: HandleWayPointMarker = {
+        return HandleWayPointMarker(owner: self)
+    }()
     
 
 	let locationManager = CLLocationManager()
@@ -2919,11 +2919,10 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
             if objects.count != 0 {
                 // If there are select the object
                 editorLayer.longPressAtPoint(point)
+            } else {
+                // Otherwise pop menu to add markers
+                wayPointMarkerHandler.selectWayPointMarker(point)
             }
-//             else {
-//                // Otherwise pop menu to add markers
-//                eventMarker.selectMapMarker(point)
-//            }
         }
 	}
 

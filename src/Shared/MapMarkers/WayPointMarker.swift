@@ -37,6 +37,27 @@ enum WayPointType: String {
         }
     }
     
+    var systemImage: String {
+        switch self {
+            case .construction: return "building.2.fill"
+            case .gatedCommunity: return "lock.shield.fill"
+            case .accident: return "exclamationmark.triangle.fill"
+            case .other: return "map.fill"
+            case .standard: return "map.fill"
+        }
+    }
+    
+    var defaultImage: String {
+        // Fallback images for earlier iOS versions
+        switch self {
+            case .construction: return "construction"
+            case .gatedCommunity: return "gated"
+            case .accident: return "warning"
+            case .other: return "map"
+            case .standard: return "map"
+        }
+    }
+    
     static func from(gpxType: String?) -> WayPointType {
         guard let gpxType = gpxType else { return .standard }
         
@@ -92,7 +113,87 @@ final class WayPointMarker: OsmMapMarker {
         return "waypoint-\(type.rawValue)-\(latLon.lat),\(latLon.lon)"
     }
     
+    override var buttonStyle: ButtonStyle {
+        ButtonStyle(
+            backgroundColor: type.color,
+            size: CGSize(width: 20, height: 20)
+        )
+    }
     override var buttonLabel: String {
         return type.buttonLabel
     }
+        
+}
+
+protocol WayPointMarkerSelectionPresenting: AnyObject {
+    func presentAlert(alert: UIAlertController, location: MenuLocation)
+}
+
+final class HandleWayPointMarker {
+    // MARK: - Properties
+   private weak var owner: WayPointMarkerSelectionPresenting?
+   
+   // MARK: - Initialization
+   init(owner: WayPointMarkerSelectionPresenting) {
+       self.owner = owner
+   }
+   
+   // MARK: - Public Methods
+   func selectWayPointMarker(_ point: CGPoint) {
+       let multiSelectSheet = UIAlertController(
+           title: NSLocalizedString("Add Marker", comment: ""),
+           message: nil,
+           preferredStyle: .actionSheet
+       )
+       
+       // Create array of marker types
+       let markerTypes: [WayPointType] = [.construction, .gatedCommunity, .accident, .other]
+       
+       // Create actions in a loop
+       for type in markerTypes {
+           let action = UIAlertAction(
+               title: type.rawValue,
+               style: .default
+           ) { [weak self] _ in
+               self?.addWayPointMarker(type: type, at: point)
+           }
+           
+           if #available(iOS 13.0, *) {
+               action.setValue(UIImage(systemName: type.systemImage), forKey: "image")
+           } else {
+               action.setValue(UIImage(named: type.defaultImage), forKey: "image")
+           }
+           
+           multiSelectSheet.addAction(action)
+       }
+       
+       // Add cancel action
+       multiSelectSheet.addAction(
+           UIAlertAction(
+               title: NSLocalizedString("Cancel", comment: ""),
+               style: .cancel,
+               handler: nil
+           )
+       )
+       
+       let rect = CGRect(
+           x: point.x,
+           y: point.y,
+           width: 0.0,
+           height: 0.0
+       )
+       
+       owner?.presentAlert(
+           alert: multiSelectSheet,
+           location: .rect(rect)
+       )
+   }
+   
+   // MARK: - Private Methods
+   private func addWayPointMarker(type: WayPointType, at point: CGPoint) {
+       // 2. Add to database
+       
+       // 3. Update map display
+       print("Creating \(type.rawValue) marker at point: \(point)")
+   }
 }
