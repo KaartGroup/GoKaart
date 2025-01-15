@@ -132,6 +132,7 @@ private let DisplayLinkPanning = "Panning" // disable gestures inside toolbar bu
 final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActionSheetDelegate,
 	UIGestureRecognizerDelegate, SKStoreProductViewControllerDelegate, DPadDelegate,
 	UISheetPresentationControllerDelegate
+//, EventMarkerPresenting
 {
 	var lastMouseDragPos = CGPoint.zero
 	var progressActive = AtomicInt(0)
@@ -173,6 +174,11 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 	private var magnifyingGlass: MagnifyingGlass!
 
 	private var editControlActions: [EDIT_ACTION] = []
+    
+//    private lazy var eventMarker: EventMarker = {
+//        return EventMarker(owner: self)
+//    }()
+    
 
 	let locationManager = CLLocationManager()
 	private(set) var currentLocation = CLLocation()
@@ -2520,7 +2526,7 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 	}
 
 	// Update the location of the button. Return true if it is on-screen.
-	private func updateButtonPositionForMapMarker(marker: MapMarker, hidden: Bool) -> Bool {
+	private func updateButtonPositionForMapMarker(marker: OsmMapMarker, hidden: Bool) -> Bool {
 		// create buttons that haven't been created
 		guard !hidden else {
 			marker.button?.isHidden = true
@@ -2905,10 +2911,20 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 
 	// long press on map allows selection of various objects near the location
 	@IBAction func screenLongPressGesture(_ longPress: UILongPressGestureRecognizer) {
-		if longPress.state == .began, !editorLayer.isHidden {
-			let point = longPress.location(in: self)
-			editorLayer.longPressAtPoint(point)
-		}
+        if longPress.state == .began, !editorLayer.isHidden {
+            let point = longPress.location(in: self)
+            
+            // Check for OSM objects
+            let objects = editorLayer.osmHitTestMultiple(point, radius: DefaultHitTestRadius)
+            if objects.count != 0 {
+                // If there are select the object
+                editorLayer.longPressAtPoint(point)
+            }
+//             else {
+//                // Otherwise pop menu to add markers
+//                eventMarker.selectMapMarker(point)
+//            }
+        }
 	}
 
 	@IBAction func handleRotationGesture(_ rotationGesture: UIRotationGestureRecognizer) {

@@ -27,7 +27,7 @@ final class OsmNoteComment {
 }
 
 // A regular OSM note
-final class OsmNoteMarker: MapMarker {
+final class OsmNoteMarker: OsmMapMarker {
 	let status: String // open, closed, etc.
 	let noteId: Int64
 	let dateCreated: String

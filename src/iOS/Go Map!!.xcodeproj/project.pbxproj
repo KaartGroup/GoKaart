@@ -127,7 +127,7 @@
 		02CB2406265DB7CB00835F32 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB2402265DB7CB00835F32 /* CameraView.swift */; };
 		02CB2407265DB7CB00835F32 /* LevenshteinDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB2403265DB7CB00835F32 /* LevenshteinDistance.swift */; };
 		02CB2408265DB7CB00835F32 /* HoursRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB2404265DB7CB00835F32 /* HoursRecognizer.swift */; };
-		02CB523429907832007F758D /* QuestMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB523329907832007F758D /* QuestMarker.swift */; };
+		02CB523429907832007F758D /* OsmQuestMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB523329907832007F758D /* OsmQuestMarker.swift */; };
 		02CB52362990801E007F758D /* QuestList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB52352990801E007F758D /* QuestList.swift */; };
 		02CBF3B32BE8529A000DE2AD /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02CBF3B22BE8529A000DE2AD /* WidgetKit.framework */; };
 		02CBF3B52BE8529A000DE2AD /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02CBF3B42BE8529A000DE2AD /* SwiftUI.framework */; };
@@ -451,7 +451,7 @@
 		02CB2402265DB7CB00835F32 /* CameraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		02CB2403265DB7CB00835F32 /* LevenshteinDistance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LevenshteinDistance.swift; sourceTree = "<group>"; };
 		02CB2404265DB7CB00835F32 /* HoursRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HoursRecognizer.swift; sourceTree = "<group>"; };
-		02CB523329907832007F758D /* QuestMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestMarker.swift; sourceTree = "<group>"; };
+		02CB523329907832007F758D /* OsmQuestMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OsmQuestMarker.swift; sourceTree = "<group>"; };
 		02CB52352990801E007F758D /* QuestList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestList.swift; sourceTree = "<group>"; };
 		02CB523D299097C3007F758D /* QuestSolver.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = QuestSolver.storyboard; sourceTree = "<group>"; };
 		02CB523E299097C3007F758D /* QuestSolverController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestSolverController.swift; sourceTree = "<group>"; };
@@ -895,7 +895,7 @@
 				02034742266C2CB9000A7C3D /* MapMarkerDatabase.swift */,
 				0293FEB0299D5C78002EED90 /* MapMarkerIgnoreList.swift */,
 				02C8C56626F44728003B0122 /* OsmNoteMarker.swift */,
-				02CB523329907832007F758D /* QuestMarker.swift */,
+				02CB523329907832007F758D /* OsmQuestMarker.swift */,
 				02C8C56C26F4479A003B0122 /* WayPointMarker.swift */,
 			);
 			name = MapMarkers;
@@ -1568,7 +1568,7 @@
 				02F3F8432B96CDA600ECB99F /* MapLibreVectorTilesView.swift in Sources */,
 				02034743266C2CB9000A7C3D /* MapMarkerDatabase.swift in Sources */,
 				C3FA9249263FF95B000A2A99 /* LocationParser.swift in Sources */,
-				02CB523429907832007F758D /* QuestMarker.swift in Sources */,
+				02CB523429907832007F758D /* OsmQuestMarker.swift in Sources */,
 				ED56E5EB26028B5F000B368C /* GpxConfigureViewController.swift in Sources */,
 				02EA1C6C2663398C00A0F827 /* TileQuadKey.swift in Sources */,
 				021FADD725873D0100F6E1C0 /* PresetsForFeature.swift in Sources */,

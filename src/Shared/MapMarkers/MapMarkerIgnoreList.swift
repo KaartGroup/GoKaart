@@ -15,8 +15,8 @@ enum IgnoreReason: Codable {
 
 protocol MapMarkerIgnoreListProtocol: AnyObject {
 	func shouldIgnore(ident: String) -> Bool
-	func shouldIgnore(marker: MapMarker) -> Bool
-	func ignore(marker: MapMarker, reason: IgnoreReason)
+	func shouldIgnore(marker: OsmMapMarker) -> Bool
+	func ignore(marker: OsmMapMarker, reason: IgnoreReason)
 }
 
 final class MapMarkerIgnoreList: MapMarkerIgnoreListProtocol, Codable {
@@ -32,11 +32,11 @@ final class MapMarkerIgnoreList: MapMarkerIgnoreListProtocol, Codable {
 		return ignoreList[ident] != nil
 	}
 
-	func shouldIgnore(marker: MapMarker) -> Bool {
+	func shouldIgnore(marker: OsmMapMarker) -> Bool {
 		return shouldIgnore(ident: marker.markerIdentifier)
 	}
 
-	func ignore(marker: MapMarker, reason: IgnoreReason) {
+	func ignore(marker: OsmMapMarker, reason: IgnoreReason) {
 		ignoreList[marker.markerIdentifier] = reason
 		writeIgnoreList()
 		marker.button?.removeFromSuperview()

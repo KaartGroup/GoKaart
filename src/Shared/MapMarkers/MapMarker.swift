@@ -15,7 +15,7 @@ import UIKit
 // * GPX Waypoint
 // * KeepRight
 
-class MapMarker {
+class OsmMapMarker {
 	private(set) var buttonId: Int // a unique value we assign to track marker buttons.
 	let latLon: LatLon
 	weak var object: OsmBaseObject?
@@ -31,7 +31,7 @@ class MapMarker {
 		button?.removeFromSuperview()
 	}
 
-	func reuseButtonFrom(_ other: MapMarker) {
+	func reuseButtonFrom(_ other: OsmMapMarker) {
 		button = other.button
 		buttonId = other.buttonId
 		other.button = nil // nullify it so it doesn't get removed on deinit

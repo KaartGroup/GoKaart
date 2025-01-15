@@ -9,7 +9,7 @@
 import Foundation
 
 // An OSM object containing a fixme= tag
-final class FixmeMarker: MapMarker {
+final class FixmeMarker: OsmMapMarker {
 	let fixmeID: OsmExtendedIdentifier
 
 	override var markerIdentifier: String {

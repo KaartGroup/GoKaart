@@ -19,10 +19,11 @@ final class GpxPoint: NSObject, NSSecureCoding {
 	// These fields are only used by waypoints
 	let name: String
 	let desc: String
+    let type: String
 	let extensions: [DDXMLNode]
 
 	init(latLon: LatLon, accuracy: Double, elevation: Double, timestamp: Date?,
-	     name: String, desc: String, extensions: [DDXMLNode])
+         name: String, desc: String, type: String, extensions: [DDXMLNode])
 	{
 		self.latLon = latLon
 		self.accuracy = accuracy
@@ -30,6 +31,7 @@ final class GpxPoint: NSObject, NSSecureCoding {
 		self.timestamp = timestamp
 		self.name = name
 		self.desc = desc
+        self.type = type
 		self.extensions = extensions
 		super.init()
 	}
@@ -58,6 +60,7 @@ final class GpxPoint: NSObject, NSSecureCoding {
 
 		var name = ""
 		var description = ""
+        var type = ""
 		var extensions: [DDXMLNode] = []
 
 		for child in pt.children ?? [] {
@@ -69,6 +72,8 @@ final class GpxPoint: NSObject, NSSecureCoding {
 				name = child.stringValue ?? ""
 			case "desc":
 				description = child.stringValue ?? ""
+            case "type":
+                type = child.stringValue ?? ""
 			case "extensions":
 				if let children = child.children {
 					extensions = children
@@ -84,6 +89,7 @@ final class GpxPoint: NSObject, NSSecureCoding {
 		          timestamp: timestamp,
 		          name: name,
 		          desc: description,
+                  type: type,
 		          extensions: extensions)
 	}
 
@@ -96,6 +102,7 @@ final class GpxPoint: NSObject, NSSecureCoding {
 		timestamp = aDecoder.decodeObject(of: NSDate.self, forKey: "time") as? Date
 		name = aDecoder.decodeObject(forKey: "name") as? String ?? ""
 		desc = ""
+        type = ""
 		extensions = []
 		super.init()
 	}
@@ -185,6 +192,7 @@ final class GpxTrack: NSObject, NSSecureCoding {
 		                  timestamp: location.timestamp,
 		                  name: "",
 		                  desc: "",
+                          type: "",
 		                  extensions: [])
 
 		points.append(pt)

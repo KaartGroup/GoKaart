@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 // An OSM object for a quest
-final class QuestMarker: MapMarker {
+final class QuestMarker: OsmMapMarker {
 	let ident: String
 	let quest: QuestProtocol
 

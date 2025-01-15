@@ -11,7 +11,7 @@ import Foundation
 
 final class MapMarkerDatabase: MapMarkerIgnoreListProtocol {
 	private let workQueue = OperationQueue()
-	private var markerForIdentifier: [String: MapMarker] = [:] // map the marker key (unique string) to a marker
+	private var markerForIdentifier: [String: OsmMapMarker] = [:] // map the marker key (unique string) to a marker
 	private var ignoreList: MapMarkerIgnoreList
 	weak var mapData: OsmMapData!
 
@@ -20,14 +20,14 @@ final class MapMarkerDatabase: MapMarkerIgnoreListProtocol {
 		ignoreList = MapMarkerIgnoreList()
 	}
 
-	var allMapMarkers: AnySequence<MapMarker> { AnySequence(markerForIdentifier.values) }
+	var allMapMarkers: AnySequence<OsmMapMarker> { AnySequence(markerForIdentifier.values) }
 
 	func removeAll() {
 		workQueue.cancelAllOperations()
 		markerForIdentifier.removeAll()
 	}
 
-	func refreshMarkersFor(object: OsmBaseObject) -> [MapMarker] {
+	func refreshMarkersFor(object: OsmBaseObject) -> [OsmMapMarker] {
 		// Remove all markers that reference the object
 		let remove = markerForIdentifier.compactMap { k, v in v.object === object ? k : nil }
 		for k in remove {
@@ -37,7 +37,7 @@ final class MapMarkerDatabase: MapMarkerIgnoreListProtocol {
 			return []
 		}
 		// Build a new list of markers that reference the object
-		var list = [MapMarker]()
+		var list = [OsmMapMarker]()
 		for quest in QuestList.shared.questsForObject(object) {
 			if let marker = QuestMarker(object: object, quest: quest, ignorable: self) {
 				addOrUpdate(marker: marker)
@@ -58,11 +58,11 @@ final class MapMarkerDatabase: MapMarkerIgnoreListProtocol {
 		return ignoreList.shouldIgnore(ident: ident)
 	}
 
-	func shouldIgnore(marker: MapMarker) -> Bool {
+	func shouldIgnore(marker: OsmMapMarker) -> Bool {
 		return ignoreList.shouldIgnore(marker: marker)
 	}
 
-	func ignore(marker: MapMarker, reason: IgnoreReason) {
+	func ignore(marker: OsmMapMarker, reason: IgnoreReason) {
 		markerForIdentifier.removeValue(forKey: marker.markerIdentifier)
 		ignoreList.ignore(marker: marker, reason: reason)
 	}
@@ -70,7 +70,7 @@ final class MapMarkerDatabase: MapMarkerIgnoreListProtocol {
 	// MARK: marker type-specific update functions
 
 	/// This is called when we get a new marker.
-	func addOrUpdate(marker newMarker: MapMarker) {
+	func addOrUpdate(marker newMarker: OsmMapMarker) {
 		if let oldMarker = markerForIdentifier[newMarker.markerIdentifier] {
 			// This marker is already in our database, so reuse it's button
 			newMarker.reuseButtonFrom(oldMarker)
@@ -144,7 +144,7 @@ final class MapMarkerDatabase: MapMarkerIgnoreListProtocol {
 		static let gpx = MapMarkerSet(rawValue: 1 << 3)
 	}
 
-	func removeMarkers(where predicate: (MapMarker) -> Bool) {
+	func removeMarkers(where predicate: (OsmMapMarker) -> Bool) {
 		let remove = markerForIdentifier.compactMap { key, marker in predicate(marker) ? key : nil }
 		for key in remove {
 			markerForIdentifier.removeValue(forKey: key)
@@ -203,7 +203,7 @@ final class MapMarkerDatabase: MapMarkerIgnoreListProtocol {
 		})
 	}
 
-	func mapMarker(forButtonId buttonId: Int) -> MapMarker? {
+	func mapMarker(forButtonId buttonId: Int) -> OsmMapMarker? {
 		return markerForIdentifier.values.first(where: { $0.buttonId == buttonId })
 	}
 

@@ -9,7 +9,7 @@
 import Foundation
 
 // A keep-right entry. These use XML just like a GPS waypoint, but with an extension to define OSM data.
-final class KeepRightMarker: MapMarker {
+final class KeepRightMarker: OsmMapMarker {
 	let description: String
 	let keepRightID: Int
 	private let objectId: OsmExtendedIdentifier
