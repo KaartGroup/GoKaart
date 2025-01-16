@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import CoreLocation
 
 // MARK: - Marker Types
 enum WayPointType: String {
@@ -131,12 +132,15 @@ protocol WayPointMarkerSelectionPresenting: AnyObject {
 
 final class HandleWayPointMarker {
     // MARK: - Properties
-   private weak var owner: WayPointMarkerSelectionPresenting?
-   
-   // MARK: - Initialization
-   init(owner: WayPointMarkerSelectionPresenting) {
-       self.owner = owner
-   }
+    private var owner: WayPointMarkerSelectionPresenting
+    private var gpxLayer: GpxLayer
+    private var mapView: MapView // Add this property
+    
+    init(owner: WayPointMarkerSelectionPresenting, gpxLayer: GpxLayer, mapView: MapView) {
+        self.owner = owner
+        self.gpxLayer = gpxLayer
+        self.mapView = mapView
+    }
    
    // MARK: - Public Methods
    func selectWayPointMarker(_ point: CGPoint) {
@@ -183,17 +187,16 @@ final class HandleWayPointMarker {
            height: 0.0
        )
        
-       owner?.presentAlert(
+       owner.presentAlert(
            alert: multiSelectSheet,
            location: .rect(rect)
        )
    }
    
    // MARK: - Private Methods
-   private func addWayPointMarker(type: WayPointType, at point: CGPoint) {
-       // 2. Add to database
-       
-       // 3. Update map display
-       print("Creating \(type.rawValue) marker at point: \(point)")
-   }
+    private func addWayPointMarker(type: WayPointType, at point: CGPoint) {
+        let latLon = mapView.mapTransform.latLon(forScreenPoint: point)
+        let location = CLLocation(latitude: latLon.lat, longitude: latLon.lon)
+        gpxLayer.addWayPoint(location: location, type: type)
+    }
 }

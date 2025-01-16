@@ -176,7 +176,7 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 	private var editControlActions: [EDIT_ACTION] = []
     
     private lazy var wayPointMarkerHandler: HandleWayPointMarker = {
-        return HandleWayPointMarker(owner: self)
+        return HandleWayPointMarker(owner: self, gpxLayer: gpxLayer, mapView: self)
     }()
     
 

@@ -181,6 +181,30 @@ final class GpxLayer: DrawingLayer, DiskCacheSizeProtocol, DrawingLayerDelegate 
 			setNeedsLayout()
 		}
 	}
+    
+    func addWayPoint(location: CLLocation, type: WayPointType) {
+        if let selectedTrack = selectedTrack {
+            defer {
+#if canImport(ActivityKit)
+                if #available(iOS 16.2, *) {
+                    GpxTrackWidgetManager.shared.updateTrack()
+                }
+#endif
+            }
+
+            selectedTrack.addWayPoint(location: location, type: type)
+            saveSelectedTrack()
+            
+            setNeedsLayout()
+        }
+        
+    }
+    
+    func saveSelectedTrack() {
+        if let selectedTrack = selectedTrack {
+            save(toDisk: selectedTrack)
+        }
+    }
 
 	func allTracks() -> [GpxTrack] {
 		if let activeTrack = activeTrack {

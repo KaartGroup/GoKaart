@@ -200,6 +200,27 @@ final class GpxTrack: NSObject, NSSecureCoding {
 		// need to recompute shape
 		geoJSONFeature = nil
 	}
+    
+    func addWayPoint(location: CLLocation, type: WayPointType) {
+        let coordinate = LatLon(location.coordinate)
+
+        // Use the first timestamp as the creation date
+        creationDate = location.timestamp
+
+        let pt = GpxPoint(latLon: coordinate,
+                          accuracy: location.horizontalAccuracy,
+                          elevation: location.altitude,
+                          timestamp: location.timestamp,
+                          name: "",
+                          desc: "",
+                          type: type.rawValue,
+                          extensions: [])
+
+        wayPoints.append(pt)
+
+        // need to recompute shape
+        geoJSONFeature = nil
+    }
 
 	func finish() {
 		recording = false
