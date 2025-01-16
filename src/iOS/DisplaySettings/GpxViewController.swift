@@ -16,56 +16,66 @@ class GpxTrackTableCell: UITableViewCell, UIActionSheetDelegate {
 	var gpxTrack = GpxTrack()
 	var tableView: GpxViewController?
 
-	@IBAction func doAction(_ sender: Any) {
-		let alert = UIAlertController(
-			title: NSLocalizedString("Share", comment: "Title for sharing options"),
-			message: nil,
-			preferredStyle: .actionSheet)
-		alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil))
-		alert.addAction(UIAlertAction(title: NSLocalizedString("Upload to OSM", comment: ""),
-		                              style: .default,
-		                              handler: { _ in
-		                              	self.tableView?.share(self.gpxTrack)
-		                              }))
-		alert.addAction(UIAlertAction(
-			title: NSLocalizedString("Share", comment: "Open iOS sharing sheet"),
-			style: .default, handler: { _ in
-				let creationDate = self.gpxTrack.creationDate
-				let appName = AppDelegate.shared.appName()
-				let fileName = "\(appName) \(creationDate).gpx"
-
-				// get a copy of GPX as a string
-				guard let gpx = self.gpxTrack.gpxXmlString() else { return }
-
-				// create a temporary file and write the gpx to it
-				let fileUrl = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
-				try? FileManager.default.removeItem(at: fileUrl)
-				guard (try? gpx.write(to: fileUrl, atomically: true, encoding: .utf8)) != nil else {
-					return
-				}
-
-				// Create the share activity
-				let controller = UIActivityViewController(activityItems: [fileName, fileUrl] as [Any],
-				                                          applicationActivities: nil)
-				controller.completionWithItemsHandler = { _, completed, _, _ in
-					if completed {
-						let gpxLayer = AppDelegate.shared.mapView.gpxLayer
-						gpxLayer.markTrackUploaded(self.gpxTrack)
-						self.tableView?.tableView.reloadData()
-					}
-				}
-
-				// Preset the share sheet to the user
-				self.tableView?.present(controller, animated: true)
-			}))
-
-		// set location of popup
-		let button = sender as? UIButton
-		alert.popoverPresentationController?.sourceView = button
-		alert.popoverPresentationController?.sourceRect = button?.bounds ?? CGRect.zero
-
-		tableView?.present(alert, animated: true)
-	}
+    @IBAction func doAction(_ sender: Any) {
+        let alert = UIAlertController(
+            title: NSLocalizedString("Share", comment: "Title for sharing options"),
+            message: nil,
+            preferredStyle: .actionSheet)
+        
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Upload to OSM", comment: ""),
+                                      style: .default,
+                                      handler: { _ in
+            self.tableView?.share(self.gpxTrack)
+        }))
+        alert.addAction(UIAlertAction(
+            title: NSLocalizedString("Share", comment: "Open iOS sharing sheet"),
+            style: .default, handler: { [weak self] _ in
+                guard let self = self else { return }
+                
+                let creationDate = self.gpxTrack.creationDate
+                let appName = AppDelegate.shared.appName()
+                let fileName = "\(appName) \(creationDate).gpx"
+                
+                // get a copy of GPX as a string
+                guard let gpx = self.gpxTrack.gpxXmlString() else { return }
+                
+                // create a temporary file and write the gpx to it
+                let fileUrl = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+                try? FileManager.default.removeItem(at: fileUrl)
+                guard (try? gpx.write(to: fileUrl, atomically: true, encoding: .utf8)) != nil else {
+                    return
+                }
+                
+                // Create the share activity
+                let controller = UIActivityViewController(activityItems: [fileName, fileUrl] as [Any],
+                                                          applicationActivities: nil)
+                
+                // Configure popover for iPad
+                if let button = sender as? UIButton {
+                    controller.popoverPresentationController?.sourceView = button
+                    controller.popoverPresentationController?.sourceRect = button.bounds
+                }
+                
+                controller.completionWithItemsHandler = { _, completed, _, _ in
+                    if completed {
+                        let gpxLayer = AppDelegate.shared.mapView.gpxLayer
+                        gpxLayer.markTrackUploaded(self.gpxTrack)
+                        self.tableView?.tableView.reloadData()
+                    }
+                }
+                
+                self.tableView?.present(controller, animated: true)
+            }))
+        
+        // Configure popover for iPad
+        if let button = sender as? UIButton {
+            alert.popoverPresentationController?.sourceView = button
+            alert.popoverPresentationController?.sourceRect = button.bounds
+        }
+        
+        tableView?.present(alert, animated: true)
+    }
 }
 
 class GpxTrackBackgroundCollection: UITableViewCell {
