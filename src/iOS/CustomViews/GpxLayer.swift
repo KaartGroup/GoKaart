@@ -193,7 +193,11 @@ final class GpxLayer: DrawingLayer, DiskCacheSizeProtocol, DrawingLayerDelegate 
             }
 
             selectedTrack.addWayPoint(location: location, type: type)
-            saveSelectedTrack()
+            
+            if selectedTrack.points.count % 5 == 0 {
+                saveSelectedTrack()
+            }
+            
             
             setNeedsLayout()
         }

@@ -203,9 +203,8 @@ final class GpxTrack: NSObject, NSSecureCoding {
     
     func addWayPoint(location: CLLocation, type: WayPointType) {
         let coordinate = LatLon(location.coordinate)
-
-        // Use the first timestamp as the creation date
-        creationDate = location.timestamp
+        
+        print(type.rawValue)
 
         let pt = GpxPoint(latLon: coordinate,
                           accuracy: location.horizontalAccuracy,
