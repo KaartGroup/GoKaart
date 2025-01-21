@@ -292,6 +292,56 @@ final class GpxTrack: NSObject, NSSecureCoding {
 			eleElement.stringValue = "\(pt.elevation)"
 			ptElement.addChild(eleElement)
 		}
+        
+        for wpt in wayPoints {
+            guard let wptElement = DDXMLNode.element(withName: "wpt") as? DDXMLElement,
+                  let attrLat = DDXMLNode.attribute(withName: "lat", stringValue: "\(wpt.latLon.lat)") as? DDXMLNode,
+                  let attrLon = DDXMLNode.attribute(withName: "lon", stringValue: "\(wpt.latLon.lon)") as? DDXMLNode,
+                  let eleElement = DDXMLNode.element(withName: "ele") as? DDXMLElement
+            else { return nil }
+            
+            
+            root.addChild(wptElement)
+            wptElement.addAttribute(attrLat)
+            wptElement.addAttribute(attrLon)
+            
+            // Add type if present
+            if !wpt.type.isEmpty,
+               let typeElement = DDXMLNode.element(withName: "type") as? DDXMLElement
+            {
+                typeElement.stringValue = wpt.type
+                wptElement.addChild(typeElement)
+            }
+
+            // Add description if present
+            if !wpt.desc.isEmpty,
+               let descElement = DDXMLNode.element(withName: "desc") as? DDXMLElement
+            {
+                descElement.stringValue = wpt.desc
+                wptElement.addChild(descElement)
+            }
+
+            if let timestamp = wpt.timestamp,
+               let timeElement = DDXMLNode.element(withName: "time") as? DDXMLElement
+            {
+                timeElement.stringValue = dateFormatter.string(from: timestamp)
+                wptElement.addChild(timeElement)
+            }
+            
+            if !wpt.extensions.isEmpty,
+               let extElement = DDXMLNode.element(withName: "extensions") as? DDXMLElement
+            {
+                for ext in wpt.extensions {
+                    if let extCopy = ext.copy() as? DDXMLNode {
+                        extElement.addChild(extCopy)
+                    }
+                }
+                wptElement.addChild(extElement)
+            }
+
+            eleElement.stringValue = "\(wpt.elevation)"
+            wptElement.addChild(eleElement)
+        }
 
 		let string = doc.xmlString
 		return string
