@@ -119,7 +119,7 @@ class POICommonTagsViewController: UITableViewController, UITextFieldDelegate, U
 		return nil
 	}
 
-	func updateTagDict(withValue value: String, forKey key: String) {
+	func updateTagDictLow(withValue value: String, forKey key: String) {
 		guard let tabController = tabBarController as? POITabBarController else {
 			// This shouldn't happen, but there are crashes here
 			// originating from textFieldDidEndEditing(). Maybe
@@ -139,11 +139,15 @@ class POICommonTagsViewController: UITableViewController, UITextFieldDelegate, U
 		if #available(iOS 13.0, *) {
 			tabController.isModalInPresentation = saveButton.isEnabled
 		}
-#if false
-		if let indexPath = indexPathForKey(key) {
-			tableView.reloadRows(at: [indexPath], with: .none)
+	}
+
+	func updateTagDict(withValue value: String, forKey key: String) {
+		if let indexPath = indexPathFor(key: key),
+		   setBothValuesFor(indexPath: indexPath, value: value)
+		{
+			return
 		}
-#endif
+		updateTagDictLow(withValue: value, forKey: key)
 	}
 
 	func updatePresets() {
@@ -165,10 +169,6 @@ class POICommonTagsViewController: UITableViewController, UITextFieldDelegate, U
 				geometry: geometry,
 				location: AppDelegate.shared.mapView.currentRegion,
 				includeNSI: true)
-			if currentFeature === selectedFeature {
-//				computeExtraTags()
-//				return
-			}
 			currentFeature = selectedFeature
 
 			if let feature = selectedFeature {
@@ -192,6 +192,7 @@ class POICommonTagsViewController: UITableViewController, UITextFieldDelegate, U
 					weakself.tableView.reloadData()
 				}
 			})
+			computeExtraTags()
 		}
 
 		tableView.reloadData()
@@ -310,14 +311,14 @@ class POICommonTagsViewController: UITableViewController, UITextFieldDelegate, U
 	}
 
 	override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		if drillDownGroup != nil {
-			return drillDownGroup?.presetKeys.count ?? 0
+		if let drillDownGroup {
+			return drillDownGroup.presetKeys.count
 		}
 		if section == (allPresets?.sectionCount() ?? 0) {
 			return extraTags.count // tags plus an empty slot
 		}
 		if section > (allPresets?.sectionCount() ?? 0) {
-			return 1 // customize button
+			return 2 // customization buttons
 		}
 		return allPresets?.tagsInSection(section) ?? 0
 	}
@@ -341,9 +342,17 @@ class POICommonTagsViewController: UITableViewController, UITextFieldDelegate, U
 				return cell
 			}
 			if indexPath.section > (allPresets?.sectionCount() ?? 0) {
-				// customize button
-				let cell = tableView.dequeueReusableCell(withIdentifier: "CustomizePresets", for: indexPath)
-				return cell
+				// customization buttons
+				switch indexPath.row {
+				case 0:
+					let cell = tableView.dequeueReusableCell(withIdentifier: "CustomFeatures", for: indexPath)
+					return cell
+				case 1:
+					let cell = tableView.dequeueReusableCell(withIdentifier: "CustomFields", for: indexPath)
+					return cell
+				default:
+					fatalError("unexpected customize button row \(indexPath.row)")
+				}
 			}
 		}
 
@@ -402,7 +411,7 @@ class POICommonTagsViewController: UITableViewController, UITextFieldDelegate, U
 					cell.valueField.rightViewMode = .always
 				}
 
-				if let icon = currentFeature?.nsiLogo(setupIcon) {
+				if let icon = currentFeature?.nsiLogo(callback: setupIcon) {
 					setupIcon(icon)
 				} else {
 					cell.valueField.rightView = nil
@@ -440,8 +449,21 @@ class POICommonTagsViewController: UITableViewController, UITextFieldDelegate, U
 					cell.accessoryType = .disclosureIndicator
 				}
 
-				let value = presetKey.prettyNameForTagValue(keyValueDict[presetKey.tagKey] ?? "")
-				cell.valueField.text = value
+				var value = keyValueDict[presetKey.tagKey]
+
+				// Special case for groups that use ":both"
+				// We display the ":both" value if the designated value is empty
+				if value == nil,
+				   let presetGroup = allPresets?.sectionList[indexPath.section],
+				   presetGroup.usesBoth,
+				   let bothKey = bothKeyFor(preset: presetKey),
+				   let bothValue = keyValueDict[bothKey]
+				{
+					value = bothValue
+				}
+
+				let prettyValue = presetKey.prettyNameForTagValue(value ?? "")
+				cell.valueField.text = prettyValue
 				cell.valueField.isEnabled = true
 				return cell
 			}
@@ -492,8 +514,8 @@ class POICommonTagsViewController: UITableViewController, UITextFieldDelegate, U
 		{
 			dest.key = presetKey.tagKey
 			dest.presetValueList = presetKey.presetList ?? []
-			dest.onSetValue = { [weak self] in
-				self?.updateTagDict(withValue: $0, forKey: presetKey.tagKey)
+			dest.onSetValue = { [weak self] value in
+				self?.updateTagDict(withValue: value, forKey: presetKey.tagKey)
 			}
 			var name = presetKey.name
 			if let indexPath = tableView.indexPath(for: cell),
@@ -506,6 +528,68 @@ class POICommonTagsViewController: UITableViewController, UITextFieldDelegate, U
 		} else if let dest = segue.destination as? POIFeaturePickerViewController {
 			dest.delegate = self
 		}
+	}
+
+	func indexPathFor(key: String) -> IndexPath? {
+		guard let allPresets = allPresets else { return nil }
+		for (sectionIndex, presetGroup) in allPresets.sectionList.enumerated() {
+			for (rowIndex, keyOrGroup) in presetGroup.presetKeys.enumerated() {
+				guard case let .key(presetKey) = keyOrGroup else { continue }
+				if presetKey.tagKey == key {
+					return IndexPath(row: rowIndex, section: sectionIndex)
+				}
+			}
+		}
+		return nil
+	}
+
+	func bothKeyFor(preset: PresetKey) -> String? {
+		if let index = preset.tagKey.lastIndex(of: ":") {
+			return String(preset.tagKey[..<index]) + ":both"
+		}
+		return nil
+	}
+
+	// Update all values associated with a group that supports :both
+	func setBothValuesFor(indexPath: IndexPath, value: String) -> Bool {
+		guard let group = allPresets?.sectionList[indexPath.section],
+		      group.usesBoth,
+		      case let .key(presetKey) = group.presetKeys[indexPath.row],
+		      let bothKey = bothKeyFor(preset: presetKey),
+		      let tabController = tabBarController as? POITabBarController
+		else {
+			return false
+		}
+
+		// need to check if all cells will have the same value, and set :both if so
+		let tagDict = tabController.keyValueDict
+		let allSameValue = group.presetKeys.allSatisfy({
+			if case let .key(key) = $0,
+			   key === presetKey || tagDict[key.tagKey] == value
+			{
+				return true
+			}
+			return false
+		})
+		if allSameValue {
+			// all values are equal, so remove all of them and set 'both' instead
+			for case let .key(presetKey) in group.presetKeys {
+				updateTagDictLow(withValue: "", forKey: presetKey.tagKey)
+			}
+			updateTagDictLow(withValue: value, forKey: bothKey)
+		} else {
+			// remove both: key
+			updateTagDictLow(withValue: "", forKey: bothKey)
+			// change other keys to :both value, if present
+			if let bothValue = tagDict[bothKey] {
+				for case let .key(presetKey) in group.presetKeys {
+					updateTagDictLow(withValue: bothValue, forKey: presetKey.tagKey)
+				}
+			}
+			// update user-selected key
+			updateTagDictLow(withValue: value, forKey: presetKey.tagKey)
+		}
+		return true
 	}
 
 	@IBAction func cancel(_ sender: Any) {
@@ -743,5 +827,15 @@ class POICommonTagsViewController: UITableViewController, UITextFieldDelegate, U
 
 	var keyValueDict: [String: String] {
 		return (tabBarController as! POITabBarController).keyValueDict
+	}
+
+	// Called when user pastes a set of tags
+	func pasteTags(_ tags: [String: String]) {
+		for (k, v) in tags {
+			updateTagDict(withValue: v, forKey: k)
+		}
+		// the feature type might have changed, so recompute everything
+		selectedFeature = nil
+		updatePresets()
 	}
 }

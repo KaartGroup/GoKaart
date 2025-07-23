@@ -6,6 +6,7 @@
 //  Copyright © 2023 Bryce Cogswell. All rights reserved.
 //
 
+import SafariServices
 import UIKit
 
 final class AccountInfoTableViewController: UITableViewController {
@@ -34,6 +35,13 @@ final class AccountInfoTableViewController: UITableViewController {
 		fetchAccountInfos()
 	}
 
+	override func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
+		guard let cell = tableView.cellForRow(at: indexPath),
+		      cell.accessoryType == .detailButton
+		else { return }
+		showAccountDetails()
+	}
+
 	private func fetchAccountInfos() {
 		if activityIndicator.isAnimating {
 			return
@@ -43,7 +51,7 @@ final class AccountInfoTableViewController: UITableViewController {
 		activityIndicator.startAnimating()
 		refreshAccountButton.isHidden = true
 
-		appDelegate.oAuth2.getUserDetails { [weak self] dict in
+		OSM_SERVER.oAuth2?.getUserDetails { [weak self] dict in
 			guard let strongSelf = self else { return }
 
 			strongSelf.activityIndicator.stopAnimating()
@@ -63,6 +71,21 @@ final class AccountInfoTableViewController: UITableViewController {
 				strongSelf.presentBadLoginDialog()
 			}
 		}
+	}
+
+	private func showAccountDetails() {
+		guard let username = appDelegate.userName,
+		      username != ""
+		else {
+			return
+		}
+		let urlAsString = "\(OSM_SERVER.serverURL)/user/\(username)"
+		guard let url = URL(string: urlAsString) else { return }
+
+		let safariViewController = SFSafariViewController(url: url)
+		safariViewController.modalPresentationStyle = .overCurrentContext
+		safariViewController.popoverPresentationController?.sourceView = view
+		present(safariViewController, animated: true)
 	}
 
 	private func setupUI() {
@@ -87,7 +110,7 @@ final class AccountInfoTableViewController: UITableViewController {
 	}
 
 	@IBAction func didTapSignOutButton(_ sender: UIButton) {
-		appDelegate.oAuth2.removeAuthorization()
+		OSM_SERVER.oAuth2?.removeAuthorization()
 		appDelegate.userName = nil
 
 		navigationController?.popToRootViewController(animated: true)

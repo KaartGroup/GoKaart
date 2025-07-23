@@ -29,6 +29,18 @@
             "value" : "widgetgpx"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GpxWidget"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GpxWidget"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -41,7 +53,25 @@
             "value" : "GpxWidget"
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GpxWidget"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gpxwidget"
+          }
+        },
         "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GpxWidget"
+          }
+        },
+        "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "GpxWidget"
@@ -77,6 +107,12 @@
             "value" : "GpxWidgetExtension"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GpxWidgetExtension"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -89,7 +125,25 @@
             "value" : "GpxWidgetExtension"
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GpxWidgetExtension"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPXWIDGETEXTENSION"
+          }
+        },
         "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GpxWidgetExtension"
+          }
+        },
+        "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "GpxWidgetExtension"
@@ -125,6 +179,12 @@
             "value" : "Derechos de autor © 2024 Bryce Cogswell. Todos los derechos reservados."
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autoriõigused © 2024 Bryce Cogswell. Kõik õigused on kaitstud."
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -137,10 +197,28 @@
             "value" : "Copyright © 2024 Bryce Cogswell. All rights reserved."
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "© 2024 Брайс Когсвелл"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "பதிப்புரிமை © 2024 பிரைச் கோக்ச்வெல். அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை."
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Авторські права © 2024 Брайс Коґсвелл. Всі права застережено."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "版權 © 2024 Bryce Cogswell 所有，保留所有權利。"
           }
         }
       }

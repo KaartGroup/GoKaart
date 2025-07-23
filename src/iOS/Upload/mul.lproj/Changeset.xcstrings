@@ -47,6 +47,12 @@
             "value" : "Muudatused:"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aldaketak:"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -123,6 +129,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Изменения:"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "மாற்றங்கள்:"
           }
         },
         "uk" : {
@@ -335,6 +347,12 @@
             "value" : "Rakenda"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onartu"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -399,6 +417,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Внести изменения"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "கமிட்"
           }
         },
         "uk" : {
@@ -471,6 +495,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Muuda"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aldatu"
           }
         },
         "fi" : {
@@ -551,6 +581,12 @@
             "value" : "Править"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "தொகு"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -611,6 +647,18 @@
             "value" : "🔽"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🔽"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🔽"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -642,6 +690,12 @@
           }
         },
         "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🔽"
+          }
+        },
+        "ta" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "🔽"
@@ -713,6 +767,12 @@
             "value" : "Muudatuste kommentaar:"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Akdaketa-multzoaren komentarioa:"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -771,6 +831,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Комментарий к пакету правок:"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "மாற்றங்கள்:"
           }
         },
         "uk" : {
@@ -848,7 +914,13 @@
         "et" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saada"
+            "value" : "Laadi üles"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Igorri"
           }
         },
         "fi" : {
@@ -927,6 +999,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Загрузить"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "பதிவேற்றும்"
           }
         },
         "uk" : {
@@ -1136,7 +1214,13 @@
         "et" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "küsitlus, Bing jne."
+            "value" : "kohtvaatlus, Bing jne."
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "inkesta, Bing, etab."
           }
         },
         "fi" : {
@@ -1191,6 +1275,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "обследование, Bing и т.д."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "சர்வே, பிங், முதலியன."
           }
         },
         "uk" : {
@@ -1261,8 +1351,8 @@
         },
         "et" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "E-kiri"
+            "state" : "translated",
+            "value" : "Ekspordi"
           }
         },
         "fi" : {
@@ -1343,6 +1433,12 @@
             "value" : "Почта"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ஏற்றுமதி"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1365,6 +1461,60 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "郵件"
+          }
+        }
+      }
+    },
+    "xNB-pJ-M20.text" : {
+      "comment" : "Class = \"UILabel\"; text = \"Describe your changes... \"; ObjectID = \"xNB-pJ-M20\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Popište vaše změny… "
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Describe your changes... "
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Describa sus cambios… "
+          }
+        },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kirjelda oma muudatusi... "
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "変更内容を記述... "
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Опишите ваши изменения... "
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "உங்கள் மாற்றங்களை விவரிக்கவும் ... "
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請描述您的編輯... "
           }
         }
       }
@@ -1413,6 +1563,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Allikas:"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iturria:"
           }
         },
         "fi" : {
@@ -1503,6 +1659,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "මූලාශ්‍රය:"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ஆதாரம்:"
           }
         },
         "uk" : {

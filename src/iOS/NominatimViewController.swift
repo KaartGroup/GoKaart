@@ -9,6 +9,8 @@
 import UIKit
 
 private struct NominatimResult: Decodable {
+	let osm_type: String?
+	let osm_id: Int?
 	let boundingbox: [String]
 	let display_name: String
 }
@@ -92,8 +94,7 @@ class NominatimViewController: UIViewController, UISearchBarDelegate, UITableVie
 		   zoom > 1,
 		   zoom < 24
 		{
-			let scale = pow(2.0, zoom)
-			appDelegate.mapView.setTransformFor(latLon: latLon, scale: scale)
+			appDelegate.mapView.centerOn(latLon: latLon, zoom: zoom)
 		} else {
 			appDelegate.mapView.centerOn(latLon: latLon, metersWide: 50.0)
 		}
@@ -111,7 +112,17 @@ class NominatimViewController: UIViewController, UISearchBarDelegate, UITableVie
 			return
 		}
 
-		let box = resultsArray[indexPath.row].boundingbox.compactMap { Double($0) }
+		let result = resultsArray[indexPath.row]
+
+		// if nominatim returned an OSM object directly then use it
+		if let osmType = result.osm_type,
+		   let osmId = result.osm_id,
+		   parsedAsOsmObjectRef("\(osmType) \(osmId)")
+		{
+			return
+		}
+
+		let box = result.boundingbox.compactMap { Double($0) }
 		if box.count == 4 {
 			let lat1 = box[0]
 			let lat2 = box[1]

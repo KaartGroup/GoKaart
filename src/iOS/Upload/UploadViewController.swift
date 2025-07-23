@@ -24,6 +24,7 @@ class UploadViewController: UIViewController, UITextViewDelegate {
 	@IBOutlet var clearCommentButton: UIButton!
 	@IBOutlet var commentHistoryButton: UIButton!
 	@IBOutlet var sourceHistoryButton: UIButton!
+	@IBOutlet var changesetCommentPlaceholder: UILabel!
 
 	var recentCommentList = MostRecentlyUsed<String>(maxCount: 5,
 	                                                 userPrefsKey: UserPrefs.shared.recentCommitComments)
@@ -70,6 +71,7 @@ class UploadViewController: UIViewController, UITextViewDelegate {
 		commentTextView.text = UserPrefs.shared.uploadComment.value
 		sourceTextField.text = UserPrefs.shared.uploadSource.value
 		sourceTextField.placeholder = "survey, Bing, knowledge" // overrules translations: see #557
+		changesetCommentPlaceholder.isHidden = commentTextView.text.count > 0
 
 		let text = mapData?.changesetAsAttributedString()
 		if text == nil {
@@ -127,6 +129,7 @@ class UploadViewController: UIViewController, UITextViewDelegate {
 					view.text = message
 					view.resignFirstResponder()
 				}
+				self.changesetCommentPlaceholder.isHidden = self.commentTextView.text.count > 0
 			}))
 		}
 		actionSheet.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""),
@@ -147,7 +150,9 @@ class UploadViewController: UIViewController, UITextViewDelegate {
 
 	@IBAction func commit(_ sender: Any?) {
 		let appDelegate = AppDelegate.shared
-		if !appDelegate.oAuth2.isAuthorized() {
+		guard let oAuth = OSM_SERVER.oAuth2,
+		      oAuth.isAuthorized()
+		else {
 			performSegue(withIdentifier: "loginSegue", sender: self)
 			return
 		}
@@ -207,7 +212,7 @@ class UploadViewController: UIViewController, UITextViewDelegate {
 			   code == 401
 			{
 				// authentication error, so redirect to login page
-				appDelegate.oAuth2.removeAuthorization()
+				OSM_SERVER.oAuth2?.removeAuthorization()
 				performSegue(withIdentifier: "loginSegue", sender: self)
 				return
 			} else if let error = error {
@@ -247,7 +252,13 @@ class UploadViewController: UIViewController, UITextViewDelegate {
 		if appDelegate.mapView.viewState == MapViewState.EDITORAERIAL ||
 			appDelegate.mapView.viewState == MapViewState.AERIAL
 		{
-			imagery = appDelegate.mapView.aerialLayer.tileServer.name
+			let server = appDelegate.mapView.aerialLayer.tileServer
+			if server.identifier.hasPrefix("http:") || server.identifier.hasPrefix("https:") {
+				// custom user imagery
+				imagery = server.identifier
+			} else {
+				imagery = server.name
+			}
 		}
 
 		if xmlTextView.isEditable {
@@ -317,18 +328,21 @@ class UploadViewController: UIViewController, UITextViewDelegate {
 	func textViewDidChange(_ textView: UITextView) {
 		if textView == commentTextView {
 			clearCommentButton.isHidden = commentTextView.text.count == 0
+			changesetCommentPlaceholder.isHidden = commentTextView.text.count > 0
 		}
 	}
 
 	func textViewDidBeginEditing(_ textView: UITextView) {
 		if textView == commentTextView {
 			clearCommentButton.isHidden = commentTextView.text.count == 0
+			changesetCommentPlaceholder.isHidden = true
 		}
 	}
 
 	func textViewDidEndEditing(_ textView: UITextView) {
 		if textView == commentTextView {
 			clearCommentButton.isHidden = true
+			changesetCommentPlaceholder.isHidden = commentTextView.text.count > 0
 		}
 	}
 
@@ -344,9 +358,9 @@ class UploadViewController: UIViewController, UITextViewDelegate {
 		if name.count == 0 {
 			return false
 		}
-		let ident = Int64((name as NSString).substring(from: 1)) ?? 0
+		let ident = Int64(name.dropFirst()) ?? 0
 		let extendedId: OsmExtendedIdentifier
-		switch name[name.index(name.startIndex, offsetBy: 0)] {
+		switch name.prefix(1) {
 		case "n":
 			extendedId = OsmExtendedIdentifier(.NODE, ident)
 		case "w":

@@ -76,23 +76,33 @@ private final class PathPoints {
 	}
 }
 
+private final class StringGlyphsCache: NSCache<NSString, StringGlyphs> {
+	override init() {
+		super.init()
+		countLimit = 100
+	}
+}
+
 private final class StringGlyphs {
 	// static stuff
 	public static var uiFont = UIFont.preferredFont(forTextStyle: .subheadline)
 
-	private static let cache = { () -> NSCache<NSString, StringGlyphs> in
-		let c = NSCache<NSString, StringGlyphs>()
-		c.countLimit = 100
+	private static let cache = { () -> StringGlyphsCache in
+		let c = StringGlyphsCache()
 		NotificationCenter.default.addObserver(
 			forName: UIContentSizeCategory.didChangeNotification,
 			object: nil,
-			queue: nil,
+			queue: OperationQueue.main,
 			using: { _ in
-				StringGlyphs.uiFont = UIFont.preferredFont(forTextStyle: UIFont.TextStyle.subheadline)
-				c.removeAllObjects()
+				resetCache()
 			})
 		return c
 	}()
+
+	private static func resetCache() {
+		uiFont = UIFont.preferredFont(forTextStyle: .subheadline)
+		cache.removeAllObjects()
+	}
 
 	// objects
 
@@ -204,8 +214,8 @@ final class CurvedGlyphLayer {
 		var layers: [GlyphLayer] = []
 
 		for run in stringGlyphs.runs {
-			let runFont = StringGlyphs
-				.fontForRun(run) // every run potentially has a different font, due to font substitution
+			// every run potentially has a different font, due to font substitution
+			let runFont = StringGlyphs.fontForRun(run)
 			let glyphs = StringGlyphs.glyphsForRun(run)
 			let advances = StringGlyphs.advancesForRun(run)
 			let size = CTFontGetBoundingBox(runFont).size

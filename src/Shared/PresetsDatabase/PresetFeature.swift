@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 // A feature-defining tag such as amenity=shop
-final class PresetFeature: CustomDebugStringConvertible {
+class PresetFeature: CustomDebugStringConvertible {
 	static let uninitializedImage = UIImage()
 
 	let _addTags: [String: String]?
@@ -186,20 +186,20 @@ final class PresetFeature: CustomDebugStringConvertible {
 		return _iconUnscaled
 	}
 
-	func nsiLogo(_ callback: ((UIImage) -> Void)?) -> UIImage? {
+	func nsiLogo(callback: ((UIImage) -> Void)?) -> UIImage? {
 		guard nsiSuggestion else {
 			return iconUnscaled?.withRenderingMode(.alwaysTemplate)
 		}
-
 		if let icon = _nsiLogo {
 			return icon
 		}
-		if let callback = callback {
-			if let icon = NsiLogoDatabase.shared.retrieveLogoForNsiItem(featureID: featureID,
-			                                                            whenFinished: { img in
-			                                                            	self._nsiLogo = img
-			                                                            	callback(img)
-			                                                            })
+		if let callback {
+			let nsi = NsiLogoDatabase.shared
+			if let icon = nsi.retrieveLogoForNsiItem(featureID: featureID,
+			                                         whenFinished: { img in
+			                                         	self._nsiLogo = img
+			                                         	callback(img)
+			                                         })
 			{
 				_nsiLogo = icon
 				return icon
@@ -303,11 +303,12 @@ final class PresetFeature: CustomDebugStringConvertible {
 		case namePrefix = 10
 		case aliasPrefix = 9
 		case termPrefix = 8
-		case featureIdPrefix = 7
 
-		case nameInternal = 6
-		case aliasInternal = 5
-		case termInternal = 4
+		case nameInternal = 7
+		case aliasInternal = 6
+		case termInternal = 5
+
+		case featureIdPrefix = 4
 		case featureIdInternal = 3
 	}
 

@@ -567,6 +567,10 @@ class OsmBaseObject: NSObject, NSCoding, NSCopying {
 		}) {
 			return name.value
 		}
+		// then try addr:housename
+		if let name = tags["addr:housename"] {
+			return name
+		}
 		// for ways, use ref tag
 		if isWay() != nil,
 		   let highway = tags["highway"],
@@ -636,6 +640,13 @@ class OsmBaseObject: NSObject, NSCoding, NSCopying {
 		let featureKeys = PresetsDatabase.shared.allFeatureKeys()
 		for (key, value) in tags {
 			if featureKeys.contains(key) {
+				return "\(key) = \(value)"
+			}
+		}
+
+		// addresses
+		for key in ["addr:housename", "addr:housenumber"] {
+			if let value = tags[key] {
 				return "\(key) = \(value)"
 			}
 		}

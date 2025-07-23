@@ -6,7 +6,7 @@
 //  Copyright © 2024 Bryce Cogswell. All rights reserved.
 //
 
-#if canImport(ActivityKit)
+#if canImport(ActivityKit) && !targetEnvironment(macCatalyst)
 // ActivityKit not supported in MacCatalyst
 import ActivityKit
 import AppIntents
@@ -29,7 +29,7 @@ struct GpxTrackAttributes: ActivityAttributes {
 		var durationHMS: String {
 			let formatter = DateComponentsFormatter()
 			formatter.allowedUnits = [.minute, .second]
-			formatter.zeroFormattingBehavior = .pad
+			formatter.zeroFormattingBehavior = .dropLeading
 			return formatter.string(from: (endTime ?? Date()).timeIntervalSince(startTime))!
 		}
 

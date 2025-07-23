@@ -29,6 +29,12 @@
             "value" : "Go Map!!"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go Map!!"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -51,6 +57,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Go Map!!"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "வரைபடத்திற்குச் செல்லுங்கள் !!"
           }
         },
         "uk" : {
@@ -101,6 +113,12 @@
             "value" : "PhotoShare"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PhotoShare"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -117,6 +135,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "PhotoShare"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "புகைப்படங்கள்"
           }
         },
         "uk" : {

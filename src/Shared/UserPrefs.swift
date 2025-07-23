@@ -66,7 +66,6 @@ final class UserPrefs {
 	let hoursRecognizerLanguage = Pref<String>(key: "HoursRecognizerLanguage", ubiquitous: true)
 
 	let poiTabIndex = Pref<Int>(key: "POITabIndex", ubiquitous: true)
-	let copyPasteTags = Pref<[String: String]>(key: "copyPasteTags", ubiquitous: true)
 	let currentRegion = Pref<Data>(key: "CurrentRegion")
 
 	// Next OSM ID
@@ -125,6 +124,7 @@ final class UserPrefs {
 
 	// POI presets
 	let userDefinedPresetKeys = Pref<Data>(key: "userDefinedPresetKeys", ubiquitous: true)
+	let userDefinedFeatures = Pref<Data>(key: "userDefinedFeatures", ubiquitous: true)
 	let preferredUnitsForKeys = Pref<[String: String]>(key: "preferredUnitsForKeys", ubiquitous: true)
 
 	// Stuff for most recent POI features

@@ -17,7 +17,7 @@ private let SINGLE_SIDED_WALLS = true
 
 // drawing options
 private let DEFAULT_LINECAP = CAShapeLayerLineCap.butt
-private let DEFAULT_LINEJOIN = CAShapeLayerLineJoin.miter
+private let DEFAULT_LINEJOIN = CAShapeLayerLineJoin.round
 private let MinIconSizeInPixels: CGFloat = 24.0
 private let Pixels_Per_Character: CGFloat = 8.0
 private let NodeHighlightRadius: CGFloat = 6.0
@@ -112,6 +112,7 @@ final class EditorMapLayer: CALayer {
 
 	var silentUndo = false // don't flash message about undo
 
+	// Indicates that enough objects are on-screen that we might have to hide some objects
 	private(set) var atVisibleObjectLimit = false
 
 	init(owner: EditorMapLayerOwner) {
@@ -290,6 +291,12 @@ final class EditorMapLayer: CALayer {
 	}
 
 	func purgeCachedData(_ style: MapDataPurgeStyle) {
+		// Deselect selected objects
+		owner.removePin()
+		selectedNode = nil
+		selectedWay = nil
+		selectedRelation = nil
+
 #if DEBUG
 		// Get a weak reference to every object. Once we've purged everything then all
 		// references should be zeroed. If not then there is a retain cycle somewhere.
@@ -305,10 +312,6 @@ final class EditorMapLayer: CALayer {
 		weakly += mapData.relations.values.map { Weakly(obj: $0) }
 #endif
 
-		owner.removePin()
-		selectedNode = nil
-		selectedWay = nil
-		selectedRelation = nil
 		switch style {
 		case .hard:
 			mapData.purgeHard()
@@ -696,7 +699,7 @@ final class EditorMapLayer: CALayer {
 			if let path = path {
 				var lineWidth = renderInfo.lineWidth
 				if lineWidth == 0 {
-					DbgAssert(false)	// handle this in RenderInfo
+					DbgAssert(false) // handle this in RenderInfo
 					lineWidth = 2
 				}
 
@@ -1024,7 +1027,7 @@ final class EditorMapLayer: CALayer {
 		}
 
 		if drawRef {
-			if let ref = node.tags["ref"] {
+			if let ref = node.tags["ref"] ?? node.tags["addr:housenumber"] {
 				let label = CurvedGlyphLayer.layerWithString(ref)
 				label.anchorPoint = CGPoint(x: 0.0, y: 0.5)
 				label.position = CGPoint(x: pt.x, y: pt.y)
@@ -1475,8 +1478,10 @@ final class EditorMapLayer: CALayer {
 			}
 		}
 
-		// sort from big to small objects, and remove excess objects
-		objects = RenderInfo.sortByPriority(list: objects, keepingFirst: objectLimit)
+		if owner.mapTransform.zoom() < 21.0 {
+			// sort from big to small objects, and remove excess objects
+			objects = RenderInfo.sortByPriority(list: objects, keepingFirst: objectLimit)
+		}
 
 		// sometimes there are way too many address nodes that clog up the view, so limit those items specifically
 		objectLimit = objects.count

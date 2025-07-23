@@ -1,0 +1,39 @@
+name: XCode tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+
+jobs:
+  test:
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get swift version
+        run: swift --version
+        
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: '6.0'
+    
+      - name: Get swift version
+        run: swift --version
+            
+      - name: Run Tests on iPhone Simulator
+        run: |
+          cd src/iOS
+          xcodebuild test \
+            -scheme GoMapTests \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.2' \
+            -allowProvisioningUpdates 
+          xcodebuild test \
+            -scheme GoMapUITests \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.2' \
+            -allowProvisioningUpdates 

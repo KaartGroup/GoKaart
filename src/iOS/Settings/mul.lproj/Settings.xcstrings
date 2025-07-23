@@ -47,6 +47,12 @@
             "value" : "Mapnik paanid"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Basemap laukiak"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "needs_review",
@@ -99,6 +105,12 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "Тайлы Mapnik"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "பேச்மேப் ஓடுகள்"
           }
         },
         "uk" : {
@@ -179,6 +191,12 @@
             "value" : "Mul ei ole kontot"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ez dut konturik"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -249,6 +267,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "У меня нет аккаунта"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "என்னிடம் கணக்கு இல்லை"
           }
         },
         "uk" : {
@@ -395,6 +419,12 @@
             "value" : "Команда"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "வரவு"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -519,6 +549,12 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "Если вы занимаетесь картографированием на местности, где нет доступа в интернет, вы можете скачать аэрофотоснимки и/или тайлы Mapnik для текущего места с возможностью увеличения ещё на два следующих уровня зума."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "வரையறுக்கப்பட்ட இணைப்புடன் நீங்கள் எங்காவது மேப்பிங் செய்தால், தற்போதைய பார்வை பகுதியில் இருக்கும் அடுத்த இரண்டு உயர் சூம் நிலைகளுக்கு வான்வழி மற்றும்/அல்லது பேச்மேப் ஓடுகளை பதிவிறக்கம் செய்யலாம்."
           }
         },
         "uk" : {
@@ -647,6 +683,12 @@
             "value" : "Загрузить увеличенные тайлы"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "பெரிதாக்கப்பட்ட ஓடுகளை பதிவிறக்கவும்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -713,6 +755,18 @@
             "value" : "Kuva puudutused"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teklak erakuts"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Näytä kosketukset"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -771,6 +825,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Визуализировать прикосновения"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "தொடுதல்களைக் காட்டு"
           }
         },
         "uk" : {
@@ -839,10 +899,28 @@
             "value" : "FPS最大化"
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не ограничивать частоту кадров (FPS)"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FPS ஐ அதிகரிக்கவும்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Максимізувати FPS"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最大化 FPS"
           }
         }
       }
@@ -891,6 +969,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Üksikasjad"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xehetasun"
           }
         },
         "fi" : {
@@ -965,6 +1049,12 @@
             "value" : "Подробнее"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "விவரங்கள்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1025,6 +1115,18 @@
             "value" : "Nombre"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nimi"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Izen"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1047,6 +1149,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Имя"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "பெயர்"
           }
         },
         "uk" : {
@@ -1115,6 +1223,12 @@
             "value" : "Määra host kui soovid muuta teises OSM serveris asuvaid andmeid. Vaikimisi host on api.openstreetmap.org."
           }
         },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valitse palvelin jos haluat muokata toisen OSM palvelimen tietoja."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "needs_review",
@@ -1147,8 +1261,8 @@
         },
         "pt" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Especifique um host se quiser editar os dados localizados num servidor OpenStreetMap alternativo. O host padrão é api.openstreetmap.org."
+            "state" : "translated",
+            "value" : "Especifique um servidor se quiser editar os dados localizados num servidor OpenStreetMap alternativo. O servidor padrão é api.openstreetmap.org."
           }
         },
         "pt-BR" : {
@@ -1161,6 +1275,12 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "Введите адрес узла, если вы хотите редактировать данные, находящиеся на альтернативном сервере OSM. Узел по умолчанию: api.openstreetmap.org."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "மாற்று OSM சேவையகத்தில் அமைந்துள்ள தரவைத் திருத்த விரும்பினால் சேவையகத்தைத் தேர்ந்தெடுக்கவும்."
           }
         },
         "uk" : {
@@ -1235,6 +1355,12 @@
             "value" : "OpenStreetMap server"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenStreetMap zerbidorea"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1305,6 +1431,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сервер OpenStreetMap"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenStreetMap சேவையகம்"
           }
         },
         "uk" : {
@@ -1385,6 +1517,12 @@
             "value" : "Lisateave"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xehetasun"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1457,6 +1595,12 @@
             "value" : "Подробности"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "விவரம்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1517,6 +1661,18 @@
             "value" : "Cuenta en OpenStreetMap"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenStreetMapi kasutajakonto"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenStreetMap kontua"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1533,6 +1689,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Аккаунт OpenStreetMap"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenStreetMap கணக்கு"
           }
         },
         "uk" : {
@@ -1601,6 +1763,12 @@
             "value" : "OpenStreetMap sisse logimine"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenStreetMap-en sartu"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1667,6 +1835,12 @@
             "value" : "Войти в OpenStreetMap"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenStreetMap உள்நுழைவு"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1716,6 +1890,12 @@
           }
         },
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "api.openstreetmap.org"
+          }
+        },
+        "eu" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "api.openstreetmap.org"
@@ -1782,6 +1962,12 @@
           }
         },
         "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "api.openstreetmap.org"
+          }
+        },
+        "ta" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "api.openstreetmap.org"
@@ -1865,6 +2051,12 @@
             "value" : "Keel"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hizkuntza"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "needs_review",
@@ -1879,8 +2071,8 @@
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Jezik"
+            "state" : "translated",
+            "value" : "Jezik predodređenih postavki"
           }
         },
         "id" : {
@@ -1921,8 +2113,8 @@
         },
         "pt" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Idioma"
+            "state" : "translated",
+            "value" : "Idioma dos modelos de etiquetas"
           }
         },
         "pt-BR" : {
@@ -1933,8 +2125,14 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Язык"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "முன்னமைவு மொழி"
           }
         },
         "uk" : {
@@ -2009,10 +2207,34 @@
             "value" : "> 60 FPS 有効化"
           }
         },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ativa > 60 FPS"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По умолчанию ограничение 60 FPS"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "& Gt; 60 எஃப்.பி.எச்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Застосовує > 60 FPS"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "啟用 > 60 FPS"
           }
         }
       }
@@ -2061,6 +2283,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Võta meiega ühendust"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harremanetan sar"
           }
         },
         "fi" : {
@@ -2133,6 +2361,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Связаться с нами"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "எங்களை தொடர்புகொள்"
           }
         },
         "uk" : {
@@ -2285,6 +2519,12 @@
             "value" : "Настройки"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "அமைப்புகள்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2363,6 +2603,12 @@
             "value" : "Aerofotode paanid"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zerutikako lauki"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2423,6 +2669,12 @@
             "value" : "Тайлы аэрофотосъёмки"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "வான்வழி ஓடுகள்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2477,6 +2729,12 @@
             "value" : "Información de la cuenta"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kasutajakonto teave"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2499,6 +2757,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Информация об аккаунте"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "கணக்கு செய்தி"
           }
         },
         "uk" : {
@@ -2539,14 +2803,14 @@
         },
         "cs" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Copyright © 2012-2022 Bryce Cogswell. \nVšechna práva vyhrazena.\n\nOpenStreetMap data jsou licencována pod Open Data Commons Open Database License (ODbL):\nhttps://www.openstreetmap.com/copyright\n\nLetecké snímky Bing – copyright Microsoft a jeho dodavatelé:\nhttps://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\nLetecké snímky Mapbox – copyright Mapbox a jeho dodavatelé: https://www.mapbox.com/tos\n\nXML parsování s pomocí KissXML Robbieho Hansona:\nhttps://github.com/robbiehanson/KissXML\n\nKód EXIF parsování – copyright © 2010-2015 Mayank Lahiri\nhttps://github.com/mayanklahiri/easyexif\n\nMapové ikony – SJJB:\nhttp://www.sjjb.co.uk/mapicons\n\nDalší ikony – Glyphish:\nhttps://www.glyphish.com\n\nČeský překlad – R3gi\nhttps://www.r3gi.cz\n"
+            "state" : "translated",
+            "value" : "Copyright © 2012-2025 Bryce Cogswell. \nVšechna práva vyhrazena.\n\nOpenStreetMap data jsou licencována pod Open Data Commons Open Database License (ODbL):\nhttps://www.openstreetmap.com/copyright\n\nLetecké snímky Bing – copyright Microsoft a jeho dodavatelé:\nhttps://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\nLetecké snímky Mapbox – copyright Mapbox a jeho dodavatelé: https://www.mapbox.com/tos\n\nXML parsování s pomocí KissXML Robbieho Hansona:\nhttps://github.com/robbiehanson/KissXML\n\nMapové ikony – SJJB:\nhttp://www.sjjb.co.uk/mapicons\n\nDalší ikony – Glyphish:\nhttps://www.glyphish.com\n\nČeský překlad – R3gi\nhttps://www.r3gi.cz\n"
           }
         },
         "de" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Urheberrecht © 2012-2020 Bryce Cogswell.\nAlle Rechte vorbehalten.\n\nOpenStreetMap-Daten sind lizenziert unter der Open Data Commons Open Database License (ODbL):\nhttps://www.openstreetmap.com/copyright\n\nBing-Luftbilddaten unterliegen dem Copyright von Microsoft und seinen Zulieferern:\nhttps://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\nMapbox-Luftbilddaten unterliegen dem Copyright von Mapbox und seinen Lieferanten: https://www.mapbox.com/tos\n\nXML-Parsing mit freundlicher Genehmigung von Robbie Hanson's KissXML:\nhttps://github.com/robbiehanson/KissXML\n\nEXIF-Parsing-Code Urheberrecht (c) 2010-2015 Mayank Lahiri\nhttps://github.com/mayanklahiri/easyexif\n\nKartensymbole von SJJB:\nhttp://www.sjjb.co.uk/mapicons\n\nAndere Symbole von Glyphish:\nhttp://glyphish.com\n"
+            "state" : "translated",
+            "value" : "Urheberrecht © 2012-2020 Bryce Cogswell.\nAlle Rechte vorbehalten.\n\nOpenStreetMap-Daten sind lizenziert unter der Open Data Commons Open Database License (ODbL):\nhttps://www.openstreetmap.com/copyright\n\nBing-Luftbilddaten unterliegen dem Copyright von Microsoft und seinen Zulieferern:\nhttps://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\nMapbox-Luftbilddaten unterliegen dem Copyright von Mapbox und seinen Lieferanten: https://www.mapbox.com/tos\n\nXML-Parsing mit freundlicher Genehmigung von Robbie Hanson's KissXML:\nhttps://github.com/robbiehanson/KissXML\n\nKartensymbole von SJJB:\nhttp://www.sjjb.co.uk/mapicons\n\nAndere Symbole von Glyphish:\nhttp://glyphish.com\n"
           }
         },
         "en" : {
@@ -2563,8 +2827,8 @@
         },
         "et" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Copyright © 2012-2020 Bryce Cogswell.\nKõik õigused kaitstud.\n\nOpenStreetMapi andmed on litsentseeritud Open Data Commons Open Database License (ODbL) alusel:\nhttps://www.openstreetmap.com/copyright\n\nBingi aerofotode autoriõigus Microsoftil ja selle tarnijatel:\nhttps://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\nMapboxi aerofotode autoriõigus Mapbox ja selle tarnijad: https://www.mapbox.com/tos.\n\nXML-parsimine Robbie Hansoni KissXMLi vahendusel:\nhttps://github.com/robbiehanson/KissXML\n\nEXIF-parsingu kood Copyright (c) 2010-2015 Mayank Lahiri\nhttps://github.com/mayanklahiri/easyexif\n\nKaardi ikoonid on teinud SJJB:\nhttp://www.sjjb.co.uk/mapicons\n\nMuud ikoonid Glyphishi poolt:\nhttp://glyphish.com\n"
+            "state" : "translated",
+            "value" : "Autoriõigused © 2012-2024 Bryce Cogswell.\nKõik õigused kaitstud.\n\nOpenStreetMapi andmed on litsentseeritud Open Data Commons Open Database License (ODbL) alusel:\nhttps://www.openstreetmap.com/copyright\n\nBingi aerofotode autoriõigused kuuluvad Microsoftile ja selle tarnijatele:\nhttps://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\nMapboxi aerofotode autoriõigused kuuluvad Mapboxile ja selle tarnijatele: https://www.mapbox.com/tos.\n\nXML-parsimine Robbie Hansoni KissXMLi abil:\nhttps://github.com/robbiehanson/KissXML\n\nKaardi ikoonid on teinud SJJB:\nhttp://www.sjjb.co.uk/mapicons\n\nMuud ikoonid Glyphishi poolt:\nhttp://glyphish.com\n"
           }
         },
         "fr" : {
@@ -2605,8 +2869,14 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Авторские права © 2012-2020 Брайс Когсвелл. \nВсе права защищены.\n\nДанные OpenStreetMap распространяются по лицензии с Open Data Commons Open Database License (ODbL):\nhttps://www.openstreetmap.com/copyright\n\nBing aerial imagery copyright Microsoft and its suppliers:\nhttps://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\nMapbox aerial imagery copyright Mapbox and its suppliers: https://www.mapbox.com/tos\n\nXML parsing courtesy of Robbie Hanson's KissXML:\nhttps://github.com/robbiehanson/KissXML\n\nEXIF parsing code Copyright (c) 2010-2015 Mayank Lahiri\nhttps://github.com/mayanklahiri/easyexif\n\nMap icons by SJJB:\nhttp://www.sjjb.co.uk/mapicons\n\nДругие значки от Glyphish:\nhttp://glyphish.com\n"
+            "state" : "translated",
+            "value" : "Авторские права © 2012-2020 Брайс Когсвелл. \nВсе права защищены.\n\nДанные OpenStreetMap распространяются по лицензии с Open Data Commons Open Database License (ODbL):\nhttps://www.openstreetmap.com/copyright\n\nBing aerial imagery copyright Microsoft and its suppliers:\nhttps://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\nMapbox aerial imagery copyright Mapbox and its suppliers: https://www.mapbox.com/tos\n\nПарсер XML от KissXML:\nhttps://github.com/robbiehanson/KissXML\n\nЗначки на карте от SJJB:\nhttp://www.sjjb.co.uk/mapicons\n\nДругие значки от Glyphish:\nhttp://glyphish.com\n"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "பதிப்புரிமை © 2012-2024 பிரைச் கோக்ச்வெல்.\n அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.\n\n ஓபன்ச்ட்ரீட்மேப் தரவு திறந்த தரவு காமன்ச் திறந்த தரவுத்தள உரிமத்தின் (ODBL) கீழ் உரிமம் பெற்றது:\n https://www.openstreetmap.com/copyright\n\n பிங் ஏரியல் இமேசரி பதிப்புரிமை மைக்ரோசாப்ட் மற்றும் அதன் சப்ளையர்கள்:\n https://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\n மேபாக்ச் வான்வழி படங்கள் பதிப்புரிமை மேப் பாக்ச் மற்றும் அதன் சப்ளையர்கள்: https://www.mapbox.com/tos\n\n ராபி ஆன்சனின் கிச்எக்ச்எம்எல்லின் எக்ச்எம்எல் பாகுபடுத்தல் மரியாதை:\n https://github.com/robbiehanson/kissxml\n\n SJJB ஆல் வரைபட சின்னங்கள்:\n http://www.sjjb.co.uk/mapicons\n\n கிளிஃபிசின் பிற சின்னங்கள்:\n http://glyphish.com\n"
           }
         },
         "uk" : {
@@ -2617,8 +2887,8 @@
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "2012-2020 Bryce Cogswell © 版權所有 \n保留所有權利\n\n以開放資料庫授權條款 (Open Database License, ODbL) 授權開放街圖資料：\nhttps://www.openstreetmap.com/copyright\n\nBing 空照圖微軟及其供應商所有：\nhttps://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\nMapbox 空照圖 Mapbox 及其供應商所有：https://www.mapbox.com/tos\n\n感謝 Robbie Hanson 的 KissXML XML 解析：\nhttps://github.com/robbiehanson/KissXML\n\nEXIF 解析程式碼 2010-2015 Mayank Lahiri 版權所有 (c)\nhttps://github.com/mayanklahiri/easyexif\n\nSJJB 提供地圖圖示：\nhttp://www.sjjb.co.uk/mapicons\n\n其他圖示來自 Glyphish:\nhttp://glyphish.com\n"
+            "state" : "translated",
+            "value" : "2012-2020 Bryce Cogswell © 版權所有 \n保留所有權利\n\n以開放資料庫授權條款 (Open Database License, ODbL) 授權開放街圖資料：\nhttps://www.openstreetmap.com/copyright\n\nBing 空照圖微軟及其供應商所有：\nhttps://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\nMapbox 空照圖 Mapbox 及其供應商所有：https://www.mapbox.com/tos\n\n感謝 Robbie Hanson 的 KissXML XML 解析：\nhttps://github.com/robbiehanson/KissXML\n\nSJJB 提供地圖圖示：\nhttp://www.sjjb.co.uk/mapicons\n\n其他圖示來自 Glyphish:\nhttp://glyphish.com\n"
           }
         },
         "zh-Hant-HK" : {
@@ -2673,6 +2943,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Alusta"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hasi"
           }
         },
         "fi" : {
@@ -2745,6 +3021,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Начать"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "தொடங்கு"
           }
         },
         "uk" : {
@@ -2825,6 +3107,12 @@
             "value" : "Weblate - tõlked"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weblate - Itzulpenak"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2889,6 +3177,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Weblate - переводы"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "வலைபெயர்ப்பு - மொழிபெயர்ப்புகள்"
           }
         },
         "uk" : {
@@ -3029,6 +3323,12 @@
             "value" : "Отчёты об ошибках и предложения"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "பிழை அறிக்கைகள் & பரிந்துரைகள்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3089,6 +3389,18 @@
             "value" : "Acceder"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logi sisse"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sartu"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3129,6 +3441,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Войти"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "விடுபதிகை"
           }
         },
         "uk" : {
@@ -3281,6 +3599,12 @@
             "value" : "-"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "-"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3419,6 +3743,12 @@
             "value" : "Создать аккаунт"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "புதிய கணக்கை பதிவு செய்யுங்கள்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3497,6 +3827,12 @@
             "value" : "Rekvisiidid"
           }
         },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tili"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3561,6 +3897,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Аккаунт"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "நற்சான்றிதழ்கள்"
           }
         },
         "uk" : {
@@ -3687,6 +4029,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Прикосновения для записи скринкаста"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "திரை பதிவுக்கான தொடுதல்கள்"
           }
         },
         "uk" : {
@@ -3833,6 +4181,12 @@
             "value" : "Расширенные настройки"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "மேம்பட்ட அமைப்புகள்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3975,6 +4329,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Для продвинутых пользователей"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "மேம்பட்ட"
           }
         },
         "uk" : {
@@ -4127,6 +4487,12 @@
             "value" : "Расширенные настройки"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "மேம்பட்ட அமைப்புகள்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4205,6 +4571,12 @@
             "value" : "Pealkiri"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Titulu"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4277,6 +4649,12 @@
             "value" : "Заголовок"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "தலைப்பு"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4331,6 +4709,12 @@
             "value" : "Actualizar la cuenta"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uuenda kasutajakontot"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4353,6 +4737,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Обновить аккаунт"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "கணக்கைப் புதுப்பிக்கவும்"
           }
         },
         "uk" : {
@@ -4421,6 +4811,12 @@
             "value" : "Keel"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hizkuntza"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "needs_review",
@@ -4435,8 +4831,8 @@
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Jezik"
+            "state" : "translated",
+            "value" : "Jezik predodređenih postavki"
           }
         },
         "id" : {
@@ -4489,8 +4885,14 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Язык"
+            "state" : "translated",
+            "value" : "Язык пресетов"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "முன்னமைவு மொழி"
           }
         },
         "uk" : {
@@ -4641,6 +5043,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Обратная связь по email"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "மின்னஞ்சல் கருத்து"
           }
         },
         "uk" : {
@@ -4871,6 +5279,12 @@
             "value" : "Картографы рядом"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "அருகிலுள்ள மேப்பர்கள்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4949,6 +5363,12 @@
             "value" : "Alapealkiri"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Azpititulu"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5019,6 +5439,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Подзаголовок"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "வசன வரிகள்"
           }
         },
         "uk" : {
@@ -5093,6 +5519,12 @@
             "value" : "Tagasi"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gibelka"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5163,6 +5595,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Назад"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "பின்"
           }
         },
         "uk" : {
@@ -5243,6 +5681,12 @@
             "value" : "Võta meiega ühendust"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harremanetan sar"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5313,6 +5757,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Свяжитесь с нами"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "எங்களை தொடர்புகொள்"
           }
         },
         "uk" : {
@@ -5393,6 +5843,12 @@
             "value" : "Üksikasjad"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xehetasunak"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5463,6 +5919,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Подробнее"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "விவரங்கள்"
           }
         },
         "uk" : {
@@ -5543,6 +6005,12 @@
             "value" : "Ettevalmistus võrguühenduseta kasutamiseks"
           }
         },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valmistele Offline -tilaa varten"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5607,6 +6075,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Подготовить для работы автономно"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ஆஃப்லைனுக்குத் தயாராகுங்கள்"
           }
         },
         "uk" : {
@@ -5759,6 +6233,12 @@
             "value" : "Стать тестировщиком"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ஒரு சோதனையாளராகுங்கள்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5831,6 +6311,12 @@
             "value" : "Lisateave"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xehetasun"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5901,6 +6387,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Подробности"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "விவரம்"
           }
         },
         "uk" : {
@@ -6053,6 +6545,12 @@
             "value" : "Разное"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "மற்றவை"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6197,6 +6695,12 @@
             "value" : "Логин"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "புகுபதிவு"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6275,6 +6779,12 @@
             "value" : "Meist"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gure buruz"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6345,6 +6855,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "О нас"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "எங்களைப் பற்றி"
           }
         },
         "uk" : {
@@ -6425,6 +6941,12 @@
             "value" : "Keel"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hizkuntza"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "needs_review",
@@ -6439,8 +6961,8 @@
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Jezik"
+            "state" : "translated",
+            "value" : "Jezik predodređenih postavki"
           }
         },
         "id" : {
@@ -6493,8 +7015,14 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Язык"
+            "state" : "translated",
+            "value" : "Язык пресетов"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "முன்னமைவு மொழி"
           }
         },
         "uk" : {
@@ -6575,6 +7103,12 @@
             "value" : "Ettevalmistus võrguühenduseta kasutamiseks"
           }
         },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valmistele Offline -tilaa varten"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6639,6 +7173,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Подготовить для работы автономно"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ஆஃப்லைனுக்குத் தயாராகுங்கள்"
           }
         },
         "uk" : {
@@ -6719,6 +7259,12 @@
             "value" : "Alusta"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hasi"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6783,6 +7329,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Начать"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "தொடங்கு"
           }
         },
         "uk" : {
@@ -6858,6 +7410,12 @@
           }
         },
         "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "-"
+          }
+        },
+        "ta" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "-"
@@ -6993,6 +7551,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Команда проекта"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "வரவு"
           }
         },
         "uk" : {
@@ -7137,6 +7701,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Чтобы загружать правки на карту, вам понадобятся имя пользователя и пароль, зарегистрированные на openstreetmap.org. "
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "வரைபடத்தில் மாற்றங்களை பதிவேற்றுவதற்கு உங்களுக்கு Openstreetmap.org இல் பதிவுசெய்யப்பட்ட பயனர் பெயர் மற்றும் கடவுச்சொல் தேவை. "
           }
         },
         "uk" : {
@@ -7289,6 +7859,12 @@
             "value" : "Аккаунт OpenStreetMap"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OpenStreetMap கணக்கு"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7431,6 +8007,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Вступить в TestFlight Beta"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "டெச்ட்ஃப்ளைட் பீட்டாவில் சேரவும்"
           }
         },
         "uk" : {
@@ -7577,6 +8159,12 @@
             "value" : "Показать частоту кадров"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FPS ஐக் காட்டு"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7715,6 +8303,12 @@
             "value" : "Кадры в секунду"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "பிரேம்கள்/இரண்டாவது"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7787,6 +8381,12 @@
             "value" : "Lähedal asuvad kaardistajad"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mapatzaile hurbilak"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7851,6 +8451,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Картографы рядом"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "அருகிலுள்ள மேப்பர்கள்"
           }
         },
         "uk" : {
@@ -8003,6 +8609,12 @@
             "value" : "Обратная связь по email"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "மின்னஞ்சல் கருத்து"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8063,6 +8675,12 @@
             "value" : "Cerrar sesión"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logi välja"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8085,6 +8703,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Выйти"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "விடுபதிகை"
           }
         },
         "uk" : {
@@ -8135,6 +8759,18 @@
             "value" : "Conjuntos de cambios"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muudatuskogumid"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aldaketa-multzoak"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8157,6 +8793,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пакеты правок"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "மாற்றங்கள்"
           }
         },
         "uk" : {
@@ -8297,6 +8939,12 @@
             "value" : "GitHub - проблемы и исходный код"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "அறிவிலிமையம் - சிக்கல்கள் & மூலக் குறியீடு"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8375,6 +9023,12 @@
             "value" : "Arendaja seaded"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garatzaile ezaugarriak"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8447,6 +9101,12 @@
             "value" : "Настройки разработчика"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "உருவாக்குபவர் அமைப்புகள்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8507,6 +9167,12 @@
             "value" : "Slack - Discusión"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vestlus Slackis"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8525,10 +9191,22 @@
             "value" : "Slack - чат"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "மந்தமான - விவாதம்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Slack — дискусії"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slack - 討論"
           }
         }
       }

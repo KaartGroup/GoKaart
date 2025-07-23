@@ -34,11 +34,11 @@ class MapViewUITestCase: XCTestCase {
 }
 
 extension XCTestCase {
-	func waitForViewController(_ identifier: String, timeout _: TimeInterval = 3.0) {
+	func waitForViewController(_ identifier: String, timeout _: TimeInterval = 30.0) {
 		let predicate = NSPredicate(format: "exists == 1")
 		let query = XCUIApplication().navigationBars[identifier]
 		let elementExistsExpectation = expectation(for: predicate, evaluatedWith: query, handler: nil)
 
-		wait(for: [elementExistsExpectation], timeout: 3)
+		wait(for: [elementExistsExpectation], timeout: 30.0)
 	}
 }

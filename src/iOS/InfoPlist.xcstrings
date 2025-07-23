@@ -47,6 +47,12 @@
             "value" : "Go Map!!"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go Map!!"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "needs_review",
@@ -135,6 +141,12 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "Go Map!!"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "வரைபடத்திற்குச் செல்லுங்கள் !!"
           }
         },
         "tzm" : {
@@ -233,6 +245,12 @@
             "value" : "Go Map!!"
           }
         },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go Map!!"
+          }
+        },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -323,6 +341,12 @@
             "value" : "Go Map!!"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "வரைபடத்திற்குச் செல்லுங்கள் !!"
+          }
+        },
         "tzm" : {
           "stringUnit" : {
             "state" : "translated",
@@ -397,6 +421,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "GPS-vahetusformaat (GPX)"
+          }
+        },
+        "eu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPS Exchange Format (GPX)"
           }
         },
         "fi" : {
@@ -481,6 +511,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "GPS Exchange Format (GPX)"
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "சி.பி.எச் பரிமாற்ற வடிவம் (சி.பி.எக்ச்)"
           }
         },
         "uk" : {
@@ -645,6 +681,12 @@
             "value" : "Подключиться к внешнему Bluetooth GPS устройству"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "வெளிப்புற ஊடலை சி.பி.எச் சாதனங்களுடன் இணைக்கவும்"
+          }
+        },
         "tzm" : {
           "stringUnit" : {
             "state" : "translated",
@@ -801,6 +843,12 @@
             "value" : "Камера используется для измерения высоты зданий или объектов, и для выполнения распознавания текста в знаках часов открытия."
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "கட்டிடங்கள் அல்லது பொருள்களின் உயரங்களை அளவிடவும், தொடக்க நேர அறிகுறிகளில் உரை அங்கீகாரத்தை செய்யவும் கேமரா பயன்படுத்தப்படுகிறது."
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -855,6 +903,12 @@
             "value" : "Las rutas de tus entrenamientos se pueden importar como rutas GPX."
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sinu treeringute marsruudid on imporditavad GPX-i radadena."
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -871,6 +925,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Маршруты ваших тренировок можно импортировать как GPX."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "உங்கள் உடற்பயிற்சிகளிலிருந்து வழித்தடங்களை சிபிஎக்ச் வழிகளாக இறக்குமதி செய்யலாம்."
           }
         },
         "uk" : {
@@ -921,6 +981,12 @@
             "value" : "La información sanitaria nunca se actualiza."
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tervisealane teave pole kunagi uuendatud."
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -937,6 +1003,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Приложение никогда не изменяет данные о Вашем здоровье."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "சுகாதார தகவல்கள் ஒருபோதும் புதுப்பிக்கப்படவில்லை."
           }
         },
         "uk" : {
@@ -995,14 +1067,14 @@
         },
         "es" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "© 2012-2021 de Bryce Cogswell"
+            "state" : "translated",
+            "value" : "Derechos de autor 2012-2024 Bryce Cogswell"
           }
         },
         "et" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Autoriõigus 2012-2021 Bryce Cogswell"
+            "state" : "translated",
+            "value" : "Autoriõigused 2012-2021 Bryce Cogswell"
           }
         },
         "fr" : {
@@ -1071,6 +1143,12 @@
             "value" : "Авторское право 2012-2021 Брайс Когсвелл"
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "பதிப்புரிமை 2012-2024 பிரைச் கோக்ச்வெல்"
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "needs_review",
@@ -1128,7 +1206,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "El rastreo de ubicación siempre encendido permite a la aplicación grabar archivos GPX mientras está inactiva."
+            "value" : "Permitir siempre los servicios de ubicación permite que la aplicación grabe archivos GPX incluso cuando está inactiva."
           }
         },
         "et" : {
@@ -1215,6 +1293,12 @@
             "value" : "Постоянное отслеживание местоположения позволяет приложению записывать файлы GPX, даже когда оно неактивно."
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "இருப்பிட கண்காணிப்பில் எப்போதும் செயலற்ற நிலையில் சிபிஎக்ச் கோப்புகளை பதிவு செய்ய பயன்பாட்டை அனுமதிக்கிறது."
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1284,7 +1368,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tú ubicación se mostrará y seguirá en el mapa."
+            "value" : "Tu ubicación se mostrará y se rastreará en el mapa."
           }
         },
         "et" : {
@@ -1375,6 +1459,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ваше местоположение будет отображаться и отслеживаться на карте."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "உங்கள் இருப்பிடம் காண்பிக்கப்படும் மற்றும் வரைபடத்தில் பின்பற்றப்படும்."
           }
         },
         "uk" : {
@@ -1527,6 +1617,12 @@
             "value" : "Включение местоположения позволяет приложению отображать объекты в вашем районе. Это позволяет легко обновлять или добавлять данные, которые вы исследуете самостоятельно."
           }
         },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "இருப்பிட சேவைகளை இயக்குவது பயன்பாட்டை உங்கள் அருகிலுள்ள பொருள்களைக் காண்பிக்க அனுமதிக்கிறது. நீங்கள் கணக்கெடுக்கும் தரவை எளிதாக புதுப்பிக்க அல்லது சேர்க்க இது உங்களை அனுமதிக்கிறது."
+          }
+        },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1669,6 +1765,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ваше местоположение будет отображаться и отслеживаться на карте."
+          }
+        },
+        "ta" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "உங்கள் இருப்பிடம் காண்பிக்கப்படும் மற்றும் வரைபடத்தில் பின்பற்றப்படும்."
           }
         },
         "uk" : {

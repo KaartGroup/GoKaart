@@ -10,8 +10,6 @@ import Foundation
 import SafariServices
 import UIKit
 
-let OAUTH_KEYCHAIN_IDENTIFIER = "OAuth_access_token"
-
 enum OAuthError: LocalizedError {
 	case errorMessasge(String)
 	case badRedirectUrl(String)
@@ -28,27 +26,44 @@ enum OAuthError: LocalizedError {
 
 class OAuth2 {
 	static let redirect_uri = "gomaposm://oauth/callback"
-	static let scope = "read_prefs write_prefs read_gpx write_gpx write_notes write_api"
 
 	private var safariVC: SFSafariViewController?
 	private var state = ""
 	private(set) var authorizationHeader: (name: String, value: String)?
 
-	// These values are all computed dynamically based on the current server (kinda ugly)
-	var server: OsmServer { OSM_SERVER }
-	var client_id: String { server.client_id }
-	var serverURL: String { server.authURL }
-	var oauthUrl: URL { return URL(string: serverURL)!.appendingPathComponent("oauth2") }
+	let serverURL: URL
+	let basePath: String
+	let authPath: String
+	let client_id: String
+	let scope: String // "read_prefs write_prefs read_gpx write_gpx write_notes write_api"
 
-	init() {
-		if let token = KeyChain.getStringForIdentifier(OAUTH_KEYCHAIN_IDENTIFIER) {
+	var keychainIdentifier: String {
+		let OAUTH_KEYCHAIN_IDENTIFIER = "OAuth_access_token"
+		if serverURL.host == "www.openstreetmap.org" {
+			return OAUTH_KEYCHAIN_IDENTIFIER
+		}
+		return "\(OAUTH_KEYCHAIN_IDENTIFIER):\(serverURL.host!)"
+	}
+
+	init(serverURL: URL,
+	     basePath: String,
+	     authPath: String,
+	     client_id: String,
+	     scope: String)
+	{
+		self.serverURL = serverURL
+		self.basePath = basePath
+		self.authPath = authPath
+		self.client_id = client_id
+		self.scope = scope
+		if let token = KeyChain.getStringForIdentifier(keychainIdentifier) {
 			setAuthorizationToken(token: token)
 		}
 	}
 
 	private func setAuthorizationToken(token: String) {
 		authorizationHeader = (name: "Authorization", value: "Bearer \(token)")
-		_ = KeyChain.setString(token, forIdentifier: OAUTH_KEYCHAIN_IDENTIFIER)
+		_ = KeyChain.setString(token, forIdentifier: keychainIdentifier)
 	}
 
 	func isAuthorized() -> Bool {
@@ -56,12 +71,14 @@ class OAuth2 {
 	}
 
 	func removeAuthorization() {
-		KeyChain.deleteString(forIdentifier: OAUTH_KEYCHAIN_IDENTIFIER)
+		KeyChain.deleteString(forIdentifier: keychainIdentifier)
 		authorizationHeader = nil
 	}
 
 	private func url(withPath path: String, with dict: [String: String]) -> URL {
-		var components = URLComponents(string: oauthUrl.appendingPathComponent(path).absoluteString)!
+		let url = serverURL.appendingPathComponent(basePath).appendingPathComponent(path)
+		var components = URLComponents(url: url,
+		                               resolvingAgainstBaseURL: true)!
 		components.queryItems = dict.map({ k, v in URLQueryItem(name: k, value: v) })
 		return components.url!
 	}
@@ -85,11 +102,11 @@ class OAuth2 {
 	{
 		authCallback = callback
 		state = "\(Int.random(in: 0..<1000_000000))-\(Int.random(in: 0..<1000_000000))"
-		let url = url(withPath: "authorize", with: [
+		let url = url(withPath: authPath, with: [
 			"client_id": client_id,
 			"redirect_uri": Self.redirect_uri,
 			"response_type": "code",
-			"scope": Self.scope,
+			"scope": scope,
 			"state": state
 		])
 		safariVC = SFSafariViewController(url: url)
@@ -99,8 +116,10 @@ class OAuth2 {
 	// Once the user responds to the Safari popup the application is invoked and
 	// the app delegate calls this function
 	func redirectHandler(url: URL, options: [UIApplication.OpenURLOptionsKey: Any]) {
-		safariVC?.dismiss(animated: true)
-		safariVC = nil
+		defer {
+			safariVC?.dismiss(animated: true)
+			safariVC = nil
+		}
 		guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
 			doCallback(.failure(OAuthError.badRedirectUrl(url.absoluteString)))
 			return
@@ -178,8 +197,8 @@ class OAuth2 {
 
 	// If everything is working correctly this function will succeed in getting user details.
 	func getUserDetails(callback: @escaping ([String: Any]?) -> Void) {
-		let url = serverURL + "api/0.6/user/details.json"
-		if let request = urlRequest(string: url) {
+		let url = serverURL.appendingPathComponent("api/0.6/user/details.json")
+		if let request = urlRequest(url: url) {
 			URLSession.shared.data(with: request, completionHandler: { result in
 				DispatchQueue.main.async {
 					if let data = try? result.get(),
