@@ -132,8 +132,8 @@ class DisplayViewController: UITableViewController {
 			}
 		}
 
-		// set the name of the aerial provider
-		if indexPath.section == BACKGROUND_SECTION, indexPath.row == 2 {
+		// set the name of the aerial provider (Aerial only cell)
+		if indexPath.section == BACKGROUND_SECTION, indexPath.row == 3 {
 			if let custom = cell as? CustomBackgroundCell {
 				let servers = AppDelegate.shared.mapView.tileServerList
 				custom.button.setTitle(servers.currentServer.name, for: .normal)
@@ -141,8 +141,8 @@ class DisplayViewController: UITableViewController {
 			}
 		}
 
-		// set the name of the basemap provider
-		if indexPath.section == BACKGROUND_SECTION, indexPath.row == 3 {
+		// set the name of the basemap provider (Basemap only cell)
+		if indexPath.section == BACKGROUND_SECTION, indexPath.row == 4 {
 			if let custom = cell as? CustomBackgroundCell {
 				let server = AppDelegate.shared.mapView.basemapServer
 				custom.button.setTitle(server.name, for: .normal)

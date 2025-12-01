@@ -6895,6 +6895,18 @@
         }
       }
     },
+    "HyB-rD-zM1.text" : {
+      "comment" : "Class = \"UILabel\"; text = \"Editor with Aerial, Basemap Overview\"; ObjectID = \"HyB-rD-zM1\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Editor with Aerial, Basemap Overview"
+          }
+        }
+      }
+    },
     "Idx-2G-6F7.text" : {
       "comment" : "Class = \"UILabel\"; text = \"Power Features\"; ObjectID = \"Idx-2G-6F7\";",
       "extractionState" : "extracted_with_value",

@@ -611,6 +611,9 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 			actionSheet.addAction(editorAerial)
 			actionSheet.addAction(editorOnly)
 			actionSheet.addAction(aerialOnly)
+		case .EDITORAERIALBASEMAP:
+			actionSheet.addAction(editorOnly)
+			actionSheet.addAction(aerialOnly)
 		}
 
 		actionSheet.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""),

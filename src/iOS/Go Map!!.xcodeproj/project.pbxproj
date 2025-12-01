@@ -233,6 +233,7 @@
 		C3D096DB263EB73E00E3B129 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D096DA263EB73E00E3B129 /* main.swift */; };
 		C3D096DC263EB7DE00E3B129 /* MyApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D096D7263EAE1E00E3B129 /* MyApplication.swift */; };
 		C3D096FC263F118500E3B129 /* FpsLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C341E1552639DEFC0022E983 /* FpsLabel.swift */; };
+		C3D096FD263F118500E3B130 /* ZoomLevelLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C341E1562639DEFC0022E984 /* ZoomLevelLabel.swift */; };
 		C3FA9249263FF95B000A2A99 /* LocationParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FA9248263FF95B000A2A99 /* LocationParser.swift */; };
 		CD677FFA2A5FC17300F28605 /* AccountInfoTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD677FF92A5FC17300F28605 /* AccountInfoTableViewController.swift */; };
 		ED56E5AB26024DA5000B368C /* AutocompleteTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED56E5AA26024DA5000B368C /* AutocompleteTextField.swift */; };
@@ -552,6 +553,7 @@
 		C3004F61263B2524006BF313 /* POIAllTagsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = POIAllTagsViewController.swift; sourceTree = "<group>"; };
 		C341E1522639DECC0022E983 /* WikiPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WikiPage.swift; path = ../Shared/WikiPage.swift; sourceTree = "<group>"; };
 		C341E1552639DEFC0022E983 /* FpsLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FpsLabel.swift; sourceTree = "<group>"; };
+		C341E1562639DEFC0022E984 /* ZoomLevelLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZoomLevelLabel.swift; sourceTree = "<group>"; };
 		C341E1592639DF210022E983 /* NotesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotesTableViewController.swift; sourceTree = "<group>"; };
 		C341E15B2639DF440022E983 /* NearbyMappersViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NearbyMappersViewController.swift; sourceTree = "<group>"; };
 		C365A562263FC53F007DEC94 /* TurnRestrictHwyView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TurnRestrictHwyView.swift; sourceTree = "<group>"; };
@@ -877,6 +879,7 @@
 				023320A32BE1DB9900E3311A /* DPadView.swift */,
 				027CF8722BDE141700E6F03B /* DrawingLayer.swift */,
 				C341E1552639DEFC0022E983 /* FpsLabel.swift */,
+				C341E1562639DEFC0022E984 /* ZoomLevelLabel.swift */,
 				C3FA925626416BF5000A2A99 /* GpxLayer.swift */,
 				C3D096D4263EACFF00E3B129 /* LocationBallLayer.swift */,
 				02CE3CE829919FC400DDACE0 /* LocationButton.swift */,
@@ -1480,6 +1483,7 @@
 				C3D096CB263E9A1100E3B129 /* DownloadThreadPool.swift in Sources */,
 				02930750268BFB6700B2A326 /* QuadDownloadLayer.swift in Sources */,
 				C3D096FC263F118500E3B129 /* FpsLabel.swift in Sources */,
+				C3D096FD263F118500E3B130 /* ZoomLevelLabel.swift in Sources */,
 				ED9649D32601C4CE00EC0A60 /* AerialTileServerListViewController.swift in Sources */,
 				02C456A829C8DB410077E3FD /* TagInfo.swift in Sources */,
 				ED9649C22601C33E00EC0A60 /* TileServerEditViewController.swift in Sources */,

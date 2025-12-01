@@ -19,6 +19,7 @@ enum MapViewState: Int {
 	case EDITORAERIAL
 	case AERIAL
 	case BASEMAP
+	case EDITORAERIALBASEMAP // Editor + Aerial at close zoom, switches to Basemap when zoomed out
 }
 
 /// Overlays on top of the map: Locator when zoomed, GPS traces, etc.
@@ -171,6 +172,27 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 	@IBOutlet var aerialAlignmentButton: UIButton!
 	@IBOutlet var dPadView: DPadView!
 
+	/// Displays the current zoom level on the map
+	private(set) var zoomLevelLabel: ZoomLevelLabel!
+
+	// MARK: - Planning Mode
+
+	/// Saved state when entering planning mode
+	private struct PlanningModeSavedState {
+		let viewState: MapViewState
+		let centerLatLon: LatLon
+		let scale: Double
+	}
+
+	/// Whether we're currently in planning mode (exploring the map without editing)
+	private(set) var isInPlanningMode = false
+
+	/// The saved editing state to restore when exiting planning mode
+	private var planningModeSavedState: PlanningModeSavedState?
+
+	/// Button to toggle planning mode (upper left corner)
+	private(set) var planningModeButton: UIButton!
+
 	private var magnifyingGlass: MagnifyingGlass!
 
 	private var editControlActions: [EDIT_ACTION] = []
@@ -193,6 +215,19 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 	private var viewStateZoomedOut = false { // override layer because we're zoomed out
 		willSet(newValue) {
 			viewStateWillChangeTo(viewState, overlays: viewOverlayMask, zoomedOut: newValue)
+		}
+	}
+
+	/// Zoom level threshold for EDITORAERIALBASEMAP mode to switch from aerial to basemap
+	/// Below this zoom level, basemap is shown; at or above, aerial is shown
+	public static let aerialBasemapZoomThreshold: Double = 15.0
+
+	/// Tracks whether we're past the zoom threshold for hybrid aerial/basemap mode
+	private var viewStatePastZoomThreshold = false {
+		willSet(newValue) {
+			if newValue != viewStatePastZoomThreshold {
+				viewStateWillChangeTo(viewState, overlays: viewOverlayMask, zoomedOut: viewStateZoomedOut)
+			}
 		}
 	}
 
@@ -351,6 +386,13 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 				isZoomedOut = false
 			}
 			viewStateZoomedOut = isZoomedOut
+
+			// Track zoom threshold for hybrid aerial/basemap mode
+			let currentZoom = mapTransform.zoom()
+			viewStatePastZoomThreshold = currentZoom < MapView.aerialBasemapZoomThreshold
+
+			// Update zoom level display
+			zoomLevelLabel?.updateZoom(currentZoom)
 
 			updateUserLocationIndicator(nil)
 			updateCurrentRegionForLocationUsingCountryCoder()
@@ -704,6 +746,45 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		userInstructionLabel.textColor = UIColor.white
 		userInstructionLabel.isHidden = true
 
+		// Create zoom level indicator label
+		zoomLevelLabel = ZoomLevelLabel(frame: CGRect(x: 0, y: 0, width: 60, height: 24))
+		zoomLevelLabel.translatesAutoresizingMaskIntoConstraints = false
+		addSubview(zoomLevelLabel)
+		// Position in bottom-left corner, above the safe area
+		NSLayoutConstraint.activate([
+			zoomLevelLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 8),
+			zoomLevelLabel.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -8),
+			zoomLevelLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 50),
+			zoomLevelLabel.heightAnchor.constraint(equalToConstant: 24)
+		])
+
+		// Create planning mode toggle button (upper left corner)
+		planningModeButton = UIButton(type: .system)
+		planningModeButton.translatesAutoresizingMaskIntoConstraints = false
+		if #available(iOS 13.0, *) {
+			let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .medium)
+			let mapImage = UIImage(systemName: "map", withConfiguration: config)
+			planningModeButton.setImage(mapImage, for: .normal)
+		} else {
+			planningModeButton.setTitle("Plan", for: .normal)
+		}
+		planningModeButton.backgroundColor = UIColor(white: 1.0, alpha: 0.9)
+		planningModeButton.tintColor = UIColor.systemBlue
+		planningModeButton.layer.cornerRadius = 22
+		planningModeButton.layer.shadowColor = UIColor.black.cgColor
+		planningModeButton.layer.shadowOffset = CGSize(width: 0, height: 2)
+		planningModeButton.layer.shadowOpacity = 0.3
+		planningModeButton.layer.shadowRadius = 3
+		planningModeButton.addTarget(self, action: #selector(togglePlanningMode), for: .touchUpInside)
+		addSubview(planningModeButton)
+		// Position in upper-left corner
+		NSLayoutConstraint.activate([
+			planningModeButton.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 12),
+			planningModeButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 12),
+			planningModeButton.widthAnchor.constraint(equalToConstant: 44),
+			planningModeButton.heightAnchor.constraint(equalToConstant: 44)
+		])
+
 		progressIndicator.color = UIColor.green
 
 		locationManagerExtraneousNotification = true // flag that we're going to receive a bogus notification from CL
@@ -961,6 +1042,80 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 	@objc func applicationWillTerminate(_ notification: Notification) {
 		voiceAnnouncement?.removeAll()
 		save()
+	}
+
+	// MARK: - Planning Mode
+
+	/// Toggle between editing mode and planning mode (satellite-only for route exploration)
+	@objc func togglePlanningMode() {
+		if isInPlanningMode {
+			// Exit planning mode - restore saved state
+			exitPlanningMode()
+		} else {
+			// Enter planning mode - save current state and switch to aerial
+			enterPlanningMode()
+		}
+	}
+
+	/// Enter planning mode: save current state and switch to aerial-only view
+	private func enterPlanningMode() {
+		guard !isInPlanningMode else { return }
+
+		// Save current state
+		let currentCenter = screenCenterLatLon()
+		let currentScale = screenFromMapTransform.scale()
+		planningModeSavedState = PlanningModeSavedState(
+			viewState: viewState,
+			centerLatLon: currentCenter,
+			scale: currentScale
+		)
+
+		// Switch to aerial-only (satellite) view
+		isInPlanningMode = true
+		viewState = .AERIAL
+
+		// Update button appearance to indicate active planning mode
+		updatePlanningModeButtonAppearance()
+
+		// Provide haptic feedback
+		let feedback = UIImpactFeedbackGenerator(style: .medium)
+		feedback.impactOccurred()
+	}
+
+	/// Exit planning mode: restore saved state and position
+	private func exitPlanningMode() {
+		guard isInPlanningMode, let savedState = planningModeSavedState else { return }
+
+		isInPlanningMode = false
+
+		// Restore view state
+		viewState = savedState.viewState
+
+		// Restore position and zoom
+		setTransformFor(latLon: savedState.centerLatLon, scale: savedState.scale)
+
+		// Clear saved state
+		planningModeSavedState = nil
+
+		// Update button appearance back to normal
+		updatePlanningModeButtonAppearance()
+
+		// Provide haptic feedback
+		let feedback = UIImpactFeedbackGenerator(style: .medium)
+		feedback.impactOccurred()
+	}
+
+	/// Update the planning mode button appearance based on current state
+	private func updatePlanningModeButtonAppearance() {
+		if isInPlanningMode {
+			// Active state: orange/yellow background to indicate "you're exploring"
+			planningModeButton.backgroundColor = UIColor.systemOrange
+			planningModeButton.tintColor = UIColor.white
+		} else {
+			// Normal state: white background, blue icon
+			planningModeButton.backgroundColor = UIColor(white: 1.0, alpha: 0.9)
+			planningModeButton.tintColor = UIColor.systemBlue
+		}
 	}
 
 	override func layoutSubviews() {
@@ -1359,14 +1514,14 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 	}
 
 	func viewStateWillChangeTo(_ state: MapViewState, overlays: MapViewOverlays, zoomedOut: Bool) {
-		if viewState == state, viewOverlayMask == overlays, viewStateZoomedOut == zoomedOut {
-			// no change
-			return
-		}
-
-		func StateFor(_ state: MapViewState, zoomedOut: Bool) -> MapViewState {
+		// For EDITORAERIALBASEMAP, we switch based on zoom threshold, not area-based zoomedOut
+		func StateFor(_ state: MapViewState, zoomedOut: Bool, pastZoomThreshold: Bool) -> MapViewState {
 			if zoomedOut, state == .EDITOR { return .BASEMAP }
 			if zoomedOut, state == .EDITORAERIAL { return .AERIAL }
+			// EDITORAERIALBASEMAP: show aerial+editor at close zoom, basemap at far zoom
+			if state == .EDITORAERIALBASEMAP {
+				return pastZoomThreshold ? .BASEMAP : .EDITORAERIAL
+			}
 			return state
 		}
 		func OverlaysFor(_ state: MapViewState, overlays: MapViewOverlays, zoomedOut: Bool) -> MapViewOverlays {
@@ -1374,12 +1529,16 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			return overlays
 		}
 
-		// Things are complicated because the user has their own preference for the view
-		// but when they zoom out we make automatic substitutions:
-		// 	Editor only --> Basemap
-		//	Editor+Aerial --> Aerial+Locator
-		let oldState = StateFor(viewState, zoomedOut: viewStateZoomedOut)
-		let newState = StateFor(state, zoomedOut: zoomedOut)
+		let oldState = StateFor(viewState, zoomedOut: viewStateZoomedOut, pastZoomThreshold: viewStatePastZoomThreshold)
+		let newState = StateFor(state, zoomedOut: zoomedOut, pastZoomThreshold: viewStatePastZoomThreshold)
+
+		// Check if there's actually a state change
+		if viewState == state, viewOverlayMask == overlays, viewStateZoomedOut == zoomedOut,
+		   oldState == newState
+		{
+			return
+		}
+
 		let oldOverlays = OverlaysFor(viewState, overlays: viewOverlayMask, zoomedOut: viewStateZoomedOut)
 		let newOverlays = OverlaysFor(state, overlays: overlays, zoomedOut: zoomedOut)
 		if newState == oldState, newOverlays == oldOverlays {
@@ -1419,10 +1578,15 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			editorLayer.isHidden = true
 			aerialLayer.isHidden = true
 			basemapLayer.isHidden = false
-			userInstructionLabel.isHidden = state != .EDITOR && state != .EDITORAERIAL
+			// Show "Zoom to Edit" when the underlying state supports editing
+			userInstructionLabel.isHidden = state != .EDITOR && state != .EDITORAERIAL && state != .EDITORAERIALBASEMAP
 			if !userInstructionLabel.isHidden {
 				userInstructionLabel.text = NSLocalizedString("Zoom to Edit", comment: "")
 			}
+		case MapViewState.EDITORAERIALBASEMAP:
+			// This case is handled by StateFor converting to EDITORAERIAL or BASEMAP
+			// It should not reach here, but Swift requires exhaustive switch
+			break
 		}
 		quadDownloadLayer?.isHidden = editorLayer.isHidden
 
@@ -1821,7 +1985,7 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		switch viewState {
 		case .AERIAL, .BASEMAP:
 			viewState = .EDITORAERIAL
-		case .EDITOR, .EDITORAERIAL:
+		case .EDITOR, .EDITORAERIAL, .EDITORAERIALBASEMAP:
 			break
 		}
 
