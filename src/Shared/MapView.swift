@@ -223,13 +223,7 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 	public static let aerialBasemapZoomThreshold: Double = 15.0
 
 	/// Tracks whether we're past the zoom threshold for hybrid aerial/basemap mode
-	private var viewStatePastZoomThreshold = false {
-		willSet(newValue) {
-			if newValue != viewStatePastZoomThreshold {
-				viewStateWillChangeTo(viewState, overlays: viewOverlayMask, zoomedOut: viewStateZoomedOut)
-			}
-		}
-	}
+	private var viewStatePastZoomThreshold = false
 
 	// Set true when the user moved the screen manually, so GPS updates shouldn't recenter screen on user
 	public var userOverrodeLocationPosition = false {
@@ -389,7 +383,16 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 
 			// Track zoom threshold for hybrid aerial/basemap mode
 			let currentZoom = mapTransform.zoom()
-			viewStatePastZoomThreshold = currentZoom < MapView.aerialBasemapZoomThreshold
+			let oldPastThreshold = viewStatePastZoomThreshold
+			let newPastThreshold = currentZoom < MapView.aerialBasemapZoomThreshold
+
+			// Only trigger state change when actually crossing the threshold (not on every zoom change)
+			if oldPastThreshold != newPastThreshold {
+				// Pass the new threshold so the function can calculate the correct new state
+				viewStateWillChangeTo(viewState, overlays: viewOverlayMask, zoomedOut: viewStateZoomedOut, pastZoomThreshold: newPastThreshold)
+				// Update the instance variable after the function call
+				viewStatePastZoomThreshold = newPastThreshold
+			}
 
 			// Update zoom level display
 			zoomLevelLabel?.updateZoom(currentZoom)
@@ -746,25 +749,28 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		userInstructionLabel.textColor = UIColor.white
 		userInstructionLabel.isHidden = true
 
-		// Create zoom level indicator label
+		// Create zoom level indicator label - use MANUAL frame positioning in layoutSubviews
 		zoomLevelLabel = ZoomLevelLabel(frame: CGRect(x: 0, y: 0, width: 60, height: 24))
-		zoomLevelLabel.translatesAutoresizingMaskIntoConstraints = false
-		addSubview(zoomLevelLabel)
-		// Position in bottom-left corner, above the safe area
-		NSLayoutConstraint.activate([
-			zoomLevelLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 8),
-			zoomLevelLabel.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -8),
-			zoomLevelLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 50),
-			zoomLevelLabel.heightAnchor.constraint(equalToConstant: 24)
-		])
+		zoomLevelLabel.translatesAutoresizingMaskIntoConstraints = true  // USE MANUAL LAYOUT
+		zoomLevelLabel.isHidden = false
+		// Add as sibling to compassButton in the same parent view
+		if let compassParent = compassButton?.superview {
+			compassParent.addSubview(zoomLevelLabel)
+		} else if let parentView = self.superview {
+			parentView.addSubview(zoomLevelLabel)
+		} else {
+			addSubview(zoomLevelLabel)
+		}
 
-		// Create planning mode toggle button (upper left corner)
+		// Create planning mode toggle button (positioned in layoutSubviews with manual frame)
 		planningModeButton = UIButton(type: .system)
-		planningModeButton.translatesAutoresizingMaskIntoConstraints = false
+		// Use manual layout like other buttons in MapView
+		planningModeButton.translatesAutoresizingMaskIntoConstraints = true
 		if #available(iOS 13.0, *) {
+			// Use binoculars icon for "free map" exploration mode
 			let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .medium)
-			let mapImage = UIImage(systemName: "map", withConfiguration: config)
-			planningModeButton.setImage(mapImage, for: .normal)
+			let exploreImage = UIImage(systemName: "binoculars.fill", withConfiguration: config)
+			planningModeButton.setImage(exploreImage, for: .normal)
 		} else {
 			planningModeButton.setTitle("Plan", for: .normal)
 		}
@@ -777,13 +783,6 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		planningModeButton.layer.shadowRadius = 3
 		planningModeButton.addTarget(self, action: #selector(togglePlanningMode), for: .touchUpInside)
 		addSubview(planningModeButton)
-		// Position in upper-left corner
-		NSLayoutConstraint.activate([
-			planningModeButton.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 12),
-			planningModeButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 12),
-			planningModeButton.widthAnchor.constraint(equalToConstant: 44),
-			planningModeButton.heightAnchor.constraint(equalToConstant: 44)
-		])
 
 		progressIndicator.color = UIColor.green
 
@@ -1120,6 +1119,42 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 
 	override func layoutSubviews() {
 		super.layoutSubviews()
+
+		// Position planning button manually - below the helpButton (info button) in upper left
+		if planningModeButton != nil, helpButton != nil, let helpSuperview = helpButton.superview {
+			// Convert helpButton's frame from its parent's coordinate space to MapView's coordinate space
+			let helpFrameInMapView = helpSuperview.convert(helpButton.frame, to: self)
+			// Position planning button lower (52pt below = 8pt gap + 44pt extra)
+			let xPos = helpFrameInMapView.origin.x
+			let yPos = helpFrameInMapView.origin.y + helpFrameInMapView.size.height + 52
+			planningModeButton.frame = CGRect(x: xPos, y: yPos, width: 44, height: 44)
+			bringSubviewToFront(planningModeButton)
+		}
+
+		// Position zoom label at TOP CENTER between Bing attribution and compass
+		if let label = zoomLevelLabel, let compass = compassButton {
+			let labelWidth: CGFloat = 60
+			let labelHeight: CGFloat = 24
+
+			// Position at same Y as compass, but centered horizontally
+			if let parentView = label.superview {
+				let compassFrame = compass.superview == parentView ?
+					compass.frame :
+					compass.superview?.convert(compass.frame, to: parentView) ?? compass.frame
+
+				let centerX = parentView.bounds.width / 2.0
+				let topY = compassFrame.origin.y  // Same Y position as compass
+
+				label.frame = CGRect(
+					x: centerX - (labelWidth / 2.0),
+					y: topY,
+					width: labelWidth,
+					height: labelHeight
+				)
+
+				parentView.bringSubviewToFront(label)
+			}
+		}
 
 		let bounds = self.bounds
 
@@ -1513,7 +1548,7 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		isRotateObjectMode = nil
 	}
 
-	func viewStateWillChangeTo(_ state: MapViewState, overlays: MapViewOverlays, zoomedOut: Bool) {
+	func viewStateWillChangeTo(_ state: MapViewState, overlays: MapViewOverlays, zoomedOut: Bool, pastZoomThreshold: Bool? = nil) {
 		// For EDITORAERIALBASEMAP, we switch based on zoom threshold, not area-based zoomedOut
 		func StateFor(_ state: MapViewState, zoomedOut: Bool, pastZoomThreshold: Bool) -> MapViewState {
 			if zoomedOut, state == .EDITOR { return .BASEMAP }
@@ -1529,8 +1564,10 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			return overlays
 		}
 
+		// Use the passed pastZoomThreshold for newState if provided, otherwise use the instance variable
+		let effectivePastThreshold = pastZoomThreshold ?? viewStatePastZoomThreshold
 		let oldState = StateFor(viewState, zoomedOut: viewStateZoomedOut, pastZoomThreshold: viewStatePastZoomThreshold)
-		let newState = StateFor(state, zoomedOut: zoomedOut, pastZoomThreshold: viewStatePastZoomThreshold)
+		let newState = StateFor(state, zoomedOut: zoomedOut, pastZoomThreshold: effectivePastThreshold)
 
 		// Check if there's actually a state change
 		if viewState == state, viewOverlayMask == overlays, viewStateZoomedOut == zoomedOut,
