@@ -51,9 +51,7 @@ class MapLibreVectorTilesView: MLNMapView, MLNMapViewDelegate {
 	deinit {}
 
 	func mapView(_ map: MLNMapView, didFinishLoading style: MLNStyle) {
-		let locale = Locale(identifier: PresetLanguages.preferredLanguageCode())
-		style.localizeLabels(into: locale)
-
+		// Print attribution info for debugging
 		for source: MLNSource in style.sources {
 			if let tileSource = source as? MLNTileSource {
 				for attrib in tileSource.attributionInfos {
@@ -62,19 +60,15 @@ class MapLibreVectorTilesView: MLNMapView, MLNMapViewDelegate {
 			}
 		}
 
-		let bad = [
-			"place_town",
-			"place_city"
-		]
-		for layer in style.layers {
-			if let layer = layer as? MLNSymbolStyleLayer {
-				// an icon and/or label
-				if bad.contains(layer.identifier) {
-					continue
-				}
-				layer.text = layer.text.mgl_expressionLocalized(into: locale)
-			}
-		}
+		// Skip all localization for non-Mapbox vector tile sources.
+		// style.localizeLabels() and mgl_expressionLocalized() are designed specifically
+		// for Mapbox Streets vector tiles which use name_en, name_zh-Hans, etc.
+		// Non-Mapbox sources (OpenMapTiles, Americana, OpenHistoricalMap, etc.) use
+		// different schemas or simple string constants that cause crashes when the
+		// localization code tries to call objectForKeyedSubscript: on a string.
+		//
+		// Mapnik and Humanitarian are raster tiles and don't use MapLibreVectorTilesView,
+		// so this only affects vector tile sources which currently are all non-Mapbox.
 	}
 
 	func mapViewDidFinishLoadingMap(_ mapView: MLNMapView) {}

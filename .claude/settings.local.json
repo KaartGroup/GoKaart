@@ -5,7 +5,15 @@
       "Bash(git reset:*)",
       "Bash(git log:*)",
       "Bash(git commit:*)",
-      "Bash(security find-identity:*)"
+      "Bash(security find-identity:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:maplibre.org)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(cat:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(head:*)"
     ],
     "deny": [],
     "ask": []
