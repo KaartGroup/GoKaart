@@ -10,7 +10,7 @@ import CoreLocation.CLLocation
 import UIKit
 
 final class GpxLayer: DrawingLayer, DiskCacheSizeProtocol, DrawingLayerDelegate {
-	private static let DefaultExpirationDays = 7
+	private static let DefaultExpirationDays = 99
 	var stabilizingCount = 0
 
 	private(set) var activeTrack: GpxTrack? // track currently being recorded
@@ -25,10 +25,10 @@ final class GpxLayer: DrawingLayer, DiskCacheSizeProtocol, DrawingLayerDelegate 
 
 	private(set) var previousTracks: [GpxTrack] = [] // sorted with most recent first
 
-	override init(mapView: MapView) {
+	override init(viewPort: MapViewPort) {
 		let uploads = UserPrefs.shared.gpxUploadedGpxTracks.value ?? [:]
 		uploadedTracks = uploads.mapValues({ $0.boolValue })
-		super.init(mapView: mapView)
+		super.init(viewPort: viewPort)
 		super.geojsonDelegate = self
 	}
 
@@ -106,8 +106,10 @@ final class GpxLayer: DrawingLayer, DiskCacheSizeProtocol, DrawingLayerDelegate 
 	// This is called when the user selects a new age limit for tracks.
 	func trimTracksOlderThan(_ date: Date) {
 		while let track = previousTracks.last {
-			let point = track.points[0]
-			if let timestamp1 = point.timestamp {
+			let point = track.points.first ?? track.wayPoints.first
+			if let point,
+			   let timestamp1 = point.timestamp
+			{
 				if date.timeIntervalSince(timestamp1) > 0 {
 					// delete oldest
 					delete(track)
@@ -179,7 +181,7 @@ final class GpxLayer: DrawingLayer, DiskCacheSizeProtocol, DrawingLayerDelegate 
 	}
 
 	// Delegate function to provide GeoJSONLayer with data
-	func geojsonData() -> [(GeoJSONGeometry, UIColor)] {
+	func geojsonData() -> [DrawingLayerDelegate.OverlayData] {
 		return allTracks().compactMap {
 			guard let geom = $0.geoJSON.geometry else { return nil }
 			let color = $0 == selectedTrack
@@ -188,7 +190,7 @@ final class GpxLayer: DrawingLayer, DiskCacheSizeProtocol, DrawingLayerDelegate 
 				          green: 99 / 255.0,
 				          blue: 249 / 255.0,
 				          alpha: 1.0)
-			return (geom, color)
+			return (geom, color, nil)
 		}
 	}
 
@@ -220,12 +222,17 @@ final class GpxLayer: DrawingLayer, DiskCacheSizeProtocol, DrawingLayerDelegate 
 		}
 	}
 
-	static var backgroundTracking: Bool {
+	static var recordTracksInBackground: Bool {
 		get {
 			UserPrefs.shared.gpxRecordsTracksInBackground.value ?? false
 		}
 		set {
 			UserPrefs.shared.gpxRecordsTracksInBackground.value = newValue
+
+			NotificationCenter.default.post(
+				name: NSNotification.Name("CollectGpxTracksInBackgroundChanged"),
+				object: nil,
+				userInfo: nil)
 		}
 	}
 
@@ -281,7 +288,7 @@ final class GpxLayer: DrawingLayer, DiskCacheSizeProtocol, DrawingLayerDelegate 
 		})
 	}
 
-	func getDiskCacheSize() -> (size: Int, count: Int) {
+	func getDiskCacheSize() async -> (size: Int, count: Int) {
 		var size = 0
 		let dir = saveDirectory()
 		let files = (try? FileManager.default.contentsOfDirectory(atPath: dir)) ?? []
@@ -320,48 +327,31 @@ final class GpxLayer: DrawingLayer, DiskCacheSizeProtocol, DrawingLayerDelegate 
 		}
 	}
 
-	func center(on track: GpxTrack) {
-		let center: GpxPoint
-		if let wayPoint = track.wayPoints.first {
-			center = wayPoint
-		} else {
-			// get midpoint
-			let mid = track.points.count / 2
-			guard mid < track.points.count else {
-				return
-			}
-			center = track.points[mid]
-		}
-		mapView.centerOn(latLon: center.latLon, metersWide: 20.0)
-	}
-
 	// Load a GPX trace from an external source
-	func addGPX(track: GpxTrack, center: Bool) {
+	@discardableResult
+	func addGPX(track: GpxTrack) -> GpxTrack? {
 		// ensure the track doesn't already exist
-		if previousTracks.contains(where: {
-			$0.name == track.name &&
-				$0.points.count == track.points.count &&
-				$0.points.first?.latLon == track.points.first?.latLon &&
-				$0.points.last?.latLon == track.points.last?.latLon
-		}) {
+		if let duplicate = previousTracks.first(where: { track.isEqual(to: $0) }) {
 			// duplicate track
-			return
+			return duplicate
 		}
 		previousTracks.append(track)
 		previousTracks.sort(by: { $0.creationDate > $1.creationDate })
 
-		if center {
-			self.center(on: track)
-			selectedTrack = track
-			mapView.displayGpxLogs = true // ensure GPX tracks are visible
-		}
 		save(toDisk: track)
+		selectedTrack = track
+		return track
 	}
 
 	// Load a GPX trace from an external source
-	func loadGPXData(_ data: Data, center: Bool) throws {
+	// Returns a location on the track, suitable for display
+	@discardableResult
+	func loadGPXData(_ data: Data, name: String) throws -> GpxTrack? {
 		let newTrack = try GpxTrack(xmlData: data)
-		addGPX(track: newTrack, center: center)
+		if name != "" {
+			newTrack.name = name
+		}
+		return addGPX(track: newTrack)
 	}
 
 	// MARK: Properties
@@ -384,5 +374,15 @@ final class GpxLayer: DrawingLayer, DiskCacheSizeProtocol, DrawingLayerDelegate 
 	@available(*, unavailable)
 	required init?(coder aDecoder: NSCoder) {
 		fatalError()
+	}
+}
+
+extension GpxLayer: MapView.LayerOrView {
+	var hasTileServer: TileServer? {
+		return nil
+	}
+
+	func removeFromSuper() {
+		removeFromSuperlayer()
 	}
 }

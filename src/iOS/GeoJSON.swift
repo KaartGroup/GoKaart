@@ -10,8 +10,12 @@ import Foundation
 import UIKit.UIBezierPath
 
 enum GeoJsonError: Error {
-	case unsupportedFormat
-	case invalidFormat
+	case invalidDataShapeForType
+	case missingType
+	case lineStringHasTooFewPoints
+	case polygonHasTooFewPoints
+	case badCoordinateArray(Int)
+	case invalidGeometryType(String)
 }
 
 struct GeoJSONFile: Decodable {
@@ -41,17 +45,24 @@ struct GeoJSONFeature: Decodable {
 	let type: String // e.g. "Feature"
 	let id: String? // String or Number
 	let geometry: GeoJSONGeometry?
-	let properties: Any?
+	let properties: AnyJSON?
 
 	init(type: String,
 	     id: String?,
 	     geometry: GeoJSONGeometry?,
-	     properties: Any?)
+	     properties: AnyJSON?)
 	{
 		self.type = type
 		self.id = id
 		self.geometry = geometry
 		self.properties = properties
+	}
+
+	init() {
+		type = "Feature"
+		id = nil
+		geometry = nil
+		properties = nil
 	}
 
 	init(from decoder: Decoder) throws {
@@ -70,14 +81,14 @@ struct GeoJSONFeature: Decodable {
 			id = "\(num)"
 		}
 		geometry = try container.decodeIfPresent(GeoJSONGeometry.self, forKey: .geometry)
-		properties = try container.decodeIfPresent(AnyJSON.self, forKey: .properties)?.value
+		properties = try container.decodeIfPresent(AnyJSON.self, forKey: .properties)
 	}
 }
 
 extension LatLon {
 	init(array: [Double]) throws {
 		guard (2...3).contains(array.count) else {
-			throw GeoJsonError.invalidFormat
+			throw GeoJsonError.badCoordinateArray(array.count)
 		}
 		lon = array[0]
 		lat = array[1]
@@ -85,11 +96,12 @@ extension LatLon {
 	}
 
 	init(array: [NSNumber]) throws {
-		if array.count != 2 {
-			throw GeoJsonError.invalidFormat
+		guard (2...3).contains(array.count) else {
+			throw GeoJsonError.badCoordinateArray(array.count)
 		}
 		lon = array[0].doubleValue
 		lat = array[1].doubleValue
+		// also permissible to have an altitude component, which we ignore
 	}
 
 	init(from decoder: Decoder) throws {
@@ -134,6 +146,13 @@ struct GeoJSONGeometry: Codable {
 			case geometries
 		}
 
+		func isPoint() -> Bool {
+			if case .point = self {
+				return true
+			}
+			return false
+		}
+
 		// This is called when parsing NSI geojsons, CountryCoder, etc
 		init(from decoder: Decoder) throws {
 			do {
@@ -162,7 +181,7 @@ struct GeoJSONGeometry: Codable {
 					let points = try container.decode([GeoJSONGeometry].self, forKey: .geometries)
 					self = .geometryCollection(points: points)
 				default:
-					throw GeoJsonError.invalidFormat
+					throw GeoJsonError.invalidGeometryType(type)
 				}
 			} catch {
 				print("\(error)")
@@ -178,37 +197,37 @@ struct GeoJSONGeometry: Codable {
 		// Everything below is for when we decoded the JSON explicitely:
 
 		private init(pointJSON json: Any) throws {
-			guard let nsPoints = json as? [NSNumber] else { throw GeoJsonError.invalidFormat }
-			self = .point(points: try LatLon(array: nsPoints))
+			guard let nsPoints = json as? [NSNumber] else { throw GeoJsonError.invalidDataShapeForType }
+			self = try .point(points: LatLon(array: nsPoints))
 		}
 
 		private init(multiPointJSON json: Any) throws {
-			guard let nsPoints = json as? [[NSNumber]] else { throw GeoJsonError.invalidFormat }
-			self = .multiPoint(points: try nsPoints.map { try LatLon(array: $0) })
+			guard let nsPoints = json as? [[NSNumber]] else { throw GeoJsonError.invalidDataShapeForType }
+			self = try .multiPoint(points: nsPoints.map { try LatLon(array: $0) })
 		}
 
 		private init(lineStringJSON json: Any) throws {
-			guard let nsPoints = json as? [[NSNumber]] else { throw GeoJsonError.invalidFormat }
-			self = .lineString(points: try nsPoints.map { try LatLon(array: $0) })
+			guard let nsPoints = json as? [[NSNumber]] else { throw GeoJsonError.invalidDataShapeForType }
+			self = try .lineString(points: nsPoints.map { try LatLon(array: $0) })
 		}
 
 		private init(multiLineStringJSON json: Any) throws {
-			guard let nsPoints = json as? [[[NSNumber]]] else { throw GeoJsonError.invalidFormat }
-			self = .multiLineString(points: try nsPoints.map { try $0.map { try LatLon(array: $0) }})
+			guard let nsPoints = json as? [[[NSNumber]]] else { throw GeoJsonError.invalidDataShapeForType }
+			self = try .multiLineString(points: nsPoints.map { try $0.map { try LatLon(array: $0) }})
 		}
 
 		private init(polygonJSON json: Any) throws {
-			guard let nsPoints = json as? [[[NSNumber]]] else { throw GeoJsonError.invalidFormat }
-			self = .polygon(points: try nsPoints.map { try $0.map { try LatLon(array: $0) }})
+			guard let nsPoints = json as? [[[NSNumber]]] else { throw GeoJsonError.invalidDataShapeForType }
+			self = try .polygon(points: nsPoints.map { try $0.map { try LatLon(array: $0) }})
 		}
 
 		private init(multiPolygonJSON json: Any) throws {
-			guard let nsPoints = json as? [[[[NSNumber]]]] else { throw GeoJsonError.invalidFormat }
-			self = .multiPolygon(points: try nsPoints.map { try $0.map { try $0.map { try LatLon(array: $0) }}})
+			guard let nsPoints = json as? [[[[NSNumber]]]] else { throw GeoJsonError.invalidDataShapeForType }
+			self = try .multiPolygon(points: nsPoints.map { try $0.map { try $0.map { try LatLon(array: $0) }}})
 		}
 
 		private init(geometryCollectionJSON json: Any) throws {
-			guard let list = json as? [[String: Any]] else { throw GeoJsonError.invalidFormat }
+			guard let list = json as? [[String: Any]] else { throw GeoJsonError.invalidDataShapeForType }
 			let geomList = try list.map { try GeoJSONGeometry(geometry: $0) }
 			self = .geometryCollection(points: geomList)
 		}
@@ -220,7 +239,7 @@ struct GeoJSONGeometry: Codable {
 				let type = json["type"] as? String,
 				let points = json["coordinates"]
 			else {
-				throw GeoJsonError.invalidFormat
+				throw GeoJsonError.missingType
 			}
 			switch type {
 			case "Point":
@@ -238,7 +257,7 @@ struct GeoJSONGeometry: Codable {
 			case "GeometryCollection":
 				self = try GeometryType(geometryCollectionJSON: points)
 			default:
-				throw GeoJsonError.invalidFormat
+				throw GeoJsonError.invalidGeometryType(type)
 			}
 		}
 	}
@@ -254,7 +273,7 @@ struct GeoJSONGeometry: Codable {
 	}
 
 	init(geometry: [String: Any]) throws {
-		self.init(geometry: try GeometryType(json: geometry))
+		try self.init(geometry: GeometryType(json: geometry))
 	}
 
 	init?(geometry: [String: Any]?) throws {
@@ -264,7 +283,7 @@ struct GeoJSONGeometry: Codable {
 
 	init(from decoder: Decoder) throws {
 		do {
-			self.init(geometry: try GeometryType(from: decoder))
+			try self.init(geometry: GeometryType(from: decoder))
 		} catch {
 			print("\(error)")
 			throw error
@@ -315,7 +334,7 @@ extension GeoJSONGeometry.GeometryType {
 
 	private static func addLineStringPoints(_ points: [LatLon], to path: UIBezierPath) throws {
 		if points.count < 2 {
-			throw GeoJsonError.invalidFormat
+			throw GeoJsonError.lineStringHasTooFewPoints
 		}
 		path.move(to: Self.cgForPoint(points[0]))
 		for pt in points.dropFirst() {
@@ -325,7 +344,7 @@ extension GeoJSONGeometry.GeometryType {
 
 	private static func addLoopPoints(_ points: [LatLon], to path: UIBezierPath) throws {
 		if points.count < 4 {
-			throw GeoJsonError.invalidFormat
+			throw GeoJsonError.polygonHasTooFewPoints
 		}
 		path.move(to: Self.cgForPoint(points[0]))
 		for pt in points.dropFirst() {

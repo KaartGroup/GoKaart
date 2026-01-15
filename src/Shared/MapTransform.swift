@@ -22,34 +22,67 @@ import Foundation
 
 /// Encapsulates all information for translating between a lat/lon coordinate and the screen
 final class MapTransform {
-	var center: CGPoint = .zero // screen center, needed for bird's eye calculations
-
-	static let latitudeLimit = 85.051128
+	let center: CGPoint = .zero // screen center, needed for bird's eye calculations
 
 	// This matrix translates between a "mapPoint" (a 256x256 mercator map of the world) and the screen
-	var transform = OSMTransform.identity {
-		didSet {
-			notifyObservers()
+	private var _transform = OSMTransform.identity
+	private var _inverse = OSMTransform.identity
+	var transform: OSMTransform {
+		get {
+			return _transform
 		}
+		set {
+			let inverse = newValue.inverse()
+			if let t = Self.wrapTransform(newValue, inverse: inverse) {
+				// needed to wrap/clip the transform
+				_transform = t
+				_inverse = t.inverse()
+			} else {
+				_transform = newValue
+				_inverse = inverse
+			}
+			onChange.notify()
+		}
+	}
+
+	// If we scroll horizontally around the world then wrap, and if we
+	// scroll vertically then ensure that the map remains visible.
+	private static func wrapTransform(_ t: OSMTransform, inverse: OSMTransform) -> OSMTransform? {
+		// We want to find mapCenter such that t * mapCenter = (0,0)
+		let mapCenter = OSMPoint.zero.withTransform(inverse)
+
+		// Wrap X into [0, 256]
+		var adjustedX = mapCenter.x
+		if mapCenter.x < 0 {
+			adjustedX += 256
+		} else if mapCenter.x > 256 {
+			adjustedX -= 256
+		}
+
+		// Clamp Y into [0, 256]
+		var adjustedY = mapCenter.y
+		if mapCenter.y < 0 {
+			adjustedY = 0
+		} else if mapCenter.y > 256 {
+			adjustedY = 256
+		}
+
+		// If nothing changed, return original
+		if adjustedX == mapCenter.x, adjustedY == mapCenter.y {
+			return nil
+		}
+
+		// Rebuild translation
+		var result = t
+		result.tx = -(t.a * adjustedX + t.c * adjustedY)
+		result.ty = -(t.b * adjustedX + t.d * adjustedY)
+
+		return result
 	}
 
 	// MARK: Observers
 
-	private struct Observer {
-		weak var object: AnyObject?
-		var callback: () -> Void
-	}
-
-	private var observers: [Observer] = []
-
-	func observe(by object: AnyObject, callback: @escaping () -> Void) {
-		observers.append(Observer(object: object, callback: callback))
-	}
-
-	func notifyObservers() {
-		observers.removeAll(where: { $0.object == nil })
-		observers.forEach({ $0.callback() })
-	}
+	let onChange = NotificationService<Void>()
 
 	// MARK: Bird's eye view
 
@@ -57,7 +90,7 @@ final class MapTransform {
 	let birdsEyeDistance = 1000.0
 	var birdsEyeRotation = 0.0 {
 		didSet {
-			notifyObservers()
+			onChange.notify()
 		}
 	}
 
@@ -133,13 +166,13 @@ final class MapTransform {
 
 	func mapPoint(forScreenPoint point: OSMPoint, birdsEye: Bool) -> OSMPoint {
 		var point = point
-		if birdsEyeRotation != 0.0, birdsEye {
+		if birdsEye, birdsEyeRotation != 0.0 {
 			point = Self.FromBirdsEye(screenPoint: point,
 			                          screenCenter: center,
 			                          birdsEyeDistance: Double(birdsEyeDistance),
 			                          birdsEyeRotation: Double(birdsEyeRotation))
 		}
-		point = point.withTransform(transform.inverse())
+		point = point.withTransform(_inverse)
 		return point
 	}
 
@@ -186,7 +219,7 @@ final class MapTransform {
 	}
 
 	func mapRect(fromScreenRect rect: OSMRect) -> OSMRect {
-		return rect.withTransform(transform.inverse())
+		return rect.withTransform(_inverse)
 	}
 
 	// MARK: Transform screenRect <--> latLonRect
@@ -297,7 +330,7 @@ final class MapTransform {
 		return meters
 	}
 
-	func distance(from: CGPoint, to: CGPoint) -> Double {
+	func meters(from: CGPoint, to: CGPoint) -> Double {
 		let c1 = latLon(forScreenPoint: from)
 		let c2 = latLon(forScreenPoint: to)
 		let meters = GreatCircleDistance(c1, c2)

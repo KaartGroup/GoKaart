@@ -9,6 +9,7 @@
 import Foundation
 
 enum AnyJSON: Hashable, Codable {
+	case null
 	case string(String)
 	case double(Double)
 	case bool(Bool)
@@ -17,6 +18,7 @@ enum AnyJSON: Hashable, Codable {
 
 	public var value: Any {
 		switch self {
+		case .null: return NSNull()
 		case let .string(value): return value
 		case let .double(value): return value
 		case let .bool(value): return value
@@ -28,6 +30,7 @@ enum AnyJSON: Hashable, Codable {
 	public func encode(to encoder: Encoder) throws {
 		var container = encoder.singleValueContainer()
 		switch self {
+		case .null: try container.encodeNil()
 		case let .string(value): try container.encode(value)
 		case let .double(value): try container.encode(value)
 		case let .bool(value): try container.encode(value)
@@ -38,7 +41,9 @@ enum AnyJSON: Hashable, Codable {
 
 	public init(from decoder: Decoder) throws {
 		let container = try decoder.singleValueContainer()
-		if let value = try? container.decode(String.self) {
+		if container.decodeNil() {
+			self = .null
+		} else if let value = try? container.decode(String.self) {
 			self = .string(value)
 		} else if let value = try? container.decode(Double.self) {
 			self = .double(value)
@@ -55,3 +60,51 @@ enum AnyJSON: Hashable, Codable {
 		}
 	}
 }
+
+extension AnyJSON {
+	func prettyPrinted(tabWidth: Int, indentLevel: Int = 0) -> String {
+		let tab = String(repeating: " ", count: tabWidth)
+		let indent = String(repeating: tab, count: indentLevel)
+		let nextIndent = String(repeating: tab, count: indentLevel + 1)
+
+		switch self {
+		case .null:
+			return "null"
+		case let .string(value):
+			return "\"\(value)\""
+		case let .double(value):
+			return String(value)
+		case let .bool(value):
+			return String(value)
+		case let .array(values):
+			if values.isEmpty { return "[]" }
+			let items = values
+				.map { "\(nextIndent)\($0.prettyPrinted(tabWidth: tabWidth, indentLevel: indentLevel + 1))" }
+			return "[\n" + items.joined(separator: ",\n") + "\n\(indent)]"
+		case let .dictionary(dict):
+			if dict.isEmpty { return "{}" }
+			let items = dict.map {
+				let key = "\"\($0.key)\""
+				let value = $0.value.prettyPrinted(tabWidth: tabWidth, indentLevel: indentLevel + 1)
+				return "\(nextIndent)\(key): \(value)"
+			}
+			return "{\n" + items.sorted().joined(separator: ",\n") + "\n\(indent)}"
+		}
+	}
+}
+
+#if DEBUG
+func jsonAsPrettyString(_ json: Any) -> String? {
+	if let data = json as? Data {
+		guard let object = try? JSONSerialization.jsonObject(with: data)
+		else { return nil }
+		return jsonAsPrettyString(object)
+	}
+	guard let data = try? JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted]),
+		  let string = String(data: data, encoding: .utf8)
+	else {
+		return nil
+	}
+	return string
+}
+#endif

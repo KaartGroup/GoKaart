@@ -80,32 +80,28 @@ final class OsmMapData: NSObject, NSSecureCoding {
 	}
 
 	func setupPeriodicSaveTimer() {
-		weak var weakSelf = self
 		NotificationCenter.default.addObserver(
 			forName: NSNotification.Name(MyUndoManager.UndoManagerDidChangeNotification),
 			object: undoManager,
 			queue: nil,
-			using: { _ in
-				let myself = weakSelf
-				if myself == nil {
+			using: { [weak self] _ in
+				guard let self else {
 					return
 				}
-				if myself?.periodicSaveTimer == nil {
-					if let myself = myself {
-						myself.periodicSaveTimer = Timer.scheduledTimer(
-							timeInterval: 10.0,
-							target: myself,
-							selector: #selector(self.periodicSave(_:)),
-							userInfo: nil,
-							repeats: false)
-					}
+				if self.periodicSaveTimer == nil {
+					self.periodicSaveTimer = Timer.scheduledTimer(
+						timeInterval: 10.0,
+						target: self,
+						selector: #selector(periodicSave(_:)),
+						userInfo: nil,
+						repeats: false)
 				}
 			})
 	}
 
 	@objc func periodicSave(_ timer: Timer) {
 		let appDelegate = AppDelegate.shared
-		appDelegate.mapView.save() // this will also invalidate the timer
+		appDelegate.mainView.save() // this will also invalidate the timer
 	}
 
 	func setConstructed() {
@@ -625,7 +621,7 @@ final class OsmMapData: NSObject, NSSecureCoding {
 	///	- We submit the rect to the server
 	///	- Once we've successfully fetched the data for the rect we tell the QuadMap that it can mark the given QuadBoxes as downloaded
 	func downloadMissingData(inRect rect: OSMRect,
-	                         withProgress progress: NSObjectProtocol & MapViewProgress,
+	                         withProgress progress: MapViewProgress,
 	                         didChange: @escaping (_ error: Error?) -> Void)
 	{
 		// get list of new quads to fetch
@@ -651,35 +647,44 @@ final class OsmMapData: NSObject, NSSecureCoding {
 			let url = OSM_SERVER.apiURL +
 				"api/0.6/map?bbox=\(rc.origin.x),\(rc.origin.y),\(rc.origin.x + rc.size.width),\(rc.origin.y + rc.size.height)"
 
-			OsmDownloader.osmData(forUrl: url, completion: { result in
-				let didGetData: Bool
-				switch result {
-				case let .success(data):
-					// merge data
-					print("Downloaded \(data.nodes.count + data.ways.count + data.relations.count) objects")
+			Task {
+				let result: Result<OsmDownloadData, Error>
+				do {
+					let data = try await OsmDownloader.osmData(forUrl: url)
+					result = .success(data)
+				} catch {
+					result = .failure(error)
+				}
+				await MainActor.run {
+					let didGetData: Bool
+					switch result {
+					case let .success(data):
+						// merge data
+						print("Downloaded \(data.nodes.count + data.ways.count + data.relations.count) objects")
+						try? self.merge(data, savingToDatabase: true)
+						didGetData = true
+						didChange(nil) // data was updated
+					case let .failure(error):
+						didGetData = false
+						didChange(error) // error fetching data
+					}
 
-					try? self.merge(data, savingToDatabase: true)
-					didGetData = true
-					didChange(nil) // data was updated
-				case let .failure(error):
-					didGetData = false
-					didChange(error) // error fetching data
-				}
-				for quadBox in query.quadList {
-					self.region.updateDownloadStatus(quadBox, success: didGetData)
-				}
-				progress.progressDecrement()
+					for quadBox in query.quadList {
+						self.region.updateDownloadStatus(quadBox, success: didGetData)
+					}
+					progress.progressDecrement()
 
 #if DEBUG
-				AppDelegate.shared.mapView.quadDownloadLayer?.setNeedsLayout()
+					AppDelegate.shared.mapView.quadDownloadLayer?.setNeedsLayout()
 #endif
-			})
+				}
+			}
 		}
 	}
 
-	func cancelCurrentDownloads() {
+	func cancelCurrentDownloads() async {
 		if DownloadThreadPool.osmPool.downloadsInProgress() > 0 {
-			DownloadThreadPool.osmPool.cancelAllDownloads()
+			await DownloadThreadPool.osmPool.cancelAllDownloads()
 		}
 	}
 
@@ -780,9 +785,9 @@ final class OsmMapData: NSObject, NSSecureCoding {
 				isUpdate: false)
 
 			// purge old data
-			DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: {
+			MainActor.runAfter(nanoseconds: 1000_000000) {
 				AppDelegate.shared.mapView.discardStaleData()
-			})
+			}
 		}
 
 		consistencyCheck()
@@ -828,43 +833,43 @@ final class OsmMapData: NSObject, NSSecureCoding {
 			case let .success(postData):
 				let response = String(decoding: postData, as: UTF8.self)
 
-				if retries > 0 && response.hasPrefix("Version mismatch") {
+				if retries > 0, response.hasPrefix("Version mismatch") {
 					// update the bad element and retry
 					DLog("Upload error: \(response)")
-					var localVersion = 0
-					var serverVersion = 0
-					var objType: NSString? = ""
-					var objId: OsmIdentifier = 0
 					// "Version mismatch: Provided %d, server had: %d of %[a-zA-Z] %lld"
 					let scanner = Scanner(string: response)
-					if scanner.scanString("Version mismatch: Provided", into: nil),
-					   scanner.scanInt(&localVersion),
-					   scanner.scanString(", server had:", into: nil),
-					   scanner.scanInt(&serverVersion),
-					   scanner.scanString("of", into: nil),
-					   scanner.scanCharacters(from: CharacterSet.alphanumerics, into: &objType),
-					   scanner.scanInt64(&objId),
-					   let objType = objType
+					if let _ = scanner.scanString("Version mismatch: Provided"),
+					   let localVersion = scanner.scanInt(),
+					   let _ = scanner.scanString(", server had:"),
+					   let serverVersion = scanner.scanInt(),
+					   let _ = scanner.scanString("of"),
+					   let objType = scanner.scanCharacters(from: CharacterSet.alphanumerics),
+					   let objId = scanner.scanInt64()
 					{
-						let objType = (objType as String).lowercased()
+						print("Updating object from version \(localVersion) to \(serverVersion)")
+						let objType = objType.lowercased()
 						var url3 = OSM_SERVER.apiURL + "api/0.6/\(objType)/\(objId)"
 						if objType == "way" || objType == "relation" {
 							url3 = url3 + "/full"
 						}
-						OsmDownloader.osmData(forUrl: url3, completion: { result in
-							switch result {
-							case let .success(data):
-								// update the bad element
-								try? self.merge(data, savingToDatabase: true)
-								// try again:
-								self.generateXMLandUploadChangeset(
-									changesetID,
-									retries: retries - 1,
-									completion: completion)
-							case let .failure(error):
-								completion(error)
+						Task {
+							do {
+								let data = try await OsmDownloader.osmData(forUrl: url3)
+								await MainActor.run {
+									// update the bad element
+									try? self.merge(data, savingToDatabase: true)
+									// try again:
+									self.generateXMLandUploadChangeset(
+										changesetID,
+										retries: retries - 1,
+										completion: completion)
+								}
+							} catch {
+								await MainActor.run {
+									completion(error)
+								}
 							}
-						})
+						}
 						return
 					}
 				}
@@ -883,8 +888,9 @@ final class OsmMapData: NSObject, NSSecureCoding {
 					return
 				}
 
-				guard let diffResult = diffDoc.rootElement(),
-				      diffResult.name == "diffResult"
+				guard
+					let diffResult = diffDoc.rootElement(),
+					diffResult.name == "diffResult"
 				else {
 					completion(OsmMapDataError.otherError("Upload failed: invalid server respsonse"))
 					return
@@ -956,9 +962,10 @@ final class OsmMapData: NSObject, NSSecureCoding {
 	                                   retries: Int,
 	                                   completion: @escaping (_ error: Error?) -> Void)
 	{
-		guard let xmlChanges = OsmXmlGenerator.createXmlFor(nodes: nodes.values,
-		                                                    ways: ways.values,
-		                                                    relations: relations.values)
+		guard
+			let xmlChanges = OsmXmlGenerator.createXmlFor(nodes: nodes.values,
+			                                              ways: ways.values,
+			                                              relations: relations.values)
 		else {
 			completion(OsmMapDataError.badXML)
 			return
@@ -989,16 +996,17 @@ final class OsmMapData: NSObject, NSSecureCoding {
 		}
 
 		assert(newVersion > 0)
-		object.serverUpdate(version: newVersion)
-		object.serverUpdate(changeset: changeset)
-		object.serverUpdate(timestamp: timestamp)
+		object.serverUpdate(ident: newId,
+		                    version: newVersion,
+		                    changeset: changeset,
+		                    timestamp: timestamp,
+		                    user: AppDelegate.shared.userName)
 		sqlUpdate[object] = true // mark for insertion
 
 		if oldId != newId {
 			// replace placeholder object with new server provided identity
 			assert(oldId < 0 && newId > 0)
-			dictionary.removeValue(forKey: object.ident)
-			object.serverUpdate(ident: newId)
+			dictionary.removeValue(forKey: oldId)
 			dictionary[object.ident] = object
 		} else {
 			assert(oldId > 0)
@@ -1022,6 +1030,7 @@ final class OsmMapData: NSObject, NSSecureCoding {
 			completion(.failure(OsmMapDataError.badURL(url)))
 			return
 		}
+		request.setUserAgent()
 		request.httpMethod = method
 		if let xml = xml {
 			var data = xml.xmlData(withOptions: 0)
@@ -1031,12 +1040,20 @@ final class OsmMapData: NSObject, NSSecureCoding {
 			request.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
 		}
 		request.cachePolicy = URLRequest.CachePolicy.reloadIgnoringLocalCacheData
+		let immutableRequest = request
 
-		URLSession.shared.data(with: request, completionHandler: { result in
-			DispatchQueue.main.async(execute: {
+		Task {
+			let result: Result<Data, Error>
+			do {
+				let data = try await URLSession.shared.data(with: immutableRequest)
+				result = .success(data)
+			} catch {
+				result = .failure(error)
+			}
+			await MainActor.run {
 				completion(result)
-			})
-		})
+			}
+		}
 	}
 
 	enum OsmServerError: LocalizedError {
@@ -1057,8 +1074,7 @@ final class OsmMapData: NSObject, NSSecureCoding {
 		locale: String,
 		completion: @escaping (Result<Int64, Error>) -> Void)
 	{
-		let appDelegate = AppDelegate.shared
-		let creator = "\(appDelegate.appName()) \(appDelegate.appVersion())"
+		let creator = "\(AppDelegate.appName) \(AppDelegate.appVersion)"
 		var tags = [
 			"created_by": creator
 		]
@@ -1340,8 +1356,8 @@ final class OsmMapData: NSObject, NSSecureCoding {
 		consistencyCheck()
 	}
 
-	static func pathToArchiveFile() -> String {
-		return ArchivePath.osmDataArchive.path()
+	static func pathToArchiveFile() -> URL {
+		return ArchivePath.osmDataArchive.url()
 	}
 
 	func sqlSave(
@@ -1648,13 +1664,21 @@ final class OsmMapData: NSObject, NSSecureCoding {
 		// save dirty data and relations
 		DbgAssert(OsmMapData.g_EditorMapLayerForArchive != nil)
 
+		// update self with minimized versions appropriate for saving
+		let modified = modifiedObjects()
+
+		// Skip archiving if there's nothing to save (performance optimization)
+		// NOTE: To revert this change, delete the following if block (lines through "return")
+		if modified.nodes.isEmpty, modified.ways.isEmpty, modified.relations.isEmpty {
+			periodicSaveTimer?.invalidate()
+			periodicSaveTimer = nil
+			return
+		}
+
 		// save our original data
 		let origNodes = nodes
 		let origWays = ways
 		let origRelations = relations
-
-		// update self with minimized versions appropriate for saving
-		let modified = modifiedObjects()
 		// FIXME: if an object gets duplicated in the undo manager somehow then
 		// this code will crash because the ident key is duplicated. This requires
 		// tracking down the cause of the duplication, not fixing it here.
@@ -1731,12 +1755,15 @@ final class OsmMapData: NSObject, NSSecureCoding {
 			}
 		}
 		// ensure there is no object with parentRelations that isn't actually a member
-		nodes.values.forEach({ obj in
-			obj.parentRelations.forEach({ assert($0.members.map({ $0.obj }).contains(obj)) }) })
-		ways.values.forEach({ obj in
-			obj.parentRelations.forEach({ assert($0.members.map({ $0.obj }).contains(obj)) }) })
-		relations.values.forEach({ obj in
-			obj.parentRelations.forEach({ assert($0.members.map({ $0.obj }).contains(obj)) }) })
+		for obj in nodes.values {
+			obj.parentRelations.forEach({ assert($0.members.map({ $0.obj }).contains(obj)) })
+		}
+		for obj in ways.values {
+			obj.parentRelations.forEach({ assert($0.members.map({ $0.obj }).contains(obj)) })
+		}
+		for obj in relations.values {
+			obj.parentRelations.forEach({ assert($0.members.map({ $0.obj }).contains(obj)) })
+		}
 	}
 
 	func consistencyCheckDebugOnly() {
@@ -1831,18 +1858,20 @@ enum MapDataError: LocalizedError {
 
 class OsmMapDataArchiver: NSObject, NSKeyedUnarchiverDelegate {
 	func saveArchive(mapData: OsmMapData) -> Bool {
-		let path = OsmMapData.pathToArchiveFile()
 		let archiver = NSKeyedArchiver(requiringSecureCoding: true)
 		archiver.encode(mapData, forKey: "OsmMapData")
 		archiver.finishEncoding()
-		let data = archiver.encodedData as NSData
-		let ok = data.write(toFile: path, atomically: true)
-		return ok
+		do {
+			let url = OsmMapData.pathToArchiveFile()
+			try archiver.encodedData.write(to: url, options: [.atomic])
+			return true
+		} catch {
+			return false
+		}
 	}
 
 	func loadArchive() throws -> OsmMapData {
-		let path = OsmMapData.pathToArchiveFile()
-		let url = URL(fileURLWithPath: path)
+		let url = OsmMapData.pathToArchiveFile()
 		if (try? url.checkResourceIsReachable()) != true {
 			print("Archive file doesn't exist")
 			throw MapDataError.archiveDoesNotExist

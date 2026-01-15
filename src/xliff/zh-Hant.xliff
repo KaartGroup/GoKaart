@@ -2,18 +2,13 @@
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Base.lproj/MainStoryboard.storyboard" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
-      <trans-unit id="1tR-eI-DSh.configuration.title" xml:space="preserve">
+      <trans-unit id="1tR-eI-DSh.normalTitle" xml:space="preserve">
         <source>username</source>
         <target state="translated">使用者名稱</target>
-        <note>Class = "UIButton"; configuration.title = "username"; ObjectID = "1tR-eI-DSh"; Note = "Placeholder - Do not translate";</note>
-      </trans-unit>
-      <trans-unit id="1tR-eI-DSh.normalTitle" xml:space="preserve">
-        <source>Button</source>
-        <target state="translated">按鈕</target>
-        <note>Class = "UIButton"; normalTitle = "Button"; ObjectID = "1tR-eI-DSh"; Note = "Placeholder - Do not translate";</note>
+        <note>Class = "UIButton"; normalTitle = "username"; ObjectID = "1tR-eI-DSh"; Note = "Placeholder - Do not translate";</note>
       </trans-unit>
       <trans-unit id="1xx-L0-hKm.text" xml:space="preserve">
         <source>Get Directions</source>
@@ -30,11 +25,6 @@
         <target state="translated">Bing attribution</target>
         <note>Class = "UIButton"; normalTitle = "Bing attribution"; ObjectID = "2Ka-IT-DQC";</note>
       </trans-unit>
-      <trans-unit id="2g1-vb-Cjc.configuration.title" xml:space="preserve">
-        <source>Comment</source>
-        <target state="translated">留言</target>
-        <note>Class = "UIButton"; configuration.title = "Comment"; ObjectID = "2g1-vb-Cjc"; Note = "Add a comment for a Note";</note>
-      </trans-unit>
       <trans-unit id="2g1-vb-Cjc.normalTitle" xml:space="preserve">
         <source>Comment</source>
         <target state="translated">留言</target>
@@ -44,11 +34,6 @@
         <source>Upload</source>
         <target state="translated">上傳</target>
         <note>Class = "UINavigationItem"; title = "Upload"; ObjectID = "7Ua-cx-BHI";</note>
-      </trans-unit>
-      <trans-unit id="9G2-Gl-CeP.text" xml:space="preserve">
-        <source>username</source>
-        <target state="translated">帳號</target>
-        <note>Class = "UILabel"; text = "username"; ObjectID = "9G2-Gl-CeP"; Note = "Placeholder - Do not translate";</note>
       </trans-unit>
       <trans-unit id="9hH-Ja-fKn.text" xml:space="preserve">
         <source>New comment:</source>
@@ -103,11 +88,6 @@
         <source>Zoom to Edit</source>
         <target state="translated">放大後編輯</target>
         <note>Class = "UILabel"; text = "Zoom to Edit"; ObjectID = "N5Q-nV-TPG";</note>
-      </trans-unit>
-      <trans-unit id="OJ0-aO-ri1.configuration.title" xml:space="preserve">
-        <source>Comment &amp; Resolve</source>
-        <target state="translated">留言&amp;解決</target>
-        <note>Class = "UIButton"; configuration.title = "Comment &amp; Resolve"; ObjectID = "OJ0-aO-ri1"; Note = "Add a comment and resolve Note";</note>
       </trans-unit>
       <trans-unit id="OJ0-aO-ri1.normalTitle" xml:space="preserve">
         <source>Comment &amp; Resolve</source>
@@ -184,32 +164,17 @@
         <target state="translated">尼加拉瀑布</target>
         <note>Class = "UISearchBar"; placeholder = "Niagara Falls"; ObjectID = "xw9-Ro-Fai";</note>
       </trans-unit>
-      <trans-unit id="zrW-uc-hfQ.segmentTitles[0]" xml:space="preserve">
-        <source>Tags</source>
-        <target state="translated">標籤</target>
-        <note>Class = "UISegmentedControl"; zrW-uc-hfQ.segmentTitles[0] = "Tags"; ObjectID = "zrW-uc-hfQ";</note>
-      </trans-unit>
-      <trans-unit id="zrW-uc-hfQ.segmentTitles[1]" xml:space="preserve">
-        <source>Delete</source>
-        <target state="translated">刪除</target>
-        <note>Class = "UISegmentedControl"; zrW-uc-hfQ.segmentTitles[1] = "Delete"; ObjectID = "zrW-uc-hfQ";</note>
-      </trans-unit>
-      <trans-unit id="zrW-uc-hfQ.segmentTitles[2]" xml:space="preserve">
-        <source>More...</source>
-        <target state="translated">更多…</target>
-        <note>Class = "UISegmentedControl"; zrW-uc-hfQ.segmentTitles[2] = "More..."; ObjectID = "zrW-uc-hfQ";</note>
-      </trans-unit>
     </body>
   </file>
   <file original="Direction/Base.lproj/DirectionViewController.xib" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="4vY-m2-xMW.text" xml:space="preserve">
-        <source>Position your device parallel to the direction of the object.</source>
-        <target state="translated">將您的設備與物體的方向平行放置。</target>
-        <note>Class = "UILabel"; text = "Position your device parallel to the direction of the object."; ObjectID = "4vY-m2-xMW";</note>
+        <source>Point your phone in the direction the object faces.</source>
+        <target state="needs-review-l10n">將您的設備與物體的方向平行放置。</target>
+        <note>Class = "UILabel"; text = "Point your phone in the direction the object faces."; ObjectID = "4vY-m2-xMW";</note>
       </trans-unit>
       <trans-unit id="Jc3-Um-Aiy.text" xml:space="preserve">
         <source>320</source>
@@ -232,7 +197,7 @@
   </file>
   <file original="DisplaySettings/Base.lproj/Display.storyboard" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="1SY-O5-qJR.title" xml:space="preserve">
@@ -244,11 +209,6 @@
         <source>GPX Tracks</source>
         <target state="translated">GPX 航跡</target>
         <note>Class = "UILabel"; text = "GPX Tracks"; ObjectID = "1f0-8q-yCi";</note>
-      </trans-unit>
-      <trans-unit id="2Ku-Lb-uCf.text" xml:space="preserve">
-        <source>Details</source>
-        <target state="translated">詳細內容</target>
-        <note>Class = "UILabel"; text = "Details"; ObjectID = "2Ku-Lb-uCf";</note>
       </trans-unit>
       <trans-unit id="2ZY-zi-luF.text" xml:space="preserve">
         <source>Clear Cache</source>
@@ -285,11 +245,6 @@
         <target state="translated">空拍影像</target>
         <note>Class = "UINavigationItem"; title = "Aerial Imagery"; ObjectID = "8HT-Bc-Q2z";</note>
       </trans-unit>
-      <trans-unit id="8S7-Kw-QHF.normalTitle" xml:space="preserve">
-        <source>Details</source>
-        <target state="translated">詳細內容</target>
-        <note>Class = "UIButton"; normalTitle = "Details"; ObjectID = "8S7-Kw-QHF";</note>
-      </trans-unit>
       <trans-unit id="8es-4f-sj3.headerTitle" xml:space="preserve">
         <source>Overlays</source>
         <target state="translated">疊圖</target>
@@ -299,11 +254,6 @@
         <source>Basemap</source>
         <target state="translated">基底地圖</target>
         <note>Class = "UINavigationItem"; title = "Basemap"; ObjectID = "8iI-nH-O9H";</note>
-      </trans-unit>
-      <trans-unit id="9L3-JO-Whj.text" xml:space="preserve">
-        <source>Mapnik only</source>
-        <target state="translated">只有 Mapnik</target>
-        <note>Class = "UILabel"; text = "Mapnik only"; ObjectID = "9L3-JO-Whj";</note>
       </trans-unit>
       <trans-unit id="186-0W-Nrr.title" xml:space="preserve">
         <source>Display</source>
@@ -320,25 +270,10 @@
         <target state="translated">12:00:00</target>
         <note>Class = "UILabel"; text = "12:00:00"; ObjectID = "EHa-L5-Hcz";</note>
       </trans-unit>
-      <trans-unit id="EmS-9F-1qc.text" xml:space="preserve">
-        <source>Details</source>
-        <target state="translated">詳細內容</target>
-        <note>Class = "UILabel"; text = "Details"; ObjectID = "EmS-9F-1qc";</note>
-      </trans-unit>
-      <trans-unit id="F9l-B0-puf.text" xml:space="preserve">
-        <source>Details</source>
-        <target state="translated">詳細內容</target>
-        <note>Class = "UILabel"; text = "Details"; ObjectID = "F9l-B0-puf";</note>
-      </trans-unit>
       <trans-unit id="GNK-bZ-i9X.text" xml:space="preserve">
         <source>Details</source>
         <target state="translated">詳細內容</target>
         <note>Class = "UILabel"; text = "Details"; ObjectID = "GNK-bZ-i9X";</note>
-      </trans-unit>
-      <trans-unit id="H3p-Ta-kIy.title" xml:space="preserve">
-        <source>QA Poole No Name Tiles</source>
-        <target state="translated">QA Poole No Name 圖磚</target>
-        <note>Class = "UINavigationItem"; title = "QA Poole No Name Tiles"; ObjectID = "H3p-Ta-kIy"; Note = "Title for Simon Poole's \"No name\" (missing name) tile overlay";</note>
       </trans-unit>
       <trans-unit id="Idx-2G-6F7.text" xml:space="preserve">
         <source>Power Features</source>
@@ -440,18 +375,13 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
       </trans-unit>
       <trans-unit id="WnI-tY-WWa.text" xml:space="preserve">
         <source>Delete tracks after:</source>
-        <target state="translated">在這之後刪除航跡：</target>
+        <target state="translated">多久刪除航跡：</target>
         <note>Class = "UILabel"; text = "Delete tracks after:"; ObjectID = "WnI-tY-WWa";</note>
       </trans-unit>
       <trans-unit id="Z8C-Ef-iJE.title" xml:space="preserve">
         <source>GPX Tracks</source>
         <target state="translated">GPX 航跡</target>
         <note>Class = "UINavigationItem"; title = "GPX Tracks"; ObjectID = "Z8C-Ef-iJE";</note>
-      </trans-unit>
-      <trans-unit id="ZP1-qY-kXe.text" xml:space="preserve">
-        <source>Unnamed Roads</source>
-        <target state="translated">未命名道路</target>
-        <note>Class = "UILabel"; text = "Unnamed Roads"; ObjectID = "ZP1-qY-kXe";</note>
       </trans-unit>
       <trans-unit id="Zn9-Sg-9fS.footerTitle" xml:space="preserve">
         <source>If specifying a WMS URL you must also provide the projection used</source>
@@ -515,11 +445,6 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
  </target>
         <note>Class = "UITextField"; placeholder = "http://{switch:a,b,c}.tile.org/{z}/{x}/{y}.png\n "; ObjectID = "dzT-B4-za3";</note>
       </trans-unit>
-      <trans-unit id="eFa-yZ-YZl.text" xml:space="preserve">
-        <source>Aerial Tiles</source>
-        <target state="translated">空照圖磚</target>
-        <note>Class = "UILabel"; text = "Aerial Tiles"; ObjectID = "eFa-yZ-YZl";</note>
-      </trans-unit>
       <trans-unit id="eLW-GB-ugG.text" xml:space="preserve">
         <source>Position + Button on </source>
         <target state="translated">「+」按鈕的位置 </target>
@@ -529,11 +454,6 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
         <source>Editor only</source>
         <target state="translated">只有編輯器</target>
         <note>Class = "UILabel"; text = "Editor only"; ObjectID = "eN6-SZ-99I";</note>
-      </trans-unit>
-      <trans-unit id="eTY-48-gab.text" xml:space="preserve">
-        <source>Aerial Tiles</source>
-        <target state="translated">空照圖磚</target>
-        <note>Class = "UILabel"; text = "Aerial Tiles"; ObjectID = "eTY-48-gab";</note>
       </trans-unit>
       <trans-unit id="eac-Db-EaW.normalTitle" xml:space="preserve">
         <source>Bing</source>
@@ -550,20 +470,15 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
         <target state="translated">空照圖磚</target>
         <note>Class = "UILabel"; text = "Aerial Tiles"; ObjectID = "fFT-hv-mKl";</note>
       </trans-unit>
-      <trans-unit id="fHH-rC-iGa.text" xml:space="preserve">
-        <source>Aerial Tiles</source>
-        <target state="translated">空照圖磚</target>
-        <note>Class = "UILabel"; text = "Aerial Tiles"; ObjectID = "fHH-rC-iGa";</note>
+      <trans-unit id="fVu-8o-Ldq.text" xml:space="preserve">
+        <source>Details</source>
+        <target state="translated">詳情</target>
+        <note>Class = "UILabel"; text = "Details"; ObjectID = "fVu-8o-Ldq";</note>
       </trans-unit>
       <trans-unit id="g2G-5j-Y4q.text" xml:space="preserve">
         <source>Details</source>
         <target state="translated">詳細內容</target>
         <note>Class = "UILabel"; text = "Details"; ObjectID = "g2G-5j-Y4q";</note>
-      </trans-unit>
-      <trans-unit id="g46-cV-NBw.text" xml:space="preserve">
-        <source>Aerial Tiles</source>
-        <target state="translated">空照圖磚</target>
-        <note>Class = "UILabel"; text = "Aerial Tiles"; ObjectID = "g46-cV-NBw";</note>
       </trans-unit>
       <trans-unit id="gdL-Os-R6R.text" xml:space="preserve">
         <source>Points</source>
@@ -580,22 +495,10 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
         <target state="translated">標記</target>
         <note>Class = "UILabel"; text = "Label"; ObjectID = "h1O-06-ApF";</note>
       </trans-unit>
-      <trans-unit id="hMJ-yP-XJe.text" xml:space="preserve">
-        <source>OpenStreetMap GPS Traces</source>
-        <target state="translated">開放街圖 GPS 航跡</target>
-        <note>Class = "UILabel"; text = "OpenStreetMap GPS Traces"; ObjectID = "hMJ-yP-XJe";</note>
-      </trans-unit>
       <trans-unit id="hkr-kO-jbt.text" xml:space="preserve">
         <source>Traffic Roads</source>
         <target state="translated">交通道路</target>
         <note>Class = "UILabel"; text = "Traffic Roads"; ObjectID = "hkr-kO-jbt";</note>
-      </trans-unit>
-      <trans-unit id="hsp-Xj-TU6.text" xml:space="preserve">
-        <source>Simon Poole Map Data © OpenStreetMap contributors
-</source>
-        <target state="translated">Simon Poole 地圖資料 © 開放街圖貢獻者
-</target>
-        <note>Class = "UITextView"; text = "Simon Poole Map Data © OpenStreetMap contributors\n"; ObjectID = "hsp-Xj-TU6";</note>
       </trans-unit>
       <trans-unit id="iuk-Fk-3Fw.placeholder" xml:space="preserve">
         <source>(TMS)</source>
@@ -641,6 +544,11 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
         <source>Turn Restrictions</source>
         <target state="translated">轉向限制</target>
         <note>Class = "UILabel"; text = "Turn Restrictions"; ObjectID = "r6a-cT-Ufa";</note>
+      </trans-unit>
+      <trans-unit id="r78-B4-pAU.text" xml:space="preserve">
+        <source>Aerial Tiles</source>
+        <target state="translated">空照圖磚</target>
+        <note>Class = "UILabel"; text = "Aerial Tiles"; ObjectID = "r78-B4-pAU";</note>
       </trans-unit>
       <trans-unit id="rWF-4C-sRA.text" xml:space="preserve">
         <source>Title</source>
@@ -707,11 +615,6 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
         <target state="translated">重置</target>
         <note>Class = "UITableViewSection"; headerTitle = "Reset"; ObjectID = "wev-ax-u4C";</note>
       </trans-unit>
-      <trans-unit id="xve-fW-qM7.text" xml:space="preserve">
-        <source>Details</source>
-        <target state="translated">詳細內容</target>
-        <note>Class = "UILabel"; text = "Details"; ObjectID = "xve-fW-qM7";</note>
-      </trans-unit>
       <trans-unit id="yue-km-52a.text" xml:space="preserve">
         <source>Name</source>
         <target state="translated">名稱</target>
@@ -736,7 +639,7 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
   </file>
   <file original="GpxWidget/InfoPlist.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="CFBundleDisplayName" xml:space="preserve">
@@ -758,7 +661,7 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
   </file>
   <file original="GpxWidget/Localizable.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="%@" xml:space="preserve">
@@ -768,30 +671,37 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
       </trans-unit>
       <trans-unit id="%@ %@" xml:space="preserve">
         <source>%1$@ %2$@</source>
+        <target state="translated">%1$@ %2$@</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@ %lld" xml:space="preserve">
         <source>%1$@ %2$lld</source>
+        <target state="translated">%1$@ %2$lld</target>
         <note from="auto-generated">A compact leading view for a dynamic island.</note>
       </trans-unit>
       <trans-unit id="%@ Stop" xml:space="preserve">
         <source>%@ Stop</source>
+        <target state="translated">%@ Stop</target>
         <note/>
       </trans-unit>
       <trans-unit id="%lld" xml:space="preserve">
         <source>%lld</source>
+        <target state="translated">%lld</target>
         <note from="auto-generated">A label displaying the number of points recorded in a GPX track.</note>
       </trans-unit>
       <trans-unit id="Duration" xml:space="preserve">
         <source>Duration</source>
+        <target state="translated">持續</target>
         <note from="auto-generated">A caption displayed underneath the duration of a track.</note>
       </trans-unit>
       <trans-unit id="GPX Trace" xml:space="preserve">
         <source>GPX Trace</source>
+        <target state="translated">GPX 記錄</target>
         <note from="auto-generated">A caption displayed below the name of the app.</note>
       </trans-unit>
       <trans-unit id="Go Map!!" xml:space="preserve">
         <source>Go Map!!</source>
+        <target state="translated">Go Map!!</target>
         <note from="auto-generated">A label displayed on the lock screen/banner UI of the widget</note>
       </trans-unit>
       <trans-unit id="Pause GPX" xml:space="preserve">
@@ -806,6 +716,7 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
       </trans-unit>
       <trans-unit id="Points" xml:space="preserve">
         <source>Points</source>
+        <target state="translated">航點</target>
         <note from="auto-generated">A unit displayed underneath the number of GPX points recorded.</note>
       </trans-unit>
       <trans-unit id="Start GPX" xml:space="preserve">
@@ -820,6 +731,7 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
       </trans-unit>
       <trans-unit id="Started at %@" xml:space="preserve">
         <source>Started at %@</source>
+        <target state="translated">開始於 %@</target>
         <note from="auto-generated">A subheading displaying when the user started tracking.</note>
       </trans-unit>
       <trans-unit id="Stop GPX" xml:space="preserve">
@@ -836,7 +748,7 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
   </file>
   <file original="Height/Base.lproj/Height.storyboard" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="QZK-2k-kEa.normalTitle" xml:space="preserve">
@@ -863,7 +775,7 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
   </file>
   <file original="InfoPlist.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="CFBundleDisplayName" xml:space="preserve">
@@ -934,7 +846,7 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
   </file>
   <file original="Localizable.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="" xml:space="preserve">
@@ -1094,7 +1006,7 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
       </trans-unit>
       <trans-unit id="%ld new route(s) imported,&#10;%ld duplicate(s) skipped|==|substitutions.routes.plural.other" xml:space="preserve">
         <source>%1$ld new routes</source>
-        <target state="needs-review-l10n">%1$ld</target>
+        <target state="translated">%1$ld全新路線</target>
         <note>result of importing GPX routes</note>
       </trans-unit>
       <trans-unit id="%ld objects|==|plural.other" xml:space="preserve">
@@ -1272,11 +1184,6 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
         <target state="translated">匯入的過程發生錯誤： %@</target>
         <note>Show an error message</note>
       </trans-unit>
-      <trans-unit id="An unknown error occurred fetching metadata" xml:space="preserve">
-        <source>An unknown error occurred fetching metadata</source>
-        <target state="translated">更新詮釋資料時發生未知錯誤</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Area" xml:space="preserve">
         <source>Area</source>
         <target state="translated">面積</target>
@@ -1431,6 +1338,11 @@ Object geometry: a closed way or multipolygon)</note>
       <trans-unit id="Clear Basemap Tiles" xml:space="preserve">
         <source>Clear Basemap Tiles</source>
         <target state="translated">清除基底地圖圖磚</target>
+        <note>Delete cached data</note>
+      </trans-unit>
+      <trans-unit id="Clear Data Caches" xml:space="preserve">
+        <source>Clear Data Caches</source>
+        <target state="translated">清除資料暫存</target>
         <note>Delete cached data</note>
       </trans-unit>
       <trans-unit id="Clear OSM Data" xml:space="preserve">
@@ -1716,6 +1628,11 @@ Error: %@</source>
         <target state="translated">匯入錯誤</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Import GPX" xml:space="preserve">
+        <source>Import GPX</source>
+        <target state="translated">匯入 GPX</target>
+        <note>GPX track</note>
+      </trans-unit>
       <trans-unit id="Import Quests" xml:space="preserve">
         <source>Import Quests</source>
         <target state="translated">匯入任務</target>
@@ -1779,6 +1696,10 @@ Error: %@</source>
       <trans-unit id="Location unavailable" xml:space="preserve">
         <source>Location unavailable</source>
         <target state="translated">無法定位</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Location updated to the location and orientation stored in the photo." xml:space="preserve">
+        <source>Location updated to the location and orientation stored in the photo.</source>
         <note/>
       </trans-unit>
       <trans-unit id="Login successful" xml:space="preserve">
@@ -1953,6 +1874,11 @@ Never delete old tracks</note>
         <target state="translated">沒有啟用的航跡</target>
         <note>GPX track</note>
       </trans-unit>
+      <trans-unit id="No match" xml:space="preserve">
+        <source>No match</source>
+        <target state="translated">沒有相符</target>
+        <note>No value available</note>
+      </trans-unit>
       <trans-unit id="No results found" xml:space="preserve">
         <source>No results found</source>
         <target state="translated">找不到結果</target>
@@ -2048,6 +1974,10 @@ Never delete old tracks</note>
         <target state="translated">只能旋轉線段或複多邊形</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Open Image File" xml:space="preserve">
+        <source>Open Image File</source>
+        <note/>
+      </trans-unit>
       <trans-unit id="Open Settings" xml:space="preserve">
         <source>Open Settings</source>
         <target state="translated">打開設定</target>
@@ -2088,9 +2018,9 @@ Never delete old tracks</note>
         <target state="translated">暫停記錄 GPX 軌跡。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Perform Action" xml:space="preserve">
-        <source>Perform Action</source>
-        <target state="translated">繼續執行</target>
+      <trans-unit id="Photo not available" xml:space="preserve">
+        <source>Photo not available</source>
+        <target state="translated">照片不存在</target>
         <note/>
       </trans-unit>
       <trans-unit id="Please wait" xml:space="preserve">
@@ -2103,6 +2033,11 @@ Never delete old tracks</note>
         <target state="translated">點</target>
         <note>Object geometry: a node</note>
       </trans-unit>
+      <trans-unit id="Predefined" xml:space="preserve">
+        <source>Predefined</source>
+        <target state="translated">預先定義</target>
+        <note>Items that are built into the app</note>
+      </trans-unit>
       <trans-unit id="Previous" xml:space="preserve">
         <source>Previous</source>
         <target state="translated">上一個</target>
@@ -2110,7 +2045,7 @@ Never delete old tracks</note>
       </trans-unit>
       <trans-unit id="Previous Tracks" xml:space="preserve">
         <source>Previous Tracks</source>
-        <target state="translated">上一個航跡</target>
+        <target state="translated">之前的航跡</target>
         <note>previous GPX track</note>
       </trans-unit>
       <trans-unit id="Provide a single-character symbol (emoji or unicode character) to identify this quest:" xml:space="preserve">
@@ -2394,6 +2329,10 @@ Title for sharing options</note>
         <target state="translated">無法刪除轉向限制關係</target>
         <note/>
       </trans-unit>
+      <trans-unit id="The selected image file does not contain location information." xml:space="preserve">
+        <source>The selected image file does not contain location information.</source>
+        <note/>
+      </trans-unit>
       <trans-unit id="The selected way must be completely visible" xml:space="preserve">
         <source>The selected way must be completely visible</source>
         <target state="translated">所選線段必須完整顯示在畫面中</target>
@@ -2586,7 +2525,7 @@ Select the highway from which you are approaching the intersection, then tap an 
       <trans-unit id="Version" xml:space="preserve">
         <source>Version</source>
         <target state="translated">版本</target>
-        <note>OSM object versioh</note>
+        <note>OSM object version</note>
       </trans-unit>
       <trans-unit id="Vertex" xml:space="preserve">
         <source>Vertex</source>
@@ -2886,7 +2825,7 @@ You may want to clear the cache (under Display settings) to improve performance.
   </file>
   <file original="PhotoShare/Base.lproj/MainInterface.storyboard" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="05z-LH-xEK.normalTitle" xml:space="preserve">
@@ -2908,7 +2847,7 @@ You may want to clear the cache (under Display settings) to improve performance.
   </file>
   <file original="PhotoShare/InfoPlist.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="CFBundleDisplayName" xml:space="preserve">
@@ -2925,7 +2864,7 @@ You may want to clear the cache (under Display settings) to improve performance.
   </file>
   <file original="PhotoShare/Localizable.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="Processing data..." xml:space="preserve">
@@ -2947,7 +2886,7 @@ You may want to clear the cache (under Display settings) to improve performance.
   </file>
   <file original="POI/Base.lproj/POI.storyboard" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="0mW-YK-ajm.placeholder" xml:space="preserve">
@@ -3025,15 +2964,10 @@ You may want to clear the cache (under Display settings) to improve performance.
         <target state="translated">新增</target>
         <note>Class = "UILabel"; text = "Add New"; ObjectID = "Bnh-U0-D7i"; Note = "Add user-defined tagging preset";</note>
       </trans-unit>
-      <trans-unit id="CBg-8X-VJp.configuration.title" xml:space="preserve">
+      <trans-unit id="CBg-8X-VJp.normalTitle" xml:space="preserve">
         <source>Area</source>
         <target state="translated">區域</target>
-        <note>Class = "UIButton"; configuration.title = "Area"; ObjectID = "CBg-8X-VJp";</note>
-      </trans-unit>
-      <trans-unit id="CBg-8X-VJp.normalTitle" xml:space="preserve">
-        <source>Button</source>
-        <target state="translated">按鈕</target>
-        <note>Class = "UIButton"; normalTitle = "Button"; ObjectID = "CBg-8X-VJp";</note>
+        <note>Class = "UIButton"; normalTitle = "Area"; ObjectID = "CBg-8X-VJp";</note>
       </trans-unit>
       <trans-unit id="CXe-gQ-Zda.text" xml:space="preserve">
         <source>Value 8</source>
@@ -3050,15 +2984,10 @@ You may want to clear the cache (under Display settings) to improve performance.
         <target state="translated">套用到</target>
         <note>Class = "UITableViewSection"; headerTitle = "Applies To"; ObjectID = "Dfv-TT-J6i";</note>
       </trans-unit>
-      <trans-unit id="DhX-ri-fx9.configuration.title" xml:space="preserve">
+      <trans-unit id="DhX-ri-fx9.normalTitle" xml:space="preserve">
         <source>Vertex</source>
         <target state="translated">交點</target>
-        <note>Class = "UIButton"; configuration.title = "Vertex"; ObjectID = "DhX-ri-fx9";</note>
-      </trans-unit>
-      <trans-unit id="DhX-ri-fx9.normalTitle" xml:space="preserve">
-        <source>Button</source>
-        <target state="translated">按鈕</target>
-        <note>Class = "UIButton"; normalTitle = "Button"; ObjectID = "DhX-ri-fx9";</note>
+        <note>Class = "UIButton"; normalTitle = "Vertex"; ObjectID = "DhX-ri-fx9";</note>
       </trans-unit>
       <trans-unit id="Eou-a6-V4g.text" xml:space="preserve">
         <source>Key</source>
@@ -3155,6 +3084,11 @@ You may want to clear the cache (under Display settings) to improve performance.
         <target state="translated">圖徵的標籤</target>
         <note>Class = "UITableViewSection"; headerTitle = "Feature Tags"; ObjectID = "Ruw-WB-IgL";</note>
       </trans-unit>
+      <trans-unit id="ScT-zG-GwL.text" xml:space="preserve">
+        <source>Inherit the presets of this feature. If none then selecting this feature will merge (not replace) the tags onto the target object.</source>
+        <target state="translated">將套用這個圖徵的預設組合，如果沒有預設組合則選取圖徵的標籤將會合併到目標物件（而非取代）。</target>
+        <note>Class = "UILabel"; text = "Inherit the presets of this feature. If none then selecting this feature will merge (not replace) the tags onto the target object."; ObjectID = "ScT-zG-GwL";</note>
+      </trans-unit>
       <trans-unit id="TJk-hO-Ejc.text" xml:space="preserve">
         <source>Name</source>
         <target state="translated">名稱</target>
@@ -3194,15 +3128,10 @@ You may want to clear the cache (under Display settings) to improve performance.
         <target state="translated">值 10</target>
         <note>Class = "UILabel"; text = "Value 10"; ObjectID = "Wim-Qa-dYQ";</note>
       </trans-unit>
-      <trans-unit id="WjA-Nb-uzp.configuration.title" xml:space="preserve">
+      <trans-unit id="WjA-Nb-uzp.normalTitle" xml:space="preserve">
         <source>Line</source>
         <target state="translated">線條</target>
-        <note>Class = "UIButton"; configuration.title = "Line"; ObjectID = "WjA-Nb-uzp";</note>
-      </trans-unit>
-      <trans-unit id="WjA-Nb-uzp.normalTitle" xml:space="preserve">
-        <source>Button</source>
-        <target state="translated">按鈕</target>
-        <note>Class = "UIButton"; normalTitle = "Button"; ObjectID = "WjA-Nb-uzp";</note>
+        <note>Class = "UIButton"; normalTitle = "Line"; ObjectID = "WjA-Nb-uzp";</note>
       </trans-unit>
       <trans-unit id="WoH-od-iKL.text" xml:space="preserve">
         <source>Value 7</source>
@@ -3294,15 +3223,10 @@ You may want to clear the cache (under Display settings) to improve performance.
         <target state="translated">屬性</target>
         <note>Class = "UITabBarController"; title = "Attributes"; ObjectID = "f5t-25-IXF";</note>
       </trans-unit>
-      <trans-unit id="fdT-wh-QoF.configuration.title" xml:space="preserve">
+      <trans-unit id="fdT-wh-QoF.normalTitle" xml:space="preserve">
         <source>Point</source>
         <target state="translated">點</target>
-        <note>Class = "UIButton"; configuration.title = "Point"; ObjectID = "fdT-wh-QoF";</note>
-      </trans-unit>
-      <trans-unit id="fdT-wh-QoF.normalTitle" xml:space="preserve">
-        <source>Button</source>
-        <target state="translated">按鈕</target>
-        <note>Class = "UIButton"; normalTitle = "Button"; ObjectID = "fdT-wh-QoF";</note>
+        <note>Class = "UIButton"; normalTitle = "Point"; ObjectID = "fdT-wh-QoF";</note>
       </trans-unit>
       <trans-unit id="foC-aN-GtH.placeholder" xml:space="preserve">
         <source>clean</source>
@@ -3513,7 +3437,7 @@ You may want to clear the cache (under Display settings) to improve performance.
   </file>
   <file original="Settings/Base.lproj/Settings.storyboard" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="0Hk-5U-2Kg.text" xml:space="preserve">
@@ -3791,7 +3715,7 @@ http://glyphish.com
       </trans-unit>
       <trans-unit id="fbD-Hr-HNI.headerTitle" xml:space="preserve">
         <source>Credentials</source>
-        <target state="translated">憑證</target>
+        <target state="translated">登入</target>
         <note>Class = "UITableViewSection"; headerTitle = "Credentials"; ObjectID = "fbD-Hr-HNI";</note>
       </trans-unit>
       <trans-unit id="gec-8l-k4H.text" xml:space="preserve">
@@ -3836,7 +3760,7 @@ http://glyphish.com
       </trans-unit>
       <trans-unit id="m7D-wn-3MP.title" xml:space="preserve">
         <source>Prepare for Offline</source>
-        <target state="translated">離線使用的前置作業</target>
+        <target state="translated">離線使用</target>
         <note>Class = "UINavigationItem"; title = "Prepare for Offline"; ObjectID = "m7D-wn-3MP";</note>
       </trans-unit>
       <trans-unit id="m7u-CH-jgg.headerTitle" xml:space="preserve">
@@ -3861,7 +3785,7 @@ http://glyphish.com
       </trans-unit>
       <trans-unit id="rfX-TP-V0l.text" xml:space="preserve">
         <source>Prepare for Offline</source>
-        <target state="translated">離線使用的前置作業</target>
+        <target state="translated">離線使用</target>
         <note>Class = "UILabel"; text = "Prepare for Offline"; ObjectID = "rfX-TP-V0l";</note>
       </trans-unit>
       <trans-unit id="snH-kp-6ib.normalTitle" xml:space="preserve">
@@ -3891,9 +3815,21 @@ http://glyphish.com
       </trans-unit>
     </body>
   </file>
+  <file original="Turn Restrictions/Base.lproj/TurnRestrictions.storyboard" source-language="en" target-language="zh-Hant" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+    </header>
+    <body>
+      <trans-unit id="qP9-Sc-sc4.text" xml:space="preserve">
+        <source>Label</source>
+        <target state="translated">標籤</target>
+        <note>Class = "UILabel"; text = "Label"; ObjectID = "qP9-Sc-sc4";</note>
+      </trans-unit>
+    </body>
+  </file>
   <file original="Upload/Base.lproj/Changeset.storyboard" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="ArV-4u-j7D.text" xml:space="preserve">

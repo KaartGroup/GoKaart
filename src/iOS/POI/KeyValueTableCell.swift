@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import SafariServices
 import UIKit
 
 class TextPairTableCell: UITableViewCell {
@@ -23,6 +22,12 @@ class TextPairTableCell: UITableViewCell {
 			|| state.contains(.showingDeleteConfirmation)
 	}
 
+	override func resignFirstResponder() -> Bool {
+		text1.resignFirstResponder()
+		text2.resignFirstResponder()
+		return super.resignFirstResponder()
+	}
+
 	override func willTransition(to state: UITableViewCell.StateMask) {
 		// don't allow editing text while deleting
 		if shouldResignFirstResponder(forState: state) {
@@ -35,8 +40,7 @@ class TextPairTableCell: UITableViewCell {
 }
 
 protocol KeyValueTableCellOwner: UITableViewController {
-	var allPresetKeys: [PresetKey] { get }
-	var childViewPresented: Bool { get set }
+	var allPresetKeys: [PresetDisplayKey] { get }
 	var currentTextField: UITextField? { get set }
 	func keyValueEditingChanged(for kv: KeyValueTableCell)
 	func keyValueEditingEnded(for kv: KeyValueTableCell)
@@ -61,12 +65,11 @@ class KeyValueTableCell: TextPairTableCell, PresetValueTextFieldOwner, UITextFie
 		text1.spellCheckingType = .no
 		text2.spellCheckingType = .no
 
-		weak var weakSelf = self
-		text1.didSelectAutocomplete = {
-			weakSelf?.text2.becomeFirstResponder()
+		text1.didSelectAutocomplete = { [weak self] in
+			self?.text2.becomeFirstResponder()
 		}
-		text2.didSelectAutocomplete = {
-			weakSelf?.text2.becomeFirstResponder()
+		text2.didSelectAutocomplete = { [weak self] in
+			self?.text2.becomeFirstResponder()
 		}
 		text2.owner = self
 
@@ -165,7 +168,7 @@ class KeyValueTableCell: TextPairTableCell, PresetValueTextFieldOwner, UITextFie
 	func selectTextViewFor(key: String) {
 		// set text formatting options for text field
 		if let preset = keyValueCellOwner?.allPresetKeys.first(where: { key == $0.tagKey }) {
-			if preset.type == "textarea" {
+			if preset.type == .textarea {
 				useTextView()
 			} else {
 				useTextField()
@@ -203,18 +206,6 @@ class KeyValueTableCell: TextPairTableCell, PresetValueTextFieldOwner, UITextFie
 	                            replacementString insert: String,
 	                            warningVC: KeyValueTableCellOwner?) -> Bool
 	{
-		// Check whether they are pasting a set of tags
-		// Note the inserted string has newlines converted to spaces.
-		if let pb = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines),
-		   insert.trimmingCharacters(in: .whitespaces) == pb.replacingOccurrences(of: "\n", with: " ")
-		   .trimmingCharacters(in: .whitespaces),
-		   let tags = OsmTags.tagsForString(pb),
-		   tags.count > 0
-		{
-			warningVC?.pasteTags(tags)
-			return false
-		}
-
 		let MAX_LENGTH = 255
 		let newLength = origText.count - remove.length + insert.count
 		let allowed = newLength <= MAX_LENGTH || insert == "\n"
@@ -315,112 +306,12 @@ class KeyValueTableCell: TextPairTableCell, PresetValueTextFieldOwner, UITextFie
 	// MARK: Info button
 
 	@IBAction func infoButtonPressed(_ sender: Any?) {
-		guard !key.isEmpty else { return }
-		let mapView = AppDelegate.shared.mapView!
-		let geometry = mapView.editorLayer.selectedPrimary?.geometry() ?? .POINT
-		let feature = PresetsDatabase.shared.presetFeatureMatching(tags: [key: value],
-		                                                           geometry: geometry,
-		                                                           location: mapView.currentRegion,
-		                                                           includeNSI: false)
-		let featureName: String?
-		if let feature = feature,
-		   feature.tags.count > 0 // not degenerate like point, line, etc.
-		{
-			featureName = feature.name
-		} else if let preset = keyValueCellOwner?.allPresetKeys.first(where: { $0.tagKey == key }) {
-			featureName = preset.name
-		} else {
-			featureName = nil
-		}
-
-		let spinner = UIActivityIndicatorView(style: .gray)
-		spinner.frame = infoButton.bounds
-		infoButton.addSubview(spinner)
-		infoButton.isEnabled = false
-		infoButton.titleLabel?.alpha = 0
-		spinner.startAnimating()
-
-		func showPopup(title: String?, description: String?, wikiPageTitle: String?) {
-			spinner.removeFromSuperview()
-			infoButton.isEnabled = true
-			infoButton.titleLabel?.alpha = 1
-
-			if let description,
-			   let owner = keyValueCellOwner,
-			   owner.view.window != nil
-			{
-				let tag = "\(key)=\(value.isEmpty ? "*" : value)"
-				let alert = UIAlertController(
-					title: title ?? "",
-					message: "\(tag)\n\n\(description)",
-					preferredStyle: .alert)
-				alert.addAction(.init(title: "Done", style: .cancel, handler: nil))
-				alert.addAction(.init(title: "Read more on the Wiki", style: .default) { _ in
-					if let wikiPageTitle {
-						let url = WikiPage.shared.urlFor(pageTitle: wikiPageTitle)
-						self.openSafariWith(url: url)
-					} else {
-						self.openSafari()
-					}
-				})
-				owner.present(alert, animated: true)
-			} else {
-				openSafari()
-			}
-		}
-
-		let languageCode = PresetLanguages.preferredLanguageCode()
-		if let wikiData = WikiPage.shared.wikiDataFor(key: key,
-		                                              value: value,
-		                                              language: languageCode,
-		                                              imageWidth: 24,
-		                                              update: { wikiData in
-		                                              	showPopup(
-		                                              		title: featureName,
-		                                              		description: wikiData?.description,
-		                                              		wikiPageTitle: wikiData?.pageTitle)
-		                                              })
-		{
-			showPopup(title: featureName,
-			          description: wikiData.description,
-			          wikiPageTitle: wikiData.pageTitle)
-		}
-	}
-
-	private func openSafariWith(url: URL) {
-		guard let keyValueCellOwner else { return }
-		let vc = SFSafariViewController(url: url)
-		keyValueCellOwner.childViewPresented = true
-		keyValueCellOwner.present(vc, animated: true)
-	}
-
-	private func openSafari() {
-		guard !key.isEmpty,
-		      let owner = keyValueCellOwner,
-		      owner.view.window != nil
-		else { return }
-
-		let languageCode = PresetLanguages.preferredLanguageCode()
-		WikiPage.shared.bestWikiPage(
-			forKey: key,
-			value: value,
-			language: languageCode)
-		{ url in
-				DispatchQueue.main.async {
-					if let url = url {
-						self.openSafariWith(url: url)
-					}
-				}
-			}
+		WikiPage.shared.pressed(infoButton: sender as? UIButton, in: keyValueCellOwner, key: key, value: value)
 	}
 
 	// MARK: PresetValueTextFieldOwner
 
-	var allPresetKeys: [PresetKey] { return keyValueCellOwner?.allPresetKeys ?? [] }
-	var childViewPresented: Bool {
-		set { keyValueCellOwner?.childViewPresented = newValue }
-		get { keyValueCellOwner?.childViewPresented ?? false }
-	}
+	var allPresetKeys: [PresetDisplayKey] { return keyValueCellOwner?.allPresetKeys ?? [] }
 
 	var viewController: UIViewController? { return keyValueCellOwner }
 	func valueChanged(for textField: PresetValueTextField, ended: Bool) {

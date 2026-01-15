@@ -14,37 +14,31 @@ import UIKit
 /// See: MapView.quadDownloadLayer and OsmMapData.downloadMissingData()
 final class QuadDownloadLayer: CALayer {
 	let mapView: MapView
+	let viewPort: MapViewPort
 
 	// MARK: Implementation
 
 	override init(layer: Any) {
 		let layer = layer as! QuadDownloadLayer
 		mapView = layer.mapView
+		viewPort = layer.viewPort
 		super.init(layer: layer)
 	}
 
-	init(mapView: MapView) {
+	init(mapView: MapView, viewPort: MapViewPort) {
 		self.mapView = mapView
+		self.viewPort = viewPort
 		super.init()
 
 		needsDisplayOnBoundsChange = true
 
-		// disable animations
-		actions = [
-			"onOrderIn": NSNull(),
-			"onOrderOut": NSNull(),
-			"sublayers": NSNull(),
-			"contents": NSNull(),
-			"bounds": NSNull(),
-			"position": NSNull(),
-			"anchorPoint": NSNull(),
-			"transform": NSNull(),
-			"isHidden": NSNull()
-		]
-
-		mapView.mapTransform.observe(by: self, callback: {
+		mapView.viewPort.mapTransform.onChange.subscribe(self) { _ in
 			self.setNeedsLayout()
-		})
+		}
+	}
+
+	override func action(forKey event: String) -> (any CAAction)? {
+		return NSNull()
 	}
 
 	override func layoutSublayers() {
@@ -52,14 +46,16 @@ final class QuadDownloadLayer: CALayer {
 			return
 		}
 		// update locations of tiles
-		let tRotation = mapView.screenFromMapTransform.rotation()
+		let tRotation = mapView.viewPort.mapTransform.rotation()
 		sublayers = []
 		mapView.editorLayer.mapData.region.enumerate({ quad in
 			if !quad.isDownloaded, !quad.busy {
 				return
 			}
-			let upperLeft = mapView.mapTransform.screenPoint(forLatLon: LatLon(quad.rect.origin), birdsEye: true)
-			let bottomRight = mapView.mapTransform.screenPoint(
+			let upperLeft = mapView.viewPort.mapTransform.screenPoint(
+				forLatLon: LatLon(quad.rect.origin),
+				birdsEye: true)
+			let bottomRight = mapView.viewPort.mapTransform.screenPoint(
 				forLatLon: LatLon(lon: quad.rect.origin.x + quad.rect.size.width,
 				                  lat: quad.rect.origin.y + quad.rect.size.height),
 				birdsEye: true)

@@ -10,20 +10,19 @@ import CoreGraphics
 import Foundation
 
 final class MapMarkerDatabase: MapMarkerIgnoreListProtocol {
-	private let workQueue = OperationQueue()
+	private var pendingUpdateTask: Task<Void, Never>?
 	private var markerForIdentifier: [String: MapMarker] = [:] // map the marker key (unique string) to a marker
 	private var ignoreList: MapMarkerIgnoreList
 	weak var mapData: OsmMapData!
 
 	init() {
-		workQueue.maxConcurrentOperationCount = 1
 		ignoreList = MapMarkerIgnoreList()
 	}
 
 	var allMapMarkers: AnySequence<MapMarker> { AnySequence(markerForIdentifier.values) }
 
 	func removeAll() {
-		workQueue.cancelAllOperations()
+		pendingUpdateTask?.cancel()
 		markerForIdentifier.removeAll()
 	}
 
@@ -102,14 +101,25 @@ final class MapMarkerDatabase: MapMarkerIgnoreListProtocol {
 	}
 
 	func addGpxWaypoints() {
-		DispatchQueue.main.async(execute: { [self] in
-			for track in AppDelegate.shared.mapView.gpxLayer.allTracks() {
-				for point in track.wayPoints {
-					let marker = WayPointMarker(with: point)
-					addOrUpdate(marker: marker)
-				}
+		for track in AppDelegate.shared.mapView.gpxLayer.allTracks() {
+			for point in track.wayPoints {
+				let marker = WayPointMarker(with: point)
+				addOrUpdate(marker: marker)
 			}
-		})
+		}
+	}
+
+	func addGeoJSONPoints(forRegion box: OSMRect) {
+		let visible = AppDelegate.shared.mapView.dataOverlayLayer.geojsonData()
+		for feature in visible {
+			if case let .point(latLon) = feature.geom.geometryPoints,
+			   box.containsPoint(OSMPoint(latLon)),
+			   let properties = feature.properties
+			{
+				let marker = GeoJsonMarker(with: latLon, properties: properties)
+				addOrUpdate(marker: marker)
+			}
+		}
 	}
 
 	func addKeepRight(forRegion box: OSMRect, mapData: OsmMapData, completion: @escaping () -> Void) {
@@ -122,20 +132,20 @@ final class MapMarkerDatabase: MapMarkerIgnoreListProtocol {
 			box.origin.x + box.size.width,
 			box.origin.y + box.size.height)
 		guard let url1 = URL(string: url) else { return }
-		URLSession.shared.data(with: url1, completionHandler: { [self] result in
-			if case let .success(data) = result,
+		Task {
+			if let data = try? await URLSession.shared.data(with: url1),
 			   let gpxTrack = try? GpxTrack(xmlData: data)
 			{
-				DispatchQueue.main.async(execute: { [self] in
+				await MainActor.run {
 					for point in gpxTrack.wayPoints {
 						if let note = KeepRightMarker(gpxWaypoint: point, mapData: mapData, ignorable: self) {
 							addOrUpdate(marker: note)
 						}
 					}
 					completion()
-				})
+				}
 			}
-		})
+		}
 	}
 
 	// MARK: update markers
@@ -146,6 +156,7 @@ final class MapMarkerDatabase: MapMarkerIgnoreListProtocol {
 		static let fixme = MapMarkerSet(rawValue: 1 << 1)
 		static let quest = MapMarkerSet(rawValue: 1 << 2)
 		static let gpx = MapMarkerSet(rawValue: 1 << 3)
+		static let geojson = MapMarkerSet(rawValue: 1 << 4)
 	}
 
 	func removeMarkers(where predicate: (MapMarker) -> Bool) {
@@ -155,7 +166,8 @@ final class MapMarkerDatabase: MapMarkerIgnoreListProtocol {
 		}
 	}
 
-	func updateMarkers(
+	// External callers should use the "withDelay" variant of this
+	private func updateMarkers(
 		forRegion box: OSMRect,
 		mapData: OsmMapData,
 		including: MapMarkerSet,
@@ -177,6 +189,12 @@ final class MapMarkerDatabase: MapMarkerIgnoreListProtocol {
 		} else {
 			removeMarkers(where: { $0 is WayPointMarker })
 		}
+		if including.contains(.geojson) {
+			addGeoJSONPoints(forRegion: box)
+		} else {
+			removeMarkers(where: { $0 is GeoJsonMarker })
+		}
+
 		if including.contains(.notes) {
 			removeMarkers(where: { ($0 as? OsmNoteMarker)?.shouldHide() ?? false })
 			addNoteMarkers(forRegion: box, completion: completion)
@@ -188,23 +206,33 @@ final class MapMarkerDatabase: MapMarkerIgnoreListProtocol {
 	}
 
 	func updateRegion(
-		_ bbox: OSMRect,
-		withDelay delay: CGFloat,
+		withDelay delay: TimeInterval,
 		mapData: OsmMapData,
 		including: MapMarkerSet,
 		completion: @escaping () -> Void)
 	{
 		// Schedule work to be done in a short while, but if we're called before then
 		// cancel that operation and schedule a new one.
-		workQueue.cancelAllOperations()
-		workQueue.addOperation({
-			usleep(UInt32(1000 * (delay + 0.25)))
-		})
-		workQueue.addOperation({ [self] in
-			DispatchQueue.main.async {
+		pendingUpdateTask?.cancel()
+		pendingUpdateTask = Task { @MainActor in
+			// Suspend for delay (in nanoseconds)
+			let delayNs = UInt64((delay + 0.25) * 1000_000000)
+			try? await Task.sleep(nanoseconds: delayNs)
+
+			guard
+				// Check for cancellation before proceeding
+				!Task.isCancelled
+			else {
+				return
+			}
+			// Don't update excessively large regions
+			let bbox = AppDelegate.shared.mainView.viewPort.boundingLatLonForScreen()
+			guard bbox.size.width * bbox.size.height <= 0.25 else { return }
+
+			await MainActor.run {
 				self.updateMarkers(forRegion: bbox, mapData: mapData, including: including, completion: completion)
 			}
-		})
+		}
 	}
 
 	func mapMarker(forButtonId buttonId: Int) -> MapMarker? {
@@ -226,34 +254,33 @@ final class MapMarkerDatabase: MapMarkerIgnoreListProtocol {
 
 extension MapMarkerDatabase {
 	func addNoteMarkers(forRegion box: OSMRect, completion: @escaping () -> Void) {
-		let url = OSM_SERVER.apiURL +
-			"api/0.6/notes?closed=0&bbox=\(box.origin.x),\(box.origin.y),\(box.origin.x + box.size.width),\(box.origin.y + box.size.height)"
-		if let url1 = URL(string: url) {
-			URLSession.shared.data(with: url1, completionHandler: { [self] result in
-				guard case let .success(data) = result,
-				      let xmlText = String(data: data, encoding: .utf8),
-				      let xmlDoc = try? DDXMLDocument(xmlString: xmlText, options: 0)
-				else { return }
+		Task {
+			let url = OSM_SERVER.apiURL +
+				"api/0.6/notes?closed=0&bbox=\(box.origin.x),\(box.origin.y),\(box.origin.x + box.size.width),\(box.origin.y + box.size.height)"
+			guard let url1 = URL(string: url),
+			      let data = try? await URLSession.shared.data(with: url1),
+			      let xmlText = String(data: data, encoding: .utf8),
+			      let xmlDoc = try? DDXMLDocument(xmlString: xmlText, options: 0)
+			else {
+				return
+			}
 
-				var newNotes: [OsmNoteMarker] = []
-				for noteElement in (try? xmlDoc.rootElement()?.nodes(forXPath: "./note")) ?? [] {
-					guard let noteElement = noteElement as? DDXMLElement else {
-						continue
-					}
-					if let note = OsmNoteMarker(noteXml: noteElement) {
-						newNotes.append(note)
-					}
+			let notes = (try? xmlDoc.rootElement()?.nodes(forXPath: "./note")) ?? []
+			let newNotes: [OsmNoteMarker] = notes.compactMap({ noteElement in
+				guard let noteElement = noteElement as? DDXMLElement,
+				      let note = OsmNoteMarker(noteXml: noteElement)
+				else {
+					return nil
 				}
-
-				DispatchQueue.main.async(execute: { [self] in
-					// add downloaded notes
-					for note in newNotes {
-						addOrUpdate(marker: note)
-					}
-
-					completion()
-				})
+				return note
 			})
+			await MainActor.run {
+				// add downloaded notes
+				for note in newNotes {
+					addOrUpdate(marker: note)
+				}
+				completion()
+			}
 		}
 	}
 

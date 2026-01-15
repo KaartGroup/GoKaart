@@ -1429,8 +1429,8 @@
         },
         "ru" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Почта"
+            "state" : "translated",
+            "value" : "Экспортировать"
           }
         },
         "ta" : {
@@ -1475,6 +1475,12 @@
             "value" : "Popište vaše změny… "
           }
         },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beschreibe deine Änderungen... "
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
@@ -1493,6 +1499,12 @@
             "value" : "Kirjelda oma muudatusi... "
           }
         },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opiši svoje promjene … "
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1509,6 +1521,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "உங்கள் மாற்றங்களை விவரிக்கவும் ... "
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Опишіть свої зміни... "
           }
         },
         "zh-Hant" : {

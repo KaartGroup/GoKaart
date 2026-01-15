@@ -71,14 +71,13 @@ private class SectionHeaderCell: UITableViewHeaderFooterView {
 }
 
 class POIAllTagsViewController: UITableViewController, POIFeaturePickerDelegate, KeyValueTableCellOwner {
-	var allPresetKeys: [PresetKey] = []
+	var allPresetKeys: [PresetDisplayKey] = []
 	private var tags: KeyValueTableSection!
 	private var relations: [OsmRelation] = []
 	private var members: [OsmMember] = []
 	@IBOutlet var saveButton: UIBarButtonItem!
-	internal var childViewPresented = false
 	private var currentFeature: PresetFeature?
-	internal var currentTextField: UITextField?
+	var currentTextField: UITextField?
 	private var prevNextToolbar: UIToolbar!
 
 	override func viewDidLoad() {
@@ -157,10 +156,10 @@ class POIAllTagsViewController: UITableViewController, POIFeaturePickerDelegate,
 
 		// add placeholder keys
 		if let newFeature = currentFeature {
-			let presets = PresetsForFeature(withFeature: newFeature,
-			                                objectTags: dict,
-			                                geometry: geometry,
-			                                update: nil)
+			let presets = PresetDisplayForFeature(withFeature: newFeature,
+			                                      objectTags: dict,
+			                                      geometry: geometry,
+			                                      update: nil)
 			allPresetKeys = presets.allPresetKeys()
 			let newKeys: Set<String> = Set(allPresetKeys.map({ $0.tagKey }).filter({ $0 != "" }))
 				.subtracting(tags.allTags.map { $0.k })
@@ -181,6 +180,11 @@ class POIAllTagsViewController: UITableViewController, POIFeaturePickerDelegate,
 	}
 
 	func loadState() {
+		// Loading the state reloads the tableview, and we don't want to
+		// have an editingDidEnd() call modify the table while we're
+		// reloading it. So end all editing up front.
+		view.endEditing(true)
+
 		let tabController = tabBarController as! POITabBarController
 
 		// fetch values from tab controller
@@ -199,11 +203,7 @@ class POIAllTagsViewController: UITableViewController, POIFeaturePickerDelegate,
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		if childViewPresented {
-			childViewPresented = false
-		} else {
-			loadState()
-		}
+		loadState()
 	}
 
 	override func viewWillDisappear(_ animated: Bool) {
@@ -403,12 +403,17 @@ class POIAllTagsViewController: UITableViewController, POIFeaturePickerDelegate,
 
 	// Called when user pastes a set of tags
 	func pasteTags(_ tags: [String: String]) {
+		for visibleCell in tableView.visibleCells {
+			_ = (visibleCell as? KeyValueTableCell)?.resignFirstResponder()
+		}
+
 		var dict = self.tags.keyValueDictionary()
 		for (k, v) in tags {
 			dict[k] = v
 		}
 		self.tags.set(dict.map { (k: $0.key, v: $0.value) })
 
+		saveState()
 		_ = updateWithRecomendations(forFeature: true)
 	}
 
@@ -462,7 +467,7 @@ class POIAllTagsViewController: UITableViewController, POIFeaturePickerDelegate,
 			let cell: SectionHeaderCell = tableView
 				.dequeueReusableHeaderFooterView(withIdentifier: SectionHeaderCell
 					.reuseIdentifier) as! SectionHeaderCell
-			cell.label.text = currentFeature?.name.uppercased() ?? "TAGS"
+			cell.label.text = currentFeature?.localizedName.uppercased() ?? "TAGS"
 			return cell
 		} else {
 			return nil
@@ -585,10 +590,10 @@ class POIAllTagsViewController: UITableViewController, POIFeaturePickerDelegate,
 		mapView.editorLayer.selectedRelation = object.isRelation()
 
 		var newPoint = mapView.pushPin!.arrowPoint
-		let latLon1 = mapView.mapTransform.latLon(forScreenPoint: newPoint)
+		let latLon1 = mapView.viewPort.mapTransform.latLon(forScreenPoint: newPoint)
 		let latLon = object.latLonOnObject(forLatLon: latLon1)
 
-		newPoint = mapView.mapTransform.screenPoint(forLatLon: latLon, birdsEye: true)
+		newPoint = mapView.viewPort.mapTransform.screenPoint(forLatLon: latLon, birdsEye: true)
 		if !mapView.bounds.contains(newPoint) {
 			// new object is far away
 			mapView.placePushpinForSelection()
@@ -597,10 +602,9 @@ class POIAllTagsViewController: UITableViewController, POIFeaturePickerDelegate,
 		}
 
 		// dismiss ourself and switch to the relation
-		let topController = mapView.mainViewController
 		mapView.refreshPushpinText() // update pushpin description to the relation
 		dismiss(animated: true) {
-			topController.performSegue(withIdentifier: "poiSegue", sender: nil)
+			AppDelegate.shared.mainView.performSegue(withIdentifier: "poiSegue", sender: nil)
 		}
 		return false
 	}

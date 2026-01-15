@@ -1,5 +1,5 @@
 //
-//  UserDataController.swift
+//  DataOverlaysController.swift
 //  Go Map!!
 //
 //  Created by Bryce Cogswell on 5/19/24.
@@ -31,17 +31,26 @@ class DataOverlaysController: UITableViewController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
+		let latLon = AppDelegate.shared.mainView.viewPort.screenCenterLatLon()
 		let mapView = AppDelegate.shared.mapView!
-		let latLon = mapView.screenCenterLatLon()
 		overlayList = mapView.tileServerList.allServices(at: latLon, overlay: true)
 		overlaySelections = UserPrefs.shared.tileOverlaySelections.value ?? []
+
+		// Don't show edit button if there's nothing to edit
+		updateEditButton()
 	}
 
 	override func viewWillDisappear(_ animated: Bool) {
 		super.viewWillDisappear(animated)
-		if AppDelegate.shared.mapView.displayDataOverlayLayer {
+		if AppDelegate.shared.mapView.displayDataOverlayLayers {
 			AppDelegate.shared.mapView.dataOverlayLayer.setNeedsLayout()
 		}
+	}
+
+	func updateEditButton() {
+		// Don't show edit button if there's nothing to edit
+		let editItems = tableView(tableView, numberOfRowsInSection: Section.geojsonSection.rawValue)
+		navigationItem.rightBarButtonItem?.isEnabled = editItems > 1 // last item is "Import"
 	}
 
 	// MARK: Table view delegate
@@ -53,9 +62,9 @@ class DataOverlaysController: UITableViewController {
 	override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
 		switch Section(rawValue: section) {
 		case .geojsonSection:
-			return "GeoJSON"
+			return NSLocalizedString("GeoJSON", comment: "")
 		case .predefinedSection:
-			return "Predefined"
+			return NSLocalizedString("Predefined", comment: "Items that are built into the app")
 		default:
 			return nil
 		}
@@ -102,13 +111,24 @@ class DataOverlaysController: UITableViewController {
 	override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		tableView.deselectRow(at: indexPath, animated: true)
 
-		if Section(rawValue: indexPath.section) == .geojsonSection,
-		   indexPath.row == geoJsonList.count
-		{
-			if #available(iOS 14.0, *) {
-				doImport()
+		if Section(rawValue: indexPath.section) == .geojsonSection {
+			if indexPath.row == geoJsonList.count {
+				// import button press
+				if #available(iOS 14.0, *) {
+					doImportGeoJSON()
+				} else {
+					// not supported due to lack of UIDocumentPickerViewController
+				}
 			} else {
-				// Fallback on earlier versions
+				// jump to the location
+				guard
+					indexPath.row < geoJsonList.count,
+					let geoJson = try? GeoJSONFile(url: geoJsonList[indexPath.row].url),
+					let latLon = geoJson.firstPoint(),
+					let mainView = AppDelegate.shared.mainView
+				else { return }
+				self.dismiss(animated: true)
+				mainView.viewPort.centerOn(latLon: latLon, metersWide: nil)
 			}
 		}
 	}
@@ -128,7 +148,6 @@ class DataOverlaysController: UITableViewController {
 				overlaySelections.removeAll(where: { $0 == server.identifier })
 			}
 			UserPrefs.shared.tileOverlaySelections.value = overlaySelections
-			AppDelegate.shared.mapView.updateTileOverlayLayers()
 		default:
 			fatalError()
 		}
@@ -192,7 +211,7 @@ class DataOverlaysController: UITableViewController {
 
 extension DataOverlaysController: UIDocumentPickerDelegate {
 	@available(iOS 14.0, *)
-	func doImport() {
+	func doImportGeoJSON() {
 		guard let utType = UTType("public.geojson") else { return }
 		let picker = UIDocumentPickerViewController(forOpeningContentTypes: [utType], asCopy: true)
 		picker.delegate = self
@@ -212,5 +231,6 @@ extension DataOverlaysController: UIDocumentPickerDelegate {
 			}
 		}
 		tableView.reloadData()
+		updateEditButton()
 	}
 }

@@ -391,7 +391,7 @@ final class TileServer: Equatable, Codable {
 	private static let builtinBingAerial = TileServer(
 		withName: "Bing",
 		identifier: BingIdentifier,
-		url: "https://ecn.{switch:t0,t1,t2,t3}.tiles.virtualearth.net/tiles/a{u}.jpeg?g=10618&key={apikey}",
+		url: "https://ecn.{switch:t0,t1,t2,t3}.tiles.virtualearth.net/tiles/a{u}.jpeg?g=15458&key={apikey}",
 		best: false,
 		overlay: false,
 		apiKey: BING_MAPS_KEY,
@@ -415,7 +415,12 @@ final class TileServer: Equatable, Codable {
 		return builtinBingAerial
 	}
 
-	static func fetchDynamicBingServer(_ callback: ((Result<TileServer, Error>) -> Void)?) {
+	static func fetchDynamicBingServer() async throws -> TileServer {
+		// None of this works any more.
+		// Server complains our api key is invalid, but iD has an API key that works.
+		//
+		// For related discussion see https://osmus.slack.com/archives/C2SNNUNUV/p1753306512834219
+
 		struct Welcome: Decodable {
 			let brandLogoUri: String
 			let resourceSets: [ResourceSet]
@@ -430,59 +435,48 @@ final class TileServer: Equatable, Codable {
 			let imageUrlSubdomains: [String]
 			let zoomMax, zoomMin: Int
 		}
+
 		let url = "https://dev.virtualearth.net/REST/v1/Imagery/Metadata/Aerial?include=ImageryProviders&key=" +
 			BING_MAPS_KEY
-		guard let url = URL(string: url) else { return }
-		URLSession.shared.data(with: url, completionHandler: { result in
-			DispatchQueue.main.async(execute: {
-				switch result {
-				case let .success(data):
-					do {
-						let json = try JSONDecoder().decode(Welcome.self, from: data)
-						guard
-							json.statusCode == 200,
-							let resource = json.resourceSets.first?.resources.first
-						else {
-							callback?(.failure(NSError(domain: "TileServer", code: 1)))
-							return
-						}
+		guard let url = URL(string: url) else { throw URLError(.badURL) }
+		let data = try await URLSession.shared.data(with: url)
+		let json = try JSONDecoder().decode(Welcome.self, from: data)
+		guard
+			json.statusCode == 200,
+			let resource = json.resourceSets.first?.resources.first
+		else {
+			throw NSError(domain: "TileServer", code: 1)
+		}
 
-						let subdomains = resource.imageUrlSubdomains.joined(separator: ",")
-						var imageUrl = resource.imageUrl
-						imageUrl = imageUrl.replacingOccurrences(of: "http://",
-						                                         with: "https://")
-						imageUrl = imageUrl.replacingOccurrences(of: "{subdomain}",
-						                                         with: "{switch:\(subdomains)}")
-						imageUrl = imageUrl.replacingOccurrences(of: "{quadkey}",
-						                                         with: "{u}")
-						imageUrl += "&key={apikey}"
-						let bing = TileServer(withName: Self.builtinBingAerial.name,
-						                      identifier: Self.builtinBingAerial.identifier,
-						                      url: imageUrl,
-						                      best: false,
-						                      overlay: false,
-						                      apiKey: BING_MAPS_KEY,
-						                      maxZoom: resource.zoomMax,
-						                      roundUp: Self.builtinBingAerial.roundZoomUp,
-						                      startDate: Self.builtinBingAerial.startDate,
-						                      endDate: Self.builtinBingAerial.endDate,
-						                      wmsProjection: Self.builtinBingAerial.wmsProjection,
-						                      geoJSON: Self.builtinBingAerial.geoJSON,
-						                      attribString: Self.builtinBingAerial.attributionString,
-						                      attribIconString: json.brandLogoUri,
-						                      attribUrl: Self.builtinBingAerial.attributionUrl,
-						                      isVector: false)
-						Self.dynamicBingAerial = bing
-						callback?(.success(bing))
-					} catch {
-						print("\(error)")
-						callback?(.failure(error))
-					}
-				case let .failure(error):
-					callback?(.failure(error))
-				}
-			})
-		})
+		let subdomains = resource.imageUrlSubdomains.joined(separator: ",")
+		var imageUrl = resource.imageUrl
+		imageUrl = imageUrl.replacingOccurrences(of: "http://",
+		                                         with: "https://")
+		imageUrl = imageUrl.replacingOccurrences(of: "{subdomain}",
+		                                         with: "{switch:\(subdomains)}")
+		imageUrl = imageUrl.replacingOccurrences(of: "{quadkey}",
+		                                         with: "{u}")
+		imageUrl += "&key={apikey}"
+		let bing = TileServer(withName: Self.builtinBingAerial.name,
+		                      identifier: Self.builtinBingAerial.identifier,
+		                      url: imageUrl,
+		                      best: false,
+		                      overlay: false,
+		                      apiKey: BING_MAPS_KEY,
+		                      maxZoom: resource.zoomMax,
+		                      roundUp: Self.builtinBingAerial.roundZoomUp,
+		                      startDate: Self.builtinBingAerial.startDate,
+		                      endDate: Self.builtinBingAerial.endDate,
+		                      wmsProjection: Self.builtinBingAerial.wmsProjection,
+		                      geoJSON: Self.builtinBingAerial.geoJSON,
+		                      attribString: Self.builtinBingAerial.attributionString,
+		                      attribIconString: json.brandLogoUri,
+		                      attribUrl: Self.builtinBingAerial.attributionUrl,
+		                      isVector: false)
+		await MainActor.run {
+			Self.dynamicBingAerial = bing
+		}
+		return bing
 	}
 
 	func dictionary() -> [String: Any] {
@@ -562,18 +556,7 @@ final class TileServer: Equatable, Codable {
 	}
 
 	static func scaleAttribution(icon: UIImage, toHeight height: CGFloat) -> UIImage {
-		guard abs(icon.size.height - height) > 0.1 else {
-			return icon
-		}
-		let scale = icon.size.height / height
-		var size = icon.size
-		size.height /= scale
-		size.width /= scale
-		UIGraphicsBeginImageContext(size)
-		icon.draw(in: CGRect(x: 0.0, y: 0.0, width: size.width, height: size.height))
-		let imageCopy = UIGraphicsGetImageFromCurrentImageContext()
-		UIGraphicsEndImageContext()
-		return imageCopy ?? icon
+		return icon.scaledTo(width: nil, height: height)
 	}
 
 	private var _attributionIcon: UIImage?
@@ -724,5 +707,11 @@ final class TileServer: Equatable, Codable {
 		url = url.replacingOccurrences(of: " ", with: "%20")
 
 		return URL(string: url)
+	}
+}
+
+extension TileServer: CustomDebugStringConvertible {
+	public var debugDescription: String {
+		return "TileServer(\(name))"
 	}
 }

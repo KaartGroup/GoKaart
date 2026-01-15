@@ -161,8 +161,11 @@ class AutocompleteTextField: UITextField, UITextFieldDelegate, UITableViewDataSo
 				let indexPath = tableView.indexPath(for: cell)!
 				tableView.scrollToRow(at: indexPath, at: .top, animated: false)
 
-				if #available(iOS 15.0, *) {
-					// iOS handles scrolling differently and disabling it causes visual glitches
+				if #available(iOS 15, *),
+				   ProcessInfo.processInfo.operatingSystemVersion.majorVersion < 26
+				{
+					// iOS 15 ..< iOS 26, handles scrolling differently and disabling it causes visual glitches
+					tableView.isScrollEnabled = true
 				} else {
 					tableView.isScrollEnabled = false
 				}
@@ -170,32 +173,32 @@ class AutocompleteTextField: UITextField, UITextFieldDelegate, UITableViewDataSo
 				// cell doesn't always scroll to the same place, so give it a moment before we add the completion table
 				DispatchQueue.main.async(execute: {
 					// add completion table to tableview
-					let rect = self.frameForCompletionTableView()
-					self.completionTableView = UITableView(frame: rect, style: .plain)
-
-					var backgroundColor = UIColor(white: 0.88, alpha: 1.0)
+					let backgroundColor: UIColor
 					if #available(iOS 13.0, *) {
 						backgroundColor = UIColor.systemBackground
-					}
-					self.completionTableView?.backgroundColor = backgroundColor
-					self.completionTableView?.separatorColor = UIColor(white: 0.7, alpha: 1.0)
-					self.completionTableView?.dataSource = self
-					self.completionTableView?.delegate = self
-					if let view = self.completionTableView {
-						tableView.addSubview(view)
+					} else {
+						backgroundColor = UIColor(white: 0.88, alpha: 1.0)
 					}
 
-					self.gradientLayer = CAGradientLayer()
-					self.gradientLayer?.colors = [
+					let rect = self.frameForCompletionTableView()
+					let view = UITableView(frame: rect, style: .plain)
+					view.backgroundColor = backgroundColor
+					view.separatorColor = UIColor(white: 0.7, alpha: 1.0)
+					view.dataSource = self
+					view.delegate = self
+					tableView.addSubview(view)
+					self.completionTableView = view
+
+					let layer = CAGradientLayer()
+					layer.colors = [
 						UIColor(white: 0.0, alpha: 0.6).cgColor,
 						UIColor(white: 0.0, alpha: 0.0).cgColor
 					]
 					var rcGradient = rect
 					rcGradient.size.height = AutocompleteTextField.GradientHeight
-					self.gradientLayer?.frame = rcGradient
-					if let layer = self.gradientLayer {
-						tableView.layer.addSublayer(layer)
-					}
+					layer.frame = rcGradient
+					tableView.layer.addSublayer(layer)
+					self.gradientLayer = layer
 				})
 			}
 			completionTableView?.reloadData()
@@ -239,9 +242,13 @@ class AutocompleteTextField: UITextField, UITextFieldDelegate, UITableViewDataSo
 		let cellIdentifier = "Cell"
 		let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier)
 			?? UITableViewCell(style: .default, reuseIdentifier: cellIdentifier)
-
 		cell.textLabel?.font = UIFont.preferredFont(forTextStyle: .body)
-		cell.textLabel?.text = filteredCompletions[indexPath.row]
+		// shouldn't need this check but we got an out-of-range crash report
+		if indexPath.row < filteredCompletions.count {
+			cell.textLabel?.text = filteredCompletions[indexPath.row]
+		} else {
+			cell.textLabel?.text = ""
+		}
 		return cell
 	}
 
@@ -276,6 +283,26 @@ class AutocompleteTextField: UITextField, UITextFieldDelegate, UITableViewDataSo
 		if realDelegate?.textFieldDidEndEditing?(textField, reason: reason) == nil {
 			realDelegate?.textFieldDidEndEditing?(textField)
 		}
+	}
+
+	override func paste(_ sender: Any?) {
+		// Check whether they are pasting a set of tags
+		if let pb = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines),
+		   let tags = OsmTags.tagsForString(pb)
+		{
+			// try to find an ancestor that we can notify
+			var view: UIView? = self
+			while view != nil {
+				if let cell = view as? KeyValueTableCell {
+					cell.keyValueCellOwner?.pasteTags(tags)
+					return
+				}
+				view = view?.superview
+			}
+		}
+
+		// Do a regular paste
+		super.paste(sender)
 	}
 
 	func textField(_ textField: UITextField,

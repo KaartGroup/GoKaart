@@ -15,8 +15,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		return UIApplication.shared.delegate as! AppDelegate
 	}
 
-	var window: UIWindow?
-	weak var mapView: MapView!
+	weak var mainView: MainViewController!
+	var mapView: MapView! { mainView.mapView }
+
 	private(set) var isAppUpgrade = false
 
 	var userName: String? {
@@ -41,13 +42,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 		NSKeyedUnarchiver.setClass(OsmMapData.classForKeyedArchiver(), forClassName: "OsmMapData")
 
-		NSKeyedUnarchiver.setClass(PresetKeyUserDefined.classForKeyedArchiver(), forClassName: "CustomPreset")
-		NSKeyedUnarchiver.setClass(PresetValue.classForKeyedArchiver(), forClassName: "PresetValue")
-		NSKeyedUnarchiver.setClass(PresetKey.classForKeyedArchiver(), forClassName: "CommonTagKey")
-		NSKeyedUnarchiver.setClass(PresetValue.classForKeyedArchiver(), forClassName: "CommonTagValue")
+		NSKeyedUnarchiver.setClass(PresetDisplayKeyUserDefined.classForKeyedArchiver(), forClassName: "CustomPreset")
+		NSKeyedUnarchiver.setClass(PresetDisplayValue.classForKeyedArchiver(), forClassName: "PresetValue")
+		NSKeyedUnarchiver.setClass(PresetDisplayKey.classForKeyedArchiver(), forClassName: "CommonTagKey")
+		NSKeyedUnarchiver.setClass(PresetDisplayValue.classForKeyedArchiver(), forClassName: "CommonTagValue")
 
 		NSKeyedUnarchiver.setClass(GpxTrack.classForKeyedArchiver(), forClassName: "GpxTrack")
 		NSKeyedUnarchiver.setClass(GpxPoint.classForKeyedArchiver(), forClassName: "GpxPoint")
+	}
+
+	func application(_ application: UIApplication,
+	                 configurationForConnecting connectingSceneSession: UISceneSession,
+	                 options: UIScene.ConnectionOptions) -> UISceneConfiguration
+	{
+		return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
 	}
 
 	func application(
@@ -78,10 +86,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 		// save the app version so we can detect upgrades
 		let prevVersion = UserPrefs.shared.appVersion.value
-		if prevVersion != appVersion() {
+		if prevVersion != Self.appVersion {
 			print("Upgrade!")
 			isAppUpgrade = true
-			UserPrefs.shared.appVersion.value = appVersion()
+			UserPrefs.shared.appVersion.value = Self.appVersion
 			UserPrefs.shared.uploadCountPerVersion.value = 0
 		}
 
@@ -92,280 +100,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			// otherwise it just returns
 			UserPrefs.shared.copyUserDefaultsToUbiquitousStore()
 		}
+
+		// access the current OSM server to force capabilities download
+		_ = OSM_SERVER
 		return true
 	}
 
-	func application(_ application: UIApplication,
-	                 continue userActivity: NSUserActivity,
-	                 restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool
-	{
-		if userActivity.activityType == NSUserActivityTypeBrowsingWeb,
-		   let url = userActivity.webpageURL
-		{
-			return self.application(application, open: url, options: [:])
-		}
-		return false
-	}
+	static let appName: String = Bundle.main.infoDictionary?["CFBundleDisplayName"] as! String
 
-	func setMapLocation(_ location: MapLocation) {
-		DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: { [self] in
-			mapView.centerOn(location)
-		})
-	}
+	static let appVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String
 
-	func dataForScopedUrl(_ url: URL) throws -> Data {
-		// sometimes we don't need to do scoping and the scoping calls will fail
-		if let data = try? Data(contentsOf: url, options: []) {
-			return data
-		}
+	static let appBuildNumber: String = Bundle.main.infoDictionary?["CFBundleVersion"] as! String
 
-		guard url.isFileURL else {
-			throw NSError(domain: "dataForScopedUrl",
-			              code: 1,
-			              userInfo: [NSLocalizedDescriptionKey: "Not a file URL"])
-		}
-		guard url.startAccessingSecurityScopedResource() else {
-			throw NSError(domain: "dataForScopedUrl",
-			              code: 1,
-			              userInfo: [NSLocalizedDescriptionKey: "startAccessingSecurityScopedResource failed"])
-		}
-		defer {
-			url.stopAccessingSecurityScopedResource()
-		}
-		return try Data(contentsOf: url, options: [])
-	}
-
-	func displayImportError(_ error: Error, filetype: String) {
-		var message = String.localizedStringWithFormat(
-			NSLocalizedString("Sorry, an error occurred while loading the %@ file",
-			                  comment: "Argument is a file type like 'GPX' or 'GeoJSON'"),
-			filetype)
-		message += "\n\n"
-		message += error.localizedDescription
-		mapView.showAlert(NSLocalizedString("Open URL", comment: ""),
-		                  message: message)
-	}
-
-	func application(_ application: UIApplication,
-	                 open url: URL,
-	                 options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool
-	{
-		let localizedGPX = NSLocalizedString("GPX", comment: "The name of a GPX file")
-
-		if url.isFileURL {
-			let data: Data
-			do {
-				data = try dataForScopedUrl(url)
-			} catch {
-				DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: { [self] in
-					self.mapView.showAlert(NSLocalizedString("Invalid URL", comment: ""),
-					                       message: error.localizedDescription)
-				})
-				return false
-			}
-			switch url.pathExtension.lowercased() {
-			case "gpx":
-				// Load GPX
-				DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: { [self] in
-					do {
-						try mapView.gpxLayer.loadGPXData(data, center: true)
-						mapView.updateMapMarkersFromServer(withDelay: 0.1, including: [.gpx])
-					} catch {
-						displayImportError(error, filetype: localizedGPX)
-					}
-				})
-				return true
-			case "jpg", "jpeg", "png", "heic":
-				// image file: try to extract location of image from EXIF
-				if let sourceRef: CGImageSource = CGImageSourceCreateWithData(data as CFData, nil),
-				   let properties = CGImageSourceCopyPropertiesAtIndex(sourceRef, 0, nil) as? [AnyHashable: Any],
-				   let exif = properties[kCGImagePropertyExifDictionary],
-				   let dict = exif as? [String: Any]
-				{
-					// Unfortunately this doesn't include the Lat/Lon.
-					// One option is to use a library like https://code.google.com/archive/p/iphone-exif/
-					print("\(dict)")
-					return false
-				}
-				return false
-			case "geojson":
-				// Load GeoJSON into user custom data layer
-				DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: { [self] in
-					do {
-						let geo = try GeoJSONFile(data: data)
-						try geoJsonList.add(name: url.lastPathComponent, data: data)
-						if let loc = geo.firstPoint() {
-							mapView.centerOn(latLon: loc)
-							mapView.displayDataOverlayLayer = true
-						}
-					} catch {
-						displayImportError(
-							error,
-							filetype: NSLocalizedString("GeoJSON", comment: "The name of a GeoJSON file"))
-					}
-				})
-				return true
-			default:
-				return false
-			}
-
-		} else {
-			guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else { return false }
-
-			if components.scheme == "gomaposm",
-			   components.host == "oauth",
-			   components.path == "/callback"
-			{
-				// OAuth result
-				OSM_SERVER.oAuth2?.redirectHandler(url: url, options: options)
-				return true
-			}
-
-			if components.scheme == "gomaposm",
-			   let base64 = components.queryItems?.first(where: { $0.name == "gpxurl" })?.value,
-			   let gpxUrlData = Data(base64Encoded: base64, options: []),
-			   let gpxUrl = String(data: gpxUrlData, encoding: .utf8),
-			   let gpxUrl = URL(string: gpxUrl)
-			{
-				URLSession.shared.data(with: gpxUrl) { result in
-					DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: { [self] in
-						switch result {
-						case let .success(data):
-							do {
-								try mapView.gpxLayer.loadGPXData(data, center: true)
-								mapView.updateMapMarkersFromServer(withDelay: 0.1, including: [.gpx])
-							} catch {
-								displayImportError(error, filetype: localizedGPX)
-							}
-						case let .failure(error):
-							displayImportError(error, filetype: localizedGPX)
-						}
-					})
-				}
-				return true
-			}
-
-			// geo: gomaposm: and arbitrary URLs containing lat/lon coordinates
-			if let parserResult = LocationParser.mapLocationFrom(url: url) {
-				DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: { [self] in
-					setMapLocation(parserResult)
-				})
-				return true
-			} else {
-				DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: { [self] in
-					self.mapView.showAlert(NSLocalizedString("Invalid URL", comment: ""),
-					                       message: url.absoluteString)
-				})
-				return false
-			}
-		}
-	}
-
-	func appName() -> String {
-		return Bundle.main.infoDictionary?["CFBundleDisplayName"] as! String
-	}
-
-	func appVersion() -> String {
-		return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String
-	}
-
-	func appBuildNumber() -> String {
-		return Bundle.main.infoDictionary?["CFBundleVersion"] as! String
-	}
-
-	func applicationWillResignActive(_ application: UIApplication) {
-		// Sent when the application is about to move from active to inactive state.
-		// This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message)
-		// or when the user quits the application and it begins the transition to the background state.
-		// Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates.
-		// Games should use this method to pause the game.
-	}
-
-	func applicationDidBecomeActive(_ application: UIApplication) {
-		// Restart any tasks that were paused (or not yet started) while the application was inactive.
-		// If the application was previously in the background, optionally refresh the user interface.
-	}
-
-	func applicationDidEnterBackground(_ application: UIApplication) {
-		// set app badge if edits are pending
-		let pendingEdits = mapView.editorLayer.mapData.modificationCount()
-		if pendingEdits != 0 {
-			UNUserNotificationCenter.current().requestAuthorization(options: .badge,
-			                                                        completionHandler: { _, _ in
-			                                                        })
-		}
-		UIApplication.shared.applicationIconBadgeNumber = pendingEdits
-
-		// Save when we last used GPS
-		mapView.gpsLastActive = Date()
-
-		// while in background don't update our location so we don't download tiles/OSM data when moving
-		mapView.locationManager.stopUpdatingHeading()
-
-		// Save preferences in case user force-kills us while we're in background
-		UserPrefs.shared.synchronize()
-
-		if mapView.gpsState != .NONE,
-		   mapView.gpsInBackground,
-		   mapView.displayGpxLogs
-		{
-			// Show GPX activity widget
-			if #available(iOS 16.2, *) {
-#if canImport(ActivityKit) && !targetEnvironment(macCatalyst)
-				GpxTrackWidgetManager.shared.startTrack(fromWidget: false)
-#endif
-			}
-		} else {
-			// turn off GPS tracking
-			mapView.locationManager.stopUpdatingLocation()
-		}
-	}
-
-	// Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
-	func applicationWillEnterForeground(_ application: UIApplication) {
-		if mapView.gpsState != .NONE {
-			if mapView.gpsInBackground,
-			   mapView.displayGpxLogs
-			{
-				// GPS was running in the background
-				mapView.locationManager.startUpdatingHeading()
-			} else {
-				// If the user recently closed the app with GPS running, then enable GPS again
-				if Date().timeIntervalSince(mapView.gpsLastActive) < 30 * 60 {
-					mapView.locationManager.startUpdatingLocation()
-					mapView.locationManager.startUpdatingHeading()
-				} else {
-					// turn off GPS on resume when user hasn't used app recently
-					mapView.mainViewController.setGpsState(GPS_STATE.NONE)
-				}
-			}
-		} else {
-			// GPS wasn't enabled when we went to background
-		}
-
-		// remove icon badge now, so it disappears promptly on exit
-		UIApplication.shared.applicationIconBadgeNumber = 0
-
-		// Update preferences in case ubiquitous values changed while in the background
-		UserPrefs.shared.synchronize()
-
-// Remove GPX activity widget
-#if canImport(ActivityKit) && !targetEnvironment(macCatalyst)
-		if #available(iOS 16.2, *) {
-			// This doesn't end the track itself, just the widget presentation:
-			GpxTrackWidgetManager.shared.endTrack(fromWidget: false)
-		}
-#endif
-	}
+	static let bundleName = String(Bundle.main.bundleIdentifier!.split(separator: ".").last!)
 
 	func applicationWillTerminate(_ application: UIApplication) {
 		// Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground.
 
 		// Turn off GPS so we gracefully end GPX trace.
-		AppDelegate.shared.mapView.mainViewController.setGpsState(.NONE)
+		AppDelegate.shared.mainView.gpsState = .NONE
 
-// Remove any live activities
 #if canImport(ActivityKit) && !targetEnvironment(macCatalyst)
+		// Remove any live activities
 		if #available(iOS 16.2, *) {
 			GpxTrackWidgetManager.endAllActivitiesSynchronously()
 		}
@@ -409,4 +165,41 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			UIApplication.shared.open(openSettingsURL, options: [:], completionHandler: nil)
 		}
 	}
+
+#if targetEnvironment(macCatalyst)
+	override func buildMenu(with builder: UIMenuBuilder) {
+		super.buildMenu(with: builder)
+
+		// Create a Settings command with Command-, shortcut
+		let settingsCommand = UIKeyCommand(
+			title: NSLocalizedString("Settings…", comment: "Settings menu item in Mac menu bar"),
+			action: #selector(openPreferences),
+			input: ",",
+			modifierFlags: .command)
+		settingsCommand.image = UIImage(systemName: "gear")
+
+		// Create a menu with the Settings command
+		let settingsMenu = UIMenu(
+			title: "",
+			image: nil,
+			identifier: .preferences,
+			options: .displayInline,
+			children: [settingsCommand])
+
+		// Insert it into the application menu
+		builder.replace(menu: .preferences, with: settingsMenu)
+	}
+
+	@objc func openPreferences() {
+		let storyboard = UIStoryboard(name: "Settings", bundle: nil)
+		guard
+			let mainVC = mainView,
+			mainVC.presentedViewController == nil,
+			let vc = storyboard.instantiateInitialViewController()
+		else {
+			return
+		}
+		mainVC.present(vc, animated: true)
+	}
+#endif
 }

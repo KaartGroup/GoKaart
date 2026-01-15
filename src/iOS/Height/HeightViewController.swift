@@ -32,7 +32,7 @@ class HeightViewController: UIViewController {
 	var callback: ((_ newValue: String) -> Void)?
 
 	class func unableToInstantiate(withUserWarning vc: UIViewController) -> Bool {
-		if AppDelegate.shared.mapView.gpsState == GPS_STATE.NONE {
+		if AppDelegate.shared.mainView.gpsState == GPS_STATE.NONE {
 			let alert = UIAlertController(
 				title: NSLocalizedString("Error", comment: "Error dialog title"),
 				message: NSLocalizedString("This action requires GPS to be turned on", comment: ""),
@@ -106,14 +106,13 @@ class HeightViewController: UIViewController {
 		coreMotion = CMMotionManager()
 		coreMotion?.deviceMotionUpdateInterval = 1.0 / 30
 		let currentQueue = OperationQueue.current
-		weak var weakSelf = self
 		if let currentQueue = currentQueue {
 			coreMotion?.startDeviceMotionUpdates(
 				using: .xTrueNorthZVertical,
 				to: currentQueue,
-				withHandler: { motion, _ in
+				withHandler: { [weak self] motion, _ in
 					if let motion = motion {
-						weakSelf?.refreshRulerLabels(motion)
+						self?.refreshRulerLabels(motion)
 					}
 				})
 		}
@@ -317,23 +316,27 @@ class HeightViewController: UIViewController {
 	}
 
 	func distanceToObject(error: inout Double, direction pDirection: inout Double) -> Double {
-		let delegate = AppDelegate.shared
-		var object = delegate.mapView.editorLayer.selectedPrimary
-		if object == nil, delegate.mapView.pushPin == nil {
+		let mapView = AppDelegate.shared.mapView!
+		var object = mapView.editorLayer.selectedPrimary
+		if object == nil, mapView.pushPin == nil {
 			error = .nan
 			pDirection = .nan
 			return .nan
 		}
 		if object == nil {
 			// brand new object, so fake it
-			let latlon = delegate.mapView.mapTransform.latLon(forScreenPoint: delegate.mapView.pushPin!.arrowPoint)
+			let latlon = mapView.viewPort.mapTransform.latLon(forScreenPoint: mapView.pushPin!.arrowPoint)
 			// this gets thrown away at the end of this method so the details aren't important
 			let node = OsmNode(withVersion: 0, changeset: 0, user: "", uid: 0, ident: 0, timestamp: "", tags: [:])
 			node.setLongitude(latlon.lon, latitude: latlon.lat, undo: nil)
 			object = node
 		}
-		guard let object = object else { return 0.0 }
-		let location = delegate.mapView.currentLocation
+		guard
+			let object = object,
+			let location = LocationProvider.shared.currentLocation
+		else {
+			return 0.0
+		}
 		let userPt = LatLon(location.coordinate)
 		var dist = Double(MAXFLOAT)
 		var bearing: Double = 0

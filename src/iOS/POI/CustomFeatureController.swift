@@ -56,7 +56,7 @@ class CustomFeature: PresetFeature, Codable {
 	func encode(to encoder: any Encoder) throws {
 		var container: KeyedEncodingContainer<CodingKeys> = encoder.container(keyedBy: CodingKeys.self)
 		try container.encode(featureID, forKey: .featureID)
-		try container.encode(name, forKey: .name)
+		try container.encode(localizedName, forKey: .name)
 		try container.encode(geometry, forKey: .geometry)
 		try container.encode(tags, forKey: .tags)
 	}
@@ -96,6 +96,9 @@ class CustomFeatureController: UITableViewController, UITextFieldDelegate {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
+		tableView.rowHeight = UITableView.automaticDimension
+		tableView.estimatedRowHeight = 44 // or any reasonable default
+
 		// If we aren't modifying an existing feature then create a new one
 		if customFeature == nil {
 			customFeature = CustomFeature(featureID: "user-" + UUID().uuidString,
@@ -119,7 +122,7 @@ class CustomFeatureController: UITableViewController, UITextFieldDelegate {
 		            buttonPoint!: .POINT,
 		            buttonVertex!: .VERTEX]
 
-		nameField.text = customFeature.name
+		nameField.text = customFeature.localizedName
 		nameField.delegate = self
 		nameField.addTarget(self, action: #selector(dataChanged(_:)), for: .editingChanged)
 
@@ -166,17 +169,20 @@ class CustomFeatureController: UITableViewController, UITextFieldDelegate {
 		} else {
 			navigationItem.rightBarButtonItem?.isEnabled = false
 		}
+		let db = PresetsDatabase.shared
 		if let geom = geom.first,
 		   let geom = GEOMETRY(rawValue: geom),
-		   let impliedFeature = PresetsDatabase.shared.presetFeatureMatching(
-		   	tags: tags,
-		   	geometry: geom,
-		   	location: AppDelegate.shared.mapView.currentRegion,
-		   	includeNSI: false)
+		   let impliedFeature = db.presetFeatureMatching(tags: tags,
+		                                                 geometry: geom,
+		                                                 location: AppDelegate.shared.mapView.currentRegion,
+		                                                 includeNSI: false),
+		   !impliedFeature.tags.isEmpty
 		{
-			featureType.text = impliedFeature.name
+			featureType.text = impliedFeature.localizedName
+			featureType.textColor = .label
 		} else {
-			featureType.text = ""
+			featureType.text = NSLocalizedString("No match", comment: "No value available")
+			featureType.textColor = .secondaryLabel
 		}
 	}
 

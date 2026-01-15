@@ -28,19 +28,25 @@ class MapLibreVectorTilesView: MLNMapView, MLNMapViewDelegate {
 
 		setPreferredFrameRate()
 
-		let transformCallback = { [weak self] in
+		mapView.viewPort.mapTransform.onChange.subscribe(self) { [weak self] _ in
 			guard let self = self else { return }
-			let center = mapView.mapTransform.latLon(forScreenPoint: mapView.mapTransform.center)
-			let zoom = mapView.mapTransform.zoom() - 1.0
-			let dir = (360.0 + mapView.mapTransform.rotation() * 180 / .pi).remainder(dividingBy: 360.0)
+			let center = mapView.viewPort.mapTransform.latLon(forScreenPoint: mapView.viewPort.mapTransform.center)
+			let zoom = mapView.viewPort.mapTransform.zoom() - 1.0
+			let dir = (360.0 + mapView.viewPort.mapTransform.rotation() * 180 / .pi).remainder(dividingBy: 360.0)
 
 			self.setCenter(CLLocationCoordinate2D(latitude: center.lat, longitude: center.lon),
 			               zoomLevel: zoom,
 			               direction: 360 - dir,
 			               animated: false)
 		}
-		transformCallback()
-		mapView.mapTransform.observe(by: self, callback: transformCallback)
+		// Trigger initial update
+		let center = mapView.viewPort.mapTransform.latLon(forScreenPoint: mapView.viewPort.mapTransform.center)
+		let zoom = mapView.viewPort.mapTransform.zoom() - 1.0
+		let dir = (360.0 + mapView.viewPort.mapTransform.rotation() * 180 / .pi).remainder(dividingBy: 360.0)
+		self.setCenter(CLLocationCoordinate2D(latitude: center.lat, longitude: center.lon),
+		               zoomLevel: zoom,
+		               direction: 360 - dir,
+		               animated: false)
 	}
 
 	@available(*, unavailable)
@@ -111,14 +117,23 @@ extension MapLibreVectorTilesView: DiskCacheSizeProtocol {
 		return (size, 1)
 	}
 }
+
+extension MapLibreVectorTilesView: MapView.LayerOrView {
+	var hasTileServer: TileServer? { tileServer }
+	// isHidden is inherited from UIView
+	func removeFromSuper() { removeFromSuperview() }
+}
 #else
 
 // Create a minimal dummy implementation that asserts if used
 import UIKit
-class MapLibreVectorTilesView: UIView, TilesProvider, DiskCacheSizeProtocol {
+class MapLibreVectorTilesView: UIView, TilesProvider, DiskCacheSizeProtocol, MapView.LayerOrView {
 	var mapView: MapView
 	let tileServer: TileServer
 	var styleURL: URL
+
+	var hasTileServer: TileServer? { tileServer }
+	func removeFromSuper() { removeFromSuperview() }
 
 	init(mapView: MapView, tileServer: TileServer) {
 		fatalError()

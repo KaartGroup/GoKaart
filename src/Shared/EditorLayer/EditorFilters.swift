@@ -9,12 +9,12 @@
 import Foundation
 
 final class EditorFilters {
-	var onChange: (() -> Void)?
+	let onChange = NotificationService<Void>()
 
 	var enableObjectFilters = false { // turn all filters on/on
 		didSet {
 			UserPrefs.shared.editor_enableObjectFilters.value = enableObjectFilters
-			onChange?()
+			onChange.notify()
 		}
 	}
 
@@ -36,18 +36,18 @@ final class EditorFilters {
 	var showLevelRange = "" { // range of levels for building level
 		didSet {
 			UserPrefs.shared.editor_showLevelRange.value = self.showLevelRange
-			onChange?()
+			onChange.notify()
 		}
 	}
 
 	func save(_ pref: Pref<Bool>, _ value: Bool) {
 		pref.value = value
-		onChange?()
+		onChange.notify()
 	}
 
 	init() {
 		let prefs = UserPrefs.shared
-		enableObjectFilters = prefs.editor_enableObjectFilters.value ?? true
+		enableObjectFilters = prefs.editor_enableObjectFilters.value ?? false
 		showLevel = prefs.editor_showLevel.value ?? true
 		showLevelRange = prefs.editor_showLevelRange.value ?? ""
 		showPoints = prefs.editor_showPoints.value ?? true
@@ -280,6 +280,10 @@ final class EditorFilters {
 		}
 
 		let predicate: ((OsmBaseObject) -> Bool) = { [self] object in
+			// always show new/modified objects
+			if object.isModified() {
+				return true
+			}
 			if let predLevel = predLevel,
 			   !predLevel(object)
 			{

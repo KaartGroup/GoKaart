@@ -10,14 +10,13 @@ import SafariServices
 import UIKit
 
 protocol PresetValueTextFieldOwner: AnyObject {
-	var allPresetKeys: [PresetKey] { get }
-	var childViewPresented: Bool { get set }
+	var allPresetKeys: [PresetDisplayKey] { get }
 	var viewController: UIViewController? { get }
 	var keyValueDict: [String: String] { get }
 	func valueChanged(for textField: PresetValueTextField, ended: Bool)
 }
 
-class PresetValueTextField: AutocompleteTextField, PanororamaxDelegate {
+class PresetValueTextField: AutocompleteTextField, PanoramaxDelegate {
 	weak var owner: PresetValueTextFieldOwner!
 	var defaultInputAccessoryView: UIView?
 
@@ -29,7 +28,7 @@ class PresetValueTextField: AutocompleteTextField, PanororamaxDelegate {
 		}
 	}
 
-	var presetKey: PresetKey? {
+	var presetKey: PresetDisplayKey? {
 		didSet {
 			if let preset = presetKey {
 				key = preset.tagKey
@@ -266,10 +265,14 @@ class PresetValueTextField: AutocompleteTextField, PanororamaxDelegate {
 			value.hasPrefix("http://") ||
 			value.hasPrefix("https://")
 		{
-			let button = UIButton(type: .system)
+			let button = UIButton(type: .custom)
+#if targetEnvironment(macCatalyst)
+// button doesn't get styling because it doesn't fit
+#else
 			button.layer.borderWidth = 2.0
 			button.layer.borderColor = UIColor.systemBlue.cgColor
 			button.layer.cornerRadius = 15.0
+#endif
 			button.setTitle("🔗", for: .normal)
 
 			button.addTarget(self, action: #selector(openWebsite(_:)), for: .touchUpInside)
@@ -312,7 +315,6 @@ class PresetValueTextField: AutocompleteTextField, PanororamaxDelegate {
 			})
 		resignFirstResponder()
 		guard let viewController = owner.viewController else { return }
-		owner.childViewPresented = true
 		viewController.present(directionViewController, animated: true)
 	}
 
@@ -345,11 +347,12 @@ class PresetValueTextField: AutocompleteTextField, PanororamaxDelegate {
 		}
 		resignFirstResponder()
 		viewController.present(vc, animated: true)
-		owner.childViewPresented = true
 	}
 
 	private func getHeightButton() -> UIView? {
-		guard key == "height" else {
+		guard key == "height",
+		      !ProcessInfo.processInfo.isMacCatalystApp
+		else {
 			return nil
 		}
 		let button = UIButton(type: .contactAdd)
@@ -370,6 +373,12 @@ class PresetValueTextField: AutocompleteTextField, PanororamaxDelegate {
 			return nil
 		}
 		let button = TristateYesNoButton()
+		if let values = presetKey.presetValues,
+		   let value = values.first?.tagValue
+		{
+			// it's a defaultCheck button, which sets a specific tag value instead of "yes"
+			button.setTagValueFor(yes: value)
+		}
 		var value = presetKey.tagValueForPrettyName(text ?? "")
 		let isCulvert = presetKey.tagKey == "tunnel" && keyValueDict["waterway"] != nil && value == "culvert"
 		if isCulvert {
@@ -471,19 +480,19 @@ class PresetValueTextField: AutocompleteTextField, PanororamaxDelegate {
 
 	var panoramaxKey: String?
 	private func getPhotographButton() -> UIView? {
-		guard #available(iOS 13.0, *),
-		      OsmTags.isKey(key, variantOf: "panoramax")
-		else {
-			return nil
+#if targetEnvironment(macCatalyst)
+		return nil // camera not available
+#else
+		if #available(iOS 13.0, *),
+		   OsmTags.isKey(key, variantOf: "panoramax")
+		{
+			let button = UIButton(type: .custom)
+			button.setImage(UIImage(systemName: "camera"), for: .normal)
+			button.addTarget(self, action: #selector(openPanoramaxViewController(_:)), for: .touchUpInside)
+			return button
 		}
-		let button = UIButton(type: .system)
-		button.layer.borderWidth = 2.0
-		button.layer.borderColor = UIColor.systemBlue.cgColor
-		button.layer.cornerRadius = 15.0
-		button.setImage(UIImage(named: "camera"), for: .normal)
-
-		button.addTarget(self, action: #selector(openPanoramaxViewController(_:)), for: .touchUpInside)
-		return button
+		return nil
+#endif
 	}
 
 	func panoramaxUpdate(photoID: String) {
@@ -511,18 +520,6 @@ class PresetValueTextField: AutocompleteTextField, PanororamaxDelegate {
 	@objc func openPanoramaxViewController(_ sender: Any?) {
 		resignFirstResponder()
 
-		// get location
-		let mapView = AppDelegate.shared.mapView!
-		let location: LatLon
-		if let object = mapView.editorLayer.selectedPrimary?.selectionPoint() {
-			location = object
-		} else if let pushPin = mapView.pushPin?.arrowPoint {
-			location = mapView.mapTransform.latLon(forScreenPoint: pushPin)
-		} else {
-			// shouldn't get here
-			return
-		}
-
 		// save our key value so we can locate the correct cell when we come back
 		panoramaxKey = key
 
@@ -530,7 +527,6 @@ class PresetValueTextField: AutocompleteTextField, PanororamaxDelegate {
 		vc.panoramax = PanoramaxServer(serverURL: URL(string: "https://panoramax.openstreetmap.fr")!)
 		vc.photoID = text ?? ""
 		vc.delegate = self
-		vc.location = location
 		owner.viewController?.present(vc, animated: true)
 	}
 }

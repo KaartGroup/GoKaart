@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21699.1" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="rRu-gY-Gv4">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="rRu-gY-Gv4">
     <device id="retina5_9" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -25,7 +25,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="What is the name of this restaurant?" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ifw-wR-ilR">
-                                            <rect key="frame" x="20" y="0.0" width="335" height="43.666667938232422"/>
+                                            <rect key="frame" x="16" y="0.0" width="343" height="43.666667938232422"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                             <nil key="textColor"/>
@@ -45,7 +45,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="C8B-hx-GxG">
-                                            <rect key="frame" x="40" y="0.0" width="315" height="43.666667938232422"/>
+                                            <rect key="frame" x="36" y="0.0" width="323" height="43.666667938232422"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                             <nil key="textColor"/>
@@ -64,16 +64,33 @@
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="43.666667938232422"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="line" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="6jK-Gz-RhS" customClass="PresetValueTextField" customModule="Go_Map__" customModuleProvider="target">
-                                            <rect key="frame" x="40" y="7" width="315" height="30"/>
+                                        <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="line" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="6jK-Gz-RhS" customClass="PresetValueTextField" customModule="Go_Map__" customModuleProvider="target">
+                                            <rect key="frame" x="40" y="7" width="295" height="30"/>
                                             <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                             <textInputTraits key="textInputTraits"/>
                                         </textField>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="64A-tn-ALB">
+                                            <rect key="frame" x="339" y="6" width="32" height="32"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="32" id="HjZ-VG-hbM"/>
+                                                <constraint firstAttribute="height" constant="32" id="ggn-pa-kvp"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" style="UICTFontTextStyleCallout"/>
+                                            <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                            <state key="normal" title="ⓘ">
+                                                <color key="titleColor" systemColor="systemBlueColor"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="infoButtonPressed:" destination="rRu-gY-Gv4" eventType="touchUpInside" id="8pr-BV-bdX"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                     <constraints>
-                                        <constraint firstAttribute="trailing" secondItem="6jK-Gz-RhS" secondAttribute="trailing" constant="20" id="Ocz-dz-WN1"/>
+                                        <constraint firstItem="64A-tn-ALB" firstAttribute="centerY" secondItem="ZD1-cz-uUJ" secondAttribute="centerY" id="ITH-Tj-kjM"/>
+                                        <constraint firstItem="64A-tn-ALB" firstAttribute="leading" secondItem="6jK-Gz-RhS" secondAttribute="trailing" constant="4" id="Jqc-Lt-b0r"/>
                                         <constraint firstItem="6jK-Gz-RhS" firstAttribute="leading" secondItem="ZD1-cz-uUJ" secondAttribute="leading" constant="40" id="bve-cp-7Tu"/>
                                         <constraint firstItem="6jK-Gz-RhS" firstAttribute="centerY" secondItem="ZD1-cz-uUJ" secondAttribute="centerY" id="n2k-bP-CrG"/>
+                                        <constraint firstAttribute="trailing" secondItem="64A-tn-ALB" secondAttribute="trailing" constant="4" id="tiV-gE-Y3z"/>
                                     </constraints>
                                 </tableViewCellContentView>
                                 <connections>
@@ -88,20 +105,22 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="8d4-oo-Jk1">
-                                            <rect key="frame" x="20" y="4.6666666666666679" width="335" height="34.333333333333329"/>
+                                            <rect key="frame" x="20" y="5.3333333333333321" width="335" height="33"/>
                                             <subviews>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IFG-Ak-kOo">
-                                                    <rect key="frame" x="0.0" y="0.0" width="98.333333333333329" height="34.333333333333336"/>
-                                                    <state key="normal" title="Button"/>
-                                                    <buttonConfiguration key="configuration" style="plain" title="Ignore"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="82.333333333333329" height="33"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                    <state key="normal" title="Ignore"/>
                                                     <connections>
                                                         <action selector="ignoreAlways:" destination="rRu-gY-Gv4" eventType="touchUpInside" id="c9b-Md-qPX"/>
                                                     </connections>
                                                 </button>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Wj-nB-ieT">
-                                                    <rect key="frame" x="106.33333333333333" y="0.0" width="228.66666666666669" height="34.333333333333336"/>
-                                                    <state key="normal" title="Button"/>
-                                                    <buttonConfiguration key="configuration" style="plain" title="Ignore this session"/>
+                                                    <rect key="frame" x="90.333333333333329" y="0.0" width="244.66666666666669" height="33"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                                    <state key="normal" title="Ignore this session"/>
                                                     <connections>
                                                         <action selector="ignoreThisSession:" destination="rRu-gY-Gv4" eventType="touchUpInside" id="NIh-UT-Jy1"/>
                                                     </connections>
@@ -124,9 +143,10 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="evO-fJ-hhD" userLabel="Open Tag Editor">
-                                            <rect key="frame" x="114.33333333333333" y="4.6666666666666679" width="146.33333333333337" height="34.333333333333329"/>
-                                            <state key="normal" title="Button"/>
-                                            <buttonConfiguration key="configuration" style="plain" title="Open Tag Editor"/>
+                                            <rect key="frame" x="126" y="5.3333333333333321" width="123" height="33"/>
+                                            <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                            <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                            <state key="normal" title="Open Tag Editor"/>
                                             <connections>
                                                 <action selector="openTagEditor:" destination="rRu-gY-Gv4" eventType="touchUpInside" id="UYm-Wt-ghy"/>
                                             </connections>
@@ -166,7 +186,7 @@
             <objects>
                 <navigationController storyboardIdentifier="QuestSolver" id="4au-3j-8YJ" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="KGv-hT-hDP">
-                        <rect key="frame" x="0.0" y="50" width="375" height="44"/>
+                        <rect key="frame" x="0.0" y="100" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -181,6 +201,9 @@
     <resources>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemBlueColor">
+            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

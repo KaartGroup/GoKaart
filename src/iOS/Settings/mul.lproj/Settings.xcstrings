@@ -887,10 +887,22 @@
             "value" : "Maximizar FPS"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kasuta maksimaalset FPS-i"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Maksimiraj broj sličica u sekundi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Massimizza FPS"
           }
         },
         "ja" : {
@@ -1239,6 +1251,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Odaberi server ako želiš uređivati podatke koji se nalaze na alternativnom OSM serveru."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selezionare un server se si desidera modificare i dati che si trovano su un server OSM alternativo."
           }
         },
         "ja" : {
@@ -1592,7 +1610,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Подробности"
+            "value" : "Подробное описание"
           }
         },
         "ta" : {
@@ -1604,7 +1622,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Деталі"
+            "value" : "Деталь"
           }
         },
         "vi" : {
@@ -1895,6 +1913,12 @@
             "value" : "api.openstreetmap.org"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "api.openstreetmap.org"
+          }
+        },
         "eu" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2083,8 +2107,8 @@
         },
         "it" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Lingua"
+            "state" : "translated",
+            "value" : "Lingua Preimpostata"
           }
         },
         "ja" : {
@@ -2195,10 +2219,22 @@
             "value" : "Activar > 60 FPS"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lülitab > 60 FPS sisse"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aktivira > 60 sličica u sekundi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abilita > 60 FPS"
           }
         },
         "ja" : {
@@ -2839,8 +2875,14 @@
         },
         "hr" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Copyright © 2012. – 2020. Bryce Cogswell.\nSva prava pridržana.\n\nOpenStreetMap podaci licencirani su pod Open Data Commons licencom za otvorenu bazu podataka (ODbL):\nhttps://www.openstreetmap.com/copyright\n\nAutorska prava za Bing aerofotografije drži Microsoft i njegovi dobavljači:\nhttps://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\nAutorska prava za Mapbox aerofotografije drži Mapbox i njegovi dobavljači: https://www.mapbox.com/tos\n\nXML obrada od Robbieja Hansona KissXML:\nhttps://github.com/robbiehanson/KissXML\n\nKod za obradu EFIX-a Copyright © 2010. – 2015. Mayank Lahiri\nhttps://github.com/mayanklahiri/easyexif\n\nIkone kartata od SJJB:\nhttp://www.sjjb.co.uk/mapicons\n\nOstale ikone od Glyphish:\nhttp://glyphish.com\n"
+            "state" : "translated",
+            "value" : "Autorska prava © 2012. – 2024. Bryce Cogswell.\nSva prava pridržana.\n\nOpenStreetMap podaci licencirani su pod Open Data Commons licencom za otvorenu bazu podataka (ODbL):\nhttps://www.openstreetmap.com/copyright\n\nAutorska prava za Bing aerofotografije drži Microsoft i njegovi dobavljači:\nhttps://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\nAutorska prava za Mapbox aerofotografije drži Mapbox i njegovi dobavljači: https://www.mapbox.com/tos\n\nXML obrada od Robbieja Hansona KissXML:\nhttps://github.com/robbiehanson/KissXML\n\nKod za obradu EFIX-a Copyright © 2010. – 2015. Mayank Lahiri\nhttps://github.com/mayanklahiri/easyexif\n\nIkone kartata od SJJB:\nhttp://www.sjjb.co.uk/mapicons\n\nOstale ikone od Glyphish:\nhttp://glyphish.com\n"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copyright © 2012-2024 Bryce Cogswell.\nTutti i diritti riservati.\n\nI dati di OpenStreetMap sono concessi in licenza con la licenza Open Data Commons Open Database License (ODbL):\nhttps://www.openstreetmap.com/copyright\n\nImmagini aeree di Bing, copyright di Microsoft e dei suoi fornitori:\nhttps://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\nImmagini aeree di Mapbox, copyright di Mapbox e dei suoi fornitori: https://www.mapbox.com/tos\n\nAnalisi XML per gentile concessione di KissXML di Robbie Hanson:\nhttps://github.com/robbiehanson/KissXML\n\nIcone della mappa di SJJB:\nhttp://www.sjjb.co.uk/mapicons\n\nAltre icone di Glyphish:\nhttp://glyphish.com\n"
           }
         },
         "ja" : {
@@ -2881,8 +2923,8 @@
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Авторські права © 2012—2023 Брайс Коґсвелл. \nВсі права застережено.\n\nДані OpenStreetMap доступні під ліцензією Open Data Commons Open Database License (ODbL):\nhttps://www.openstreetmap.com/copyright\n\nПрава на аерофотознімки Bing належать компанії Microsoft та її постачальникам:\nhttps://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\nПрава на аерофотознімки Mapbox належать компанії Mapbox та її постачальникам: https://www.mapbox.com/tos\n\nXML-зчитувач надано проєктом Роббі Генсона KissXML:\nhttps://github.com/robbiehanson/KissXML\n\nКод для зчитування EXIF — Авторські права © 2010—2015 Маянк Лагірі\nhttps://github.com/mayanklahiri/easyexif\n\nПіктограми мапи від SJJB:\nhttp://www.sjjb.co.uk/mapicons\n\nІнші піктограми від Glyphish:\nhttp://glyphish.com\n"
+            "state" : "translated",
+            "value" : "Авторське право © 2012-2024 Брайс Когсвелл. \nВсі права захищені.\n\nДані OpenStreetMap ліцензовані відповідно до ліцензії Open Database Commons Open License (ODbL):\nhttps://www.openstreetmap.com/copyright\n\nАвторське право на аерофотознімки Bing належить Microsoft та її постачальникам:\nhttps://www.microsoft.com/maps/product/terms.html, https://www.microsoft.com/maps/assets/docs/terms.aspx\n\nАвторське право на аерофотознімки Mapbox належать Mapbox та його постачальникам: https://www.mapbox.com/tos\n\nРозбір XML надано KissXML від Роббі Хансона:\nhttps://github.com/robbiehanson/KissXML\n\nПіктограми карти від SJJB:\nhttp://www.sjjb.co.uk/mapicons\n\nІнші іконки від Glyphish:\nhttp://glyphish.com\n"
           }
         },
         "zh-Hant" : {
@@ -3581,6 +3623,12 @@
             "value" : "-"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "-"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3920,7 +3968,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "憑證"
+            "value" : "登入"
           }
         },
         "zh-Hant-HK" : {
@@ -6104,7 +6152,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "離線使用的前置作業"
+            "value" : "離線使用"
           }
         },
         "zh-Hant-HK" : {
@@ -6386,7 +6434,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Подробности"
+            "value" : "Подробное описание"
           }
         },
         "ta" : {
@@ -6398,7 +6446,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Деталі"
+            "value" : "Деталь"
           }
         },
         "vi" : {
@@ -7202,7 +7250,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "離線使用的前置作業"
+            "value" : "離線使用"
           }
         },
         "zh-Hant-HK" : {
@@ -7392,6 +7440,12 @@
           }
         },
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "-"
+          }
+        },
+        "et" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "-"
@@ -9177,6 +9231,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Slack – Diskusija"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discussioni su Slack"
           }
         },
         "ja" : {

@@ -27,6 +27,12 @@ class POITabBarController: UITabBarController {
 		{
 			tabIndex = 0
 		}
+		if selection == nil {
+			// don't show attributes page
+			var vcList = viewControllers!
+			vcList.removeLast()
+			self.viewControllers = vcList
+		}
 		selectedIndex = tabIndex
 
 		// hide attributes tab on new objects
@@ -53,9 +59,8 @@ class POITabBarController: UITabBarController {
 	}
 
 	@objc func escapeKeyPress(_ keyCommand: UIKeyCommand?) {
-		let vc = selectedViewController
-		vc?.view.endEditing(true)
-		vc?.dismiss(animated: true)
+		selectedViewController?.view.endEditing(true)
+		selectedViewController?.dismiss(animated: true)
 	}
 
 	/// Hides the POI attributes tab bar item when the user is adding a new item, since it doesn't have any attributes yet.
@@ -109,7 +114,31 @@ class POITabBarController: UITabBarController {
 	}
 
 	override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
-		let tabIndex = tabBar.items!.firstIndex(of: item)!
+		guard
+			let tabIndex = tabBar.items?.firstIndex(of: item),
+			tabIndex != selectedIndex
+		else { return }
 		UserPrefs.shared.poiTabIndex.value = tabIndex
+		slideTabTo(tabIndex: tabIndex)
+	}
+
+	// Do a sliding animation of the views
+	func slideTabTo(tabIndex: Int) {
+		guard let newVC = viewControllers?[tabIndex],
+		      let fromView = selectedViewController?.view,
+		      let toView = newVC.view else { return }
+		let moveRight = selectedIndex < tabIndex
+		let screenWidth = UIScreen.main.bounds.width
+		toView.frame.origin.x = moveRight ? screenWidth : -screenWidth
+
+		view.addSubview(toView)
+
+		UIView.animate(withDuration: 0.3, animations: {
+			fromView.frame.origin.x = moveRight ? -screenWidth : screenWidth
+			toView.frame.origin.x = 0
+		}) { _ in
+			fromView.removeFromSuperview()
+			self.selectedViewController = newVC
+		}
 	}
 }

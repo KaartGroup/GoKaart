@@ -11,10 +11,12 @@ import UIKit
 private enum Row: Int {
 	case osmData = 0
 	case basemap = 1
+	case otherCaches = 2
 }
 
 protocol DiskCacheSizeProtocol {
-	func getDiskCacheSize() -> (size: Int, count: Int)
+	func getDiskCacheSize() async -> (size: Int, count: Int)
+	@MainActor func purgeTileCache()
 }
 
 class ClearCacheViewController: UITableViewController {
@@ -54,21 +56,13 @@ class ClearCacheViewController: UITableViewController {
 		let mapData = mapView.editorLayer.mapData
 
 		let title: String?
-		let object: [DiskCacheSizeProtocol]
 		switch indexPath.row {
 		case Row.osmData.rawValue:
 			title = NSLocalizedString("Clear OSM Data", comment: "Delete cached data")
-			object = []
 		case Row.basemap.rawValue:
 			title = NSLocalizedString("Clear Basemap Tiles", comment: "Delete cached data")
-			switch mapView.basemapLayer {
-			case let .tileLayer(layer):
-				object = [layer]
-			case let .tileView(view):
-				object = [view]
-			default:
-				object = []
-			}
+		case Row.otherCaches.rawValue:
+			title = NSLocalizedString("Clear Data Caches", comment: "Delete cached data")
 		default:
 			fatalError()
 		}
@@ -82,21 +76,24 @@ class ClearCacheViewController: UITableViewController {
 				objectCount)
 		} else {
 			cell.detailLabel.text = NSLocalizedString("computing size...", comment: "")
-			DispatchQueue.global(qos: .default).async(execute: {
-				var size = 0
-				var count = 0
-				for obj in object {
-					let (tSize, tCount) = obj.getDiskCacheSize()
-					size += tSize
-					count += tCount
+			Task {
+				let size: Int
+				let count: Int
+				switch indexPath.row {
+				case Row.basemap.rawValue:
+					(size, count) = await mapView.basemapLayer.getDiskCacheSize()
+				case Row.otherCaches.rawValue:
+					(size, count) = sizeOfCachesDirectory() ?? (0, 0)
+				default:
+					fatalError()
 				}
-				DispatchQueue.main.async(execute: {
+				await MainActor.run {
 					cell.detailLabel.text = String.localizedStringWithFormat(
 						NSLocalizedString("%.2f MB, %ld files", comment: ""),
 						Double(size) / (1024 * 1024),
 						count)
-				})
-			})
+				}
+			}
 		}
 	}
 
@@ -126,12 +123,15 @@ class ClearCacheViewController: UITableViewController {
 				appDelegate.mapView.mapMarkerDatabase.removeAll()
 				appDelegate.mapView.updateMapMarkersFromServer(withDelay: 0.0, including: [])
 			}
-			if appDelegate.mapView.editorLayer.mapData.changesetAsXml() != nil {
+			if appDelegate.mapView.editorLayer.mapData.changesetAsXml() != nil
+				|| isUnderDebugger()
+			{
 				alert.addAction(UIAlertAction(
 					title: NSLocalizedString("Purge", comment: "Discard editing changes when resetting OSM data cache"),
-					style: .default,
+					style: .destructive,
 					handler: { _ in
 						appDelegate.mapView.editorLayer.purgeCachedData(.hard)
+						refreshAfterPurge()
 						self.navigationController?.popViewController(animated: true)
 					}))
 			}
@@ -155,15 +155,6 @@ class ClearCacheViewController: UITableViewController {
 						refreshAfterPurge()
 						self.navigationController?.popViewController(animated: true)
 					}))
-				// Regular purge
-				alert.addAction(UIAlertAction(
-					title: "Debug: Purge Hard ignoring modifications",
-					style: .destructive,
-					handler: { _ in
-						appDelegate.mapView.editorLayer.purgeCachedData(.hard)
-						refreshAfterPurge()
-						self.navigationController?.popViewController(animated: true)
-					}))
 			}
 			if alert.actions.count > 1 {
 				present(alert, animated: true)
@@ -172,14 +163,15 @@ class ClearCacheViewController: UITableViewController {
 			appDelegate.mapView.editorLayer.purgeCachedData(.hard)
 			refreshAfterPurge()
 		case .basemap:
-			switch appDelegate.mapView.basemapLayer {
-			case let .tileLayer(layer):
-				layer.purgeTileCache()
-			case let .tileView(view):
-				view.purgeTileCache()
-			default:
-				break
+			appDelegate.mapView.basemapLayer.purgeTileCache()
+		case .otherCaches:
+			for tileServer in AppDelegate.shared.mapView.tileServerList.allServices() {
+				let cache = PersistentWebCache<UIImage>(name: tileServer.identifier,
+				                                        memorySize: 0,
+				                                        daysToKeep: 0)
+				cache.removeAllObjects()
 			}
+			URLCache.shared.removeAllCachedResponses()
 		}
 		dismiss(animated: true)
 	}
@@ -188,4 +180,26 @@ class ClearCacheViewController: UITableViewController {
 class ClearCacheCell: UITableViewCell {
 	@IBOutlet var titleLabel: UILabel!
 	@IBOutlet var detailLabel: UILabel!
+}
+
+private func sizeOfCachesDirectory() -> (size: Int, count: Int)? {
+	let fileManager = FileManager.default
+	guard let cachesURL = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first,
+	      let enumerator = fileManager.enumerator(at: cachesURL,
+	                                              includingPropertiesForKeys: [.totalFileAllocatedSizeKey],
+	                                              options: [.skipsHiddenFiles])
+	else {
+		return nil
+	}
+	var fileCount = 0
+	var totalSize = 0
+	for case let fileURL as URL in enumerator {
+		if let resourceValues = try? fileURL.resourceValues(forKeys: [.totalFileAllocatedSizeKey]),
+		   let fileSize = resourceValues.totalFileAllocatedSize
+		{
+			totalSize += fileSize
+			fileCount += 1
+		}
+	}
+	return (size: totalSize, count: fileCount)
 }

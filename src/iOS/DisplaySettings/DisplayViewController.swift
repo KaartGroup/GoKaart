@@ -29,25 +29,35 @@ class DisplayViewController: UITableViewController {
 				"The + button can be positioned on either the left or right side of the screen",
 				comment: ""),
 			preferredStyle: .alert)
-		alert.addAction(UIAlertAction(
+		let left = UIAlertAction(
 			title: NSLocalizedString("Left side", comment: "Left-hand side of screen"),
 			style: .default,
 			handler: { _ in
-				AppDelegate.shared.mapView.mainViewController.buttonLayout = .buttonsOnLeft
+				AppDelegate.shared.mainView.buttonLayout = .buttonsOnLeft
 				self.setButtonLayoutTitle()
-			}))
-		alert.addAction(UIAlertAction(
+			})
+		let right = UIAlertAction(
 			title: NSLocalizedString("Right side", comment: "Right-hand side of screen"),
 			style: .default,
 			handler: { _ in
-				AppDelegate.shared.mapView.mainViewController.buttonLayout = .buttonsOnRight
+				AppDelegate.shared.mainView.buttonLayout = .buttonsOnRight
 				self.setButtonLayoutTitle()
-			}))
+			})
+#if targetEnvironment(macCatalyst)
+		// buttons appear right-to-left
+		alert.addAction(right)
+		alert.addAction(left)
+#else
+		// buttons appear left-to-right
+		alert.addAction(left)
+		alert.addAction(right)
+#endif
 		present(alert, animated: true)
 	}
 
 	func applyChanges() {
-		let mapView = AppDelegate.shared.mapView!
+		let mainView = AppDelegate.shared.mainView!
+		let mapView = mainView.mapView!
 
 		let maxRow = tableView.numberOfRows(inSection: BACKGROUND_SECTION)
 		for row in 0..<maxRow {
@@ -67,9 +77,9 @@ class DisplayViewController: UITableViewController {
 			dataOverlaySwitch.isOn ? .DATAOVERLAY : []
 		]
 
-		mapView.enableRotation = rotationSwitch.isOn
-		mapView.displayGpxLogs = gpxLoggingSwitch.isOn
-		mapView.displayDataOverlayLayer = dataOverlaySwitch.isOn
+		mainView.enableRotation = rotationSwitch.isOn
+		mapView.displayGpxTracks = gpxLoggingSwitch.isOn
+		mapView.displayDataOverlayLayers = dataOverlaySwitch.isOn
 		mapView.enableTurnRestriction = turnRestrictionSwitch.isOn
 
 		mapView.editorLayer.setNeedsLayout()
@@ -78,13 +88,13 @@ class DisplayViewController: UITableViewController {
 	@IBAction func gpsSwitchChanged(_ sender: Any) {
 		// need this to take effect immediately in case they exit the app without dismissing this controller, and they want GPS enabled in background
 		let mapView = AppDelegate.shared.mapView
-		mapView?.displayGpxLogs = gpxLoggingSwitch.isOn
+		mapView?.displayGpxTracks = gpxLoggingSwitch.isOn
 	}
 
 	@IBAction func dataOverlaySwitchChanged(_ sender: Any) {
 		// need this to take effect immediately in case they exit the app without dismissing this controller, and they want GPS enabled in background
 		let mapView = AppDelegate.shared.mapView
-		mapView?.displayDataOverlayLayer = dataOverlaySwitch.isOn
+		mapView?.displayDataOverlayLayers = dataOverlaySwitch.isOn
 	}
 
 	@IBAction func toggleObjectFilters(_ sender: UISwitch) {
@@ -92,7 +102,7 @@ class DisplayViewController: UITableViewController {
 	}
 
 	func setButtonLayoutTitle() {
-		let onLeft = AppDelegate.shared.mapView.mainViewController.buttonLayout == MainViewButtonLayout.buttonsOnLeft
+		let onLeft = AppDelegate.shared.mainView.buttonLayout == MainViewButtonLayout.buttonsOnLeft
 		let title = onLeft
 			? NSLocalizedString("Left", comment: "")
 			: NSLocalizedString("Right", comment: "")
@@ -102,17 +112,20 @@ class DisplayViewController: UITableViewController {
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 
-		guard let mapView = AppDelegate.shared.mapView else { return }
+		guard
+			let mainView = AppDelegate.shared.mainView,
+			let mapView = mainView.mapView
+		else { return }
 
 		// becoming visible the first time
 		navigationController?.isNavigationBarHidden = false
 
 		notesSwitch.isOn = mapView.viewOverlayMask.contains(.NOTES)
 		questsSwitch.isOn = mapView.viewOverlayMask.contains(.QUESTS)
-		dataOverlaySwitch.isOn = mapView.displayDataOverlayLayer
+		dataOverlaySwitch.isOn = mapView.displayDataOverlayLayers
 
-		rotationSwitch.isOn = mapView.enableRotation
-		gpxLoggingSwitch.isOn = mapView.displayGpxLogs
+		rotationSwitch.isOn = mainView.enableRotation
+		gpxLoggingSwitch.isOn = mapView.displayGpxTracks
 		turnRestrictionSwitch.isOn = mapView.enableTurnRestriction
 		objectFiltersSwitch.isOn = mapView.editorLayer.objectFilters.enableObjectFilters
 

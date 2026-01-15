@@ -12,9 +12,15 @@ import Foundation
 // which is a larger list than the languages the app has been translated into.
 final class PresetLanguages {
 	static let languageCodeList: [String] = {
-		let path = Bundle.main.resourcePath! + "/presets/translations"
-		var list = (try? FileManager.default.contentsOfDirectory(atPath: path)) ?? []
-		list = list.map({ $0.replacingOccurrences(of: ".json", with: "") })
+		guard
+			let url = Bundle.main.resourceURL?.appendingPathComponent("presets/translations"),
+			let files = try? FileManager.default.contentsOfDirectory(atPath: url.path)
+		else {
+			return []
+		}
+		var list = files
+			.map({ $0.replacingOccurrences(of: ".json", with: "") })
+			.filter { languageNameForCode($0) != nil } // ignore non-real languages
 		list.sort(by: { code1, code2 -> Bool in
 			let s1 = PresetLanguages.languageNameForCode(code1) ?? ""
 			let s2 = PresetLanguages.languageNameForCode(code2) ?? ""
@@ -46,7 +52,9 @@ final class PresetLanguages {
 	}
 
 	class func preferredPresetLanguageCode() -> String {
-		if let code = UserPrefs.shared.preferredLanguage.value {
+		if let code = UserPrefs.shared.preferredLanguage.value,
+		   PresetLanguages.languageCodeList.contains(code)
+		{
 			return code
 		}
 		let matches = Bundle.preferredLocalizations(from: PresetLanguages.languageCodeList,

@@ -82,7 +82,7 @@ final class PersistentWebCache<T: AnyObject> {
 	}
 
 	private func removeObjectsAsyncOlderThan(_ expiration: Date) {
-		DispatchQueue.global(qos: .background).async(execute: { [self] in
+		Task(priority: .background) {
 			for url in fileList(withAttributes: [.contentModificationDateKey]) {
 				if let date = try? url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate,
 				   date < expiration
@@ -90,10 +90,10 @@ final class PersistentWebCache<T: AnyObject> {
 					try? FileManager.default.removeItem(at: url)
 				}
 			}
-		})
+		}
 	}
 
-	func getDiskCacheSize() -> (size: Int, count: Int) {
+	func getDiskCacheSize() async -> (size: Int, count: Int) {
 		var count = 0
 		var size = 0
 		for url in fileList(withAttributes: [URLResourceKey.fileAllocatedSizeKey]) {
@@ -108,6 +108,15 @@ final class PersistentWebCache<T: AnyObject> {
 		return (size, count)
 	}
 
+	/// Call this function to retrieve an object with a specified cacheKey, downloading and caching the object if it doesn't exist.
+	/// If the object already exists in the memory cache it will be returned synchronously.
+	/// If the object is not in memory:
+	/// - nil will be returned synchronously
+	/// - it will looked for in the disk cache asynchronously, and if found converted from Data to the appropriate return type by objectForData()
+	/// If the object is not on disk:
+	/// - the URL for the object is calculated by fallbackURL() and
+	/// - the object is downloaded and stored on disk, converted to type T via objectForData(), and returned via completion()
+	/// If the object is not available on disk or at the URL an error is returned via completion()
 	func object(
 		withKey cacheKey: String,
 		fallbackURL urlFunction: @escaping () -> URL?,
@@ -158,7 +167,7 @@ final class PersistentWebCache<T: AnyObject> {
 			return size >= 0
 		}
 
-		DispatchQueue.global(qos: .default).async(execute: { [self] in
+		Task(priority: .medium) {
 			// check disk cache
 			let fileName = PersistentWebCache.encodeKey(forFilesystem: cacheKey)
 			let filePath = cacheDirectory.appendingPathComponent(fileName)
@@ -170,17 +179,23 @@ final class PersistentWebCache<T: AnyObject> {
 					_ = processData(.failure(WebCacheError.urlFunctionFailure))
 					return
 				}
-				URLSession.shared.data(with: url, completionHandler: { result in
-					if processData(result),
-					   let data = try? result.get()
-					{
-						DispatchQueue.global(qos: .default).async(execute: {
-							(data as NSData).write(to: filePath, atomically: true)
-						})
+
+				let result: Result<Data, Error>
+				do {
+					let data = try await URLSession.shared.data(with: url)
+					result = .success(data)
+				} catch {
+					result = .failure(error)
+				}
+				if processData(result),
+				   let data = try? result.get()
+				{
+					Task(priority: .medium) {
+						try? data.write(to: filePath, options: [.atomic])
 					}
-				})
+				}
 			}
-		})
+		}
 		return nil
 	}
 }

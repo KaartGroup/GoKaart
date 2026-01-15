@@ -145,16 +145,12 @@ final class OsmTags {
 			// if the value is for wikipedia then convert the URL to the correct format
 			// format is https://en.wikipedia.org/wiki/Nova_Scotia
 			let scanner = Scanner(string: url)
-			var languageCode: NSString?
-			var pageName: NSString?
-			if scanner.scanString("https://", into: nil) || scanner.scanString("http://", into: nil),
-			   scanner.scanUpTo(".", into: &languageCode),
-			   scanner.scanString(".m", into: nil) || true,
-			   scanner.scanString(".wikipedia.org/wiki/", into: nil),
-			   scanner.scanUpTo("/", into: &pageName),
+			if scanner.scanString("https://") != nil || scanner.scanString("http://") != nil,
+			   let languageCode = scanner.scanUpToString("."),
+			   scanner.scanString(".m") != nil || true,
+			   scanner.scanString(".wikipedia.org/wiki/") != nil,
+			   let pageName = scanner.scanUpToString("/"),
 			   scanner.isAtEnd,
-			   let languageCode = languageCode as String?,
-			   let pageName = pageName as String?,
 			   languageCode.count == 2, pageName.count > 0
 			{
 				return "\(languageCode):\(pageName)"
@@ -162,13 +158,11 @@ final class OsmTags {
 		} else if key.hasPrefix("wikidata") || key.hasSuffix(":wikidata") {
 			// https://www.wikidata.org/wiki/Q90000000
 			let scanner = Scanner(string: url)
-			var pageName: NSString?
-			if scanner.scanString("https://", into: nil) || scanner.scanString("http://", into: nil),
-			   scanner.scanString("www.wikidata.org/wiki/", into: nil) || scanner
-			   .scanString("m.wikidata.org/wiki/", into: nil),
-			   scanner.scanUpTo("/", into: &pageName),
+			if scanner.scanString("https://") != nil || scanner.scanString("http://") != nil,
+			   scanner.scanString("www.wikidata.org/wiki/") != nil
+			   || scanner.scanString("m.wikidata.org/wiki/") != nil,
+			   let pageName = scanner.scanUpToString("/"),
 			   scanner.isAtEnd,
-			   let pageName = pageName as String?,
 			   pageName.count > 0
 			{
 				return pageName
@@ -228,27 +222,23 @@ final class OsmTags {
 			}
 
 			// check for time range
-			var t1, dash, t2: NSString?
-			if scanner.scanCharacters(from: timeSet, into: &t1),
-			   let t1 = t1 as? String,
-			   scanner.scanString("-", into: &dash),
-			   scanner.scanCharacters(from: timeSet, into: &t2),
-			   let t2 = t2 as? String,
+			let t1 = scanner.scanCharacters(from: timeSet)
+			let dash = t1 != nil ? scanner.scanString("-") : nil
+			let t2 = dash != nil ? scanner.scanCharacters(from: timeSet) : nil
+			if let t1 = t1,
+			   let t2 = t2,
 			   let f1 = fixTime(t1),
 			   let f2 = fixTime(t2)
 			{
 				value += f1 + "-" + f2
 				continue
 			}
-			value += (t1 as? String) ?? ""
-			value += (dash as? String) ?? ""
-			value += (t2 as? String) ?? ""
+			value += t1 ?? ""
+			value += dash ?? ""
+			value += t2 ?? ""
 
 			// check for a day
-			var str: NSString?
-			if scanner.scanCharacters(from: CharacterSet.letters, into: &str),
-			   let str = str as String?
-			{
+			if let str = scanner.scanCharacters(from: CharacterSet.letters) {
 				let days = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
 				if let index = days.firstIndex(where: { $0.lowercased() == str.lowercased() }) {
 					value += days[index]
@@ -259,8 +249,8 @@ final class OsmTags {
 			}
 
 			// consume anything else
-			if scanner.scanUpToCharacters(from: CharacterSet.letters.union(timeSet), into: &str) {
-				value += (str as String?) ?? ""
+			if let str = scanner.scanUpToCharacters(from: CharacterSet.letters.union(timeSet)) {
+				value += str
 			}
 		}
 		// remove any repeating spaces
@@ -368,23 +358,46 @@ final class OsmTags {
 		var result: [String: String] = [:]
 		let lines = text.split(separator: "\n")
 		for line in lines {
+			// ignore lines with only whitespace
 			if line.trimmingCharacters(in: .whitespaces).isEmpty {
 				continue
 			}
+			// divide line by '=', but allow RHS to contain '=' (happens in URLs)
 			let parts = line.split(separator: "=", maxSplits: 1)
 			guard parts.count == 2 else {
 				return nil
 			}
-			let k = parts[0].trimmingCharacters(in: .whitespaces)
-			let v = parts[1].trimmingCharacters(in: .whitespaces)
-			if k != k.lowercased() {
-				return nil
-			}
+			let k = String(parts[0])
+			let v = String(parts[1])
 			result[k] = v
 		}
-		if result.count == 0 {
+
+		// This function detects strings that look like a key/value pair, but in fact is just a regular value
+		func isFakeKeyValuePaste(_ string: String) -> Bool {
+			// It's a URL that contains '='
+			if let url = URLComponents(string: string),
+			   url.scheme != nil,
+			   url.host != nil
+			{
+				return true
+			}
+
+			return false
+		}
+
+		// Sanity checks:
+		guard
+			result.count > 0,
+			result.keys.allSatisfy({ !$0.isEmpty && $0.count < 256 }),
+			result.values.allSatisfy({ !$0.isEmpty && $0.count < 256 }),
+			result.keys.allSatisfy({ $0.range(of: "^[a-zA-Z0-9_:-]+$", options: .regularExpression) != nil }),
+			result.keys.allSatisfy({ $0.first?.isLetter == true || $0.first?.isNumber == true }),
+			result.values.allSatisfy({ $0 == $0.trimmingCharacters(in: .whitespaces) }),
+			!isFakeKeyValuePaste(text)
+		else {
 			return nil
 		}
+
 		return result
 	}
 }

@@ -144,12 +144,13 @@ private class PathShapeLayer: CAShapeLayer {
 }
 
 protocol DrawingLayerDelegate {
-	func geojsonData() -> [(GeoJSONGeometry, UIColor)]
+	typealias OverlayData = (geom: GeoJSONGeometry, color: UIColor, properties: AnyJSON?)
+	func geojsonData() -> [OverlayData]
 }
 
 // A layer that draws things stored in GeoJSON formats.
 class DrawingLayer: CALayer {
-	let mapView: MapView
+	let viewPort: MapViewPort
 
 	var geojsonDelegate: DrawingLayerDelegate?
 
@@ -160,27 +161,22 @@ class DrawingLayer: CALayer {
 		fatalError()
 	}
 
-	init(mapView: MapView) {
-		self.mapView = mapView
+	init(viewPort: MapViewPort) {
+		self.viewPort = viewPort
 		layerDict = [:]
 		super.init()
 
-		actions = [
-			"onOrderIn": NSNull(),
-			"onOrderOut": NSNull(),
-			"hidden": NSNull(),
-			"sublayers": NSNull(),
-			"contents": NSNull(),
-			"bounds": NSNull(),
-			"position": NSNull(),
-			"transform": NSNull(),
-			"lineWidth": NSNull()
-		]
-
 		// observe changes to geometry
-		mapView.mapTransform.observe(by: self, callback: { self.setNeedsLayout() })
+		viewPort.mapTransform.onChange.subscribe(self) { [weak self] in
+			self?.setNeedsLayout()
+		}
 
 		setNeedsLayout()
+	}
+
+	override func action(forKey event: String) -> (any CAAction)? {
+		// never do animation
+		return NSNull()
 	}
 
 	// MARK: Drawing
@@ -196,19 +192,19 @@ class DrawingLayer: CALayer {
 	}
 
 	private func layoutSublayersSafe() {
-		let tRotation = mapView.screenFromMapTransform.rotation()
-		let tScale = mapView.screenFromMapTransform.scale() / PATH_SCALING
+		let tRotation = viewPort.mapTransform.rotation()
+		let tScale = viewPort.mapTransform.scale() / PATH_SCALING
 		var scale = Int(floor(-log(tScale)))
 		if scale < 0 {
 			scale = 0
 		}
 
 		// get list of GeoJSON structs
-		let geomList = geojsonDelegate?.geojsonData() ?? []
+		let geomList = geojsonDelegate?.geojsonData().filter { !$0.geom.geometryPoints.isPoint() } ?? []
 
 		// compute what's new and what's old
 		var newDict: [UUID: PathShapeLayer] = [:]
-		for (geom, color) in geomList {
+		for (geom, color, _) in geomList {
 			if let layer = layerDict.removeValue(forKey: geom.uuid) {
 				// Layer already exists
 				layer.color = color
@@ -237,14 +233,13 @@ class DrawingLayer: CALayer {
 			layer.path = layer.shapePaths[scale]
 
 			// configure the layer for presentation
-			guard let pt = layer.props.position else { return }
-			let pt2 = OSMPoint(mapView.mapTransform.screenPoint(forMapPoint: pt, birdsEye: false))
+			guard let pt = layer.props.position else { continue }
+			let pt2 = OSMPoint(viewPort.mapTransform.screenPoint(forMapPoint: pt, birdsEye: false))
 
 			// rotate and scale
-			var t = CGAffineTransform(translationX: CGFloat(pt2.x - pt.x), y: CGFloat(pt2.y - pt.y))
-			t = t.scaledBy(x: CGFloat(tScale), y: CGFloat(tScale))
-			t = t.rotated(by: CGFloat(tRotation))
-
+			let t = CGAffineTransform(translationX: CGFloat(pt2.x - pt.x), y: CGFloat(pt2.y - pt.y))
+				.scaledBy(x: CGFloat(tScale), y: CGFloat(tScale))
+				.rotated(by: CGFloat(tRotation))
 			layer.setAffineTransform(t)
 
 			layer.lineWidth = layer.props.lineWidth / CGFloat(tScale)
@@ -255,10 +250,10 @@ class DrawingLayer: CALayer {
 			}
 		}
 
-		if mapView.mapTransform.birdsEyeRotation != 0 {
+		if viewPort.mapTransform.birdsEyeRotation != 0 {
 			var t = CATransform3DIdentity
-			t.m34 = -1.0 / CGFloat(mapView.mapTransform.birdsEyeDistance)
-			t = CATransform3DRotate(t, CGFloat(mapView.mapTransform.birdsEyeRotation), 1.0, 0, 0)
+			t.m34 = -1.0 / CGFloat(viewPort.mapTransform.birdsEyeDistance)
+			t = CATransform3DRotate(t, CGFloat(viewPort.mapTransform.birdsEyeRotation), 1.0, 0, 0)
 			sublayerTransform = t
 		} else {
 			sublayerTransform = CATransform3DIdentity

@@ -112,22 +112,25 @@ class PresetFeature: CustomDebugStringConvertible {
 		return description
 	}
 
-	var name: String {
+	var localizedName: String {
 		// This has to be done in a lazy manner because the redirect may not exist yet when we are instantiated
-		if nameWithRedirect.hasPrefix("{"), nameWithRedirect.hasSuffix("}") {
+		var feature = self
+		while feature.nameWithRedirect.hasPrefix("{"), feature.nameWithRedirect.hasSuffix("}") {
 			let redirect = String(nameWithRedirect.dropFirst().dropLast())
 			if let preset = PresetsDatabase.shared.presetFeatureForFeatureID(redirect) {
-				return preset.name
+				feature = preset
 			}
-			print("bad preset redirect: \(redirect)")
-			DbgAssert(false)
 		}
-		return nameWithRedirect
+		return PresetTranslations.shared.name(for: feature) ?? feature.nameWithRedirect
 	}
 
 	var fields: [String]? {
 		// This has to be done in a lazy manner because the redirect may not exist yet when we are instantiated
-		guard let fieldsWithRedirect = fieldsWithRedirect else { return nil }
+		guard
+			let fieldsWithRedirect = fieldsWithRedirect
+		else {
+			return nil
+		}
 		return fieldsWithRedirect.flatMap {
 			if $0.hasPrefix("{"), $0.hasSuffix("}") {
 				let redirect = String($0.dropFirst().dropLast())
@@ -160,18 +163,17 @@ class PresetFeature: CustomDebugStringConvertible {
 	}
 
 	func isGeneric() -> Bool {
-		return featureID == "point" ||
-			featureID == "line" ||
-			featureID == "area"
+		// point, line, area, relation
+		return tags.count == 0
 	}
 
 	func friendlyName() -> String {
-		return name
+		return localizedName
 	}
 
 	func summary() -> String? {
 		let parentID = PresetFeature.parentIDofID(featureID)
-		let result = PresetsDatabase.shared.inheritedValueOfFeature(parentID, fieldGetter: { $0.name })
+		let result = PresetsDatabase.shared.inheritedValueOfFeature(parentID, fieldGetter: { $0.localizedName })
 		return result as? String
 	}
 
@@ -219,10 +221,26 @@ class PresetFeature: CustomDebugStringConvertible {
 		return _iconScaled24
 	}
 
-	func objectTagsUpdatedForFeature(_ tags: [String: String], geometry: GEOMETRY,
-	                                 location: MapView.CurrentRegion) -> [String: String]
+	func objectTagsUpdatedForFeature(_ tags: [String: String],
+	                                 geometry: GEOMETRY,
+	                                 location: RegionInfoForLocation) -> [String: String]
 	{
 		var tags = tags
+
+		if self is CustomFeature,
+		   let baseFeature = PresetsDatabase.shared.presetFeatureMatching(tags: self.tags,
+		                                                                  geometry: geometry,
+		                                                                  location: location,
+		                                                                  includeNSI: false,
+		                                                                  ignoringCustomFeatures: true),
+		   baseFeature.tags.isEmpty
+		{
+			// Our custom feature is not a specialization of a preset feature, so merge tags rather than replacing
+			for (k, v) in self.tags {
+				tags[k] = v
+			}
+			return tags
+		}
 
 		let oldFeature = PresetsDatabase.shared.presetFeatureMatching(
 			tags: tags,
@@ -237,6 +255,17 @@ class PresetFeature: CustomDebugStringConvertible {
 		}
 		for key in removeTags.keys {
 			tags.removeValue(forKey: key)
+		}
+
+		// Find fields that belongs to presets in oldFeature and don't exist in presets in new feature
+		// and delete them. This will do things like remove the "cuisine" tag when a restaurant is
+		// retagged as a shop.
+		if let oldKeys = oldFeature?.allKeysForAllPresets(more: true) {
+			let newKeys = allKeysForAllPresets(more: true)
+			let removeKeys = Set(oldKeys).subtracting(newKeys)
+			for key in removeKeys {
+				tags.removeValue(forKey: key)
+			}
 		}
 
 		// add new feature tags
@@ -300,16 +329,28 @@ class PresetFeature: CustomDebugStringConvertible {
 	}
 
 	private enum PresetMatchScore: Int {
-		case namePrefix = 10
-		case aliasPrefix = 9
-		case termPrefix = 8
+		case name = 4
+		case alias = 3
+		case term = 2
+		case featureId = 1
+	}
 
-		case nameInternal = 7
-		case aliasInternal = 6
-		case termInternal = 5
-
-		case featureIdPrefix = 4
-		case featureIdInternal = 3
+	private static func scoreForTextCompare(base: PresetMatchScore, text: String, search: String) -> Int? {
+		guard
+			let range = text.range(of: search, options: [.caseInsensitive, .diacriticInsensitive])
+		else {
+			return nil
+		}
+		// best case is it matches the prefix
+		if range.lowerBound == text.startIndex {
+			return 10 * base.rawValue + 5
+		}
+		// next best is it matches the start of a word
+		if text[text.index(before: range.lowerBound)].isWhitespace {
+			return 10 * base.rawValue
+		}
+		// it must be some random string in the middle of a word
+		return base.rawValue
 	}
 
 	func matchesSearchText(_ searchText: String?, geometry: GEOMETRY) -> Int? {
@@ -319,31 +360,28 @@ class PresetFeature: CustomDebugStringConvertible {
 		if !self.geometry.contains(geometry.rawValue) {
 			return nil
 		}
-		if let range = name.range(of: searchText, options: [.caseInsensitive, .diacriticInsensitive]) {
-			return (range.lowerBound == name.startIndex
-				? PresetMatchScore.namePrefix : PresetMatchScore.nameInternal).rawValue
+
+		if let score = Self.scoreForTextCompare(base: .name, text: localizedName, search: searchText) {
+			return score
 		}
 		for alias in aliases {
-			if let range = alias.range(of: searchText, options: [.caseInsensitive, .diacriticInsensitive]) {
-				return (range.lowerBound == alias.startIndex
-					? PresetMatchScore.aliasPrefix : PresetMatchScore.aliasInternal).rawValue
+			if let score = Self.scoreForTextCompare(base: .alias, text: alias, search: searchText) {
+				return score
 			}
 		}
 		for term in terms {
-			if let range = term.range(of: searchText, options: [.caseInsensitive, .diacriticInsensitive]) {
-				return (range.lowerBound == term.startIndex
-					? PresetMatchScore.termPrefix : PresetMatchScore.termInternal).rawValue
+			if let score = Self.scoreForTextCompare(base: .term, text: term, search: searchText) {
+				return score
 			}
 		}
-		if let range = featureID.range(of: searchText, options: [.caseInsensitive, .diacriticInsensitive]) {
-			return (range.lowerBound == featureID.startIndex
-				? PresetMatchScore.featureIdPrefix : PresetMatchScore.featureIdInternal).rawValue
+		if let score = Self.scoreForTextCompare(base: .featureId, text: featureID, search: searchText) {
+			return score
 		}
 		return nil
 	}
 
 	func matchObjectTagsScore(_ objectTags: [String: String], geometry: GEOMETRY?,
-	                          location: MapView.CurrentRegion) -> Double
+	                          location: RegionInfoForLocation) -> Double
 	{
 		if let geometry = geometry,
 		   !self.geometry.contains(geometry.rawValue) ||
@@ -381,7 +419,7 @@ class PresetFeature: CustomDebugStringConvertible {
 
 	func defaultValuesForGeometry(_ geometry: GEOMETRY) -> [String: String] {
 		var result: [String: String] = [:]
-		let fields = PresetsForFeature.fieldsFor(featureID: featureID, field: { f in f.fields })
+		let fields = PresetDisplayForFeature.fieldsFor(featureID: featureID, field: { f in f.fields })
 		for fieldName in fields {
 			if let field = PresetsDatabase.shared.presetFields[fieldName],
 			   let key = field.key,
@@ -393,6 +431,14 @@ class PresetFeature: CustomDebugStringConvertible {
 			}
 		}
 		return result
+	}
+
+	func allKeysForAllPresets(more: Bool) -> [String] {
+		let f1 = PresetDisplayForFeature.fieldsFor(featureID: featureID, field: { $0.fields })
+		let f2 = more ? PresetDisplayForFeature.fieldsFor(featureID: featureID, field: { $0.moreFields }) : []
+		let k1 = f1.flatMap { PresetsDatabase.shared.presetFields[$0]!.allKeys }
+		let k2 = f2.flatMap { PresetsDatabase.shared.presetFields[$0]!.allKeys }
+		return k1 + k2
 	}
 
 	private var cachedWikiDescription: Any? = NSNull()

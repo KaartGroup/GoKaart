@@ -25,33 +25,27 @@ final class DownloadThreadPool: NSObject, URLSessionDataDelegate, URLSessionTask
 
 	static let osmPool = DownloadThreadPool()
 
-	func stream(forUrl url: String, callback: @escaping (_ result: Result<InputStream, Error>) -> Void) {
-		let url1 = URL(string: url)!
-		var request = URLRequest(url: url1)
-		request.httpMethod = "GET"
-		request.addValue("8bit", forHTTPHeaderField: "Content-Transfer-Encoding")
-		request.cachePolicy = .reloadIgnoringLocalCacheData
+	func stream(forUrl url: String) async throws -> InputStream {
+		let request = {
+			var request = URLRequest(url: URL(string: url)!)
+			request.httpMethod = "GET"
+			request.addValue("8bit", forHTTPHeaderField: "Content-Transfer-Encoding")
+			request.cachePolicy = .reloadIgnoringLocalCacheData
+			request.setUserAgent()
+			return request
+		}()
 
 		inProgress.increment()
+		defer { inProgress.decrement() }
 
-		urlSession.data(with: request, completionHandler: { [self] result in
-			inProgress.decrement()
-			switch result {
-			case let .success(data):
-				let inputStream = InputStream(data: data)
-				callback(.success(inputStream))
-			case let .failure(error):
-				callback(.failure(error))
-			}
-		})
+		let data = try await urlSession.data(with: request)
+		return InputStream(data: data)
 	}
 
-	func cancelAllDownloads() {
-		urlSession.getAllTasks(completionHandler: { tasks in
-			for task in tasks {
-				task.cancel()
-			}
-		})
+	func cancelAllDownloads() async {
+		for task in await urlSession.allTasks {
+			task.cancel()
+		}
 	}
 
 	func downloadsInProgress() -> Int {

@@ -1,5 +1,5 @@
 //
-//  WayPoint.swift
+//  WayPointMarker.swift
 //  Go Map!!
 //
 //  Created by Bryce Cogswell on 9/16/21.
@@ -10,23 +10,31 @@ import Foundation
 
 // A GPX waypoint
 final class WayPointMarker: MapMarker {
-	let description: String
+	let description: NSAttributedString
 
-	init(with latLon: LatLon, description: String) {
+	init(with latLon: LatLon, description: NSAttributedString) {
 		self.description = description
 		super.init(latLon: latLon)
 	}
 
-	convenience init(with gpxPoint: GpxPoint) {
-		var text = gpxPoint.name
-		if let r1 = text.range(of: "<a "),
-		   let r2 = text.range(of: "\">")
+	static func attributedString(for string: String) -> NSAttributedString {
+		if let data = string.data(using: .utf8),
+		   let attr = try? NSAttributedString(data: data,
+											  options: [.documentType: NSAttributedString.DocumentType.html,
+														.characterEncoding: String.Encoding.utf8.rawValue],
+											  documentAttributes: nil)
 		{
-			text.removeSubrange(r1.lowerBound..<r2.upperBound)
+			return attr
+		} else {
+			return NSAttributedString(string: string)
 		}
-		text = text.replacingOccurrences(of: "&quot;", with: "\"")
+	}
 
-		self.init(with: gpxPoint.latLon, description: text)
+	convenience init(with gpxPoint: GpxPoint) {
+		let name = Self.attributedString(for: gpxPoint.name)
+		let desc = Self.attributedString(for: gpxPoint.desc)
+		let message = [name,desc].compactMap{ $0.string == "" ? nil : $0 }.joined(by: "\n\n")
+		self.init(with: gpxPoint.latLon, description: message)
 	}
 
 	override var markerIdentifier: String {
@@ -35,3 +43,4 @@ final class WayPointMarker: MapMarker {
 
 	override var buttonLabel: String { "W" }
 }
+

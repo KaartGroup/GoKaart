@@ -47,6 +47,12 @@
             "value" : "GpxWidget"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GpxWidget"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -119,6 +125,12 @@
             "value" : "GpxWidgetExtension"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GpxWidgetExtension"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -158,7 +170,7 @@
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Copyright © 2024 Bryce Cogswell. Všechna práva vyhrazena."
+            "value" : "Copyright © 2025 Bryce Cogswell. Všechna práva vyhrazena."
           }
         },
         "de" : {
@@ -185,10 +197,22 @@
             "value" : "Autoriõigused © 2024 Bryce Cogswell. Kõik õigused on kaitstud."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "© 2024 Bryce Cogswell. Tous droits réservés."
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Autorska prava © 2024. Bryce Cogswell. Sva prava pridržana."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copyright © 2024 Bryce Cogswell. Tutti i diritti riservati."
           }
         },
         "ja" : {
@@ -200,7 +224,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "© 2024 Брайс Когсвелл"
+            "value" : "Авторские права © 2024 Брайс Когсвелл. Все права защищены."
           }
         },
         "ta" : {
@@ -213,6 +237,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Авторські права © 2024 Брайс Коґсвелл. Всі права застережено."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "© 2024 Bryce Cogswell 版权所有"
           }
         },
         "zh-Hant" : {

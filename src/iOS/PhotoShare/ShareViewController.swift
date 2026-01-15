@@ -38,10 +38,14 @@ class ShareViewController: UIViewController, URLSessionTaskDelegate {
 	@IBOutlet var popupView: UIView!
 	@IBOutlet var popupText: UILabel!
 
-	var location: CLLocationCoordinate2D?
-	var zoom: Double?
-	var direction = 0.0
-	var photoText: String!
+	var appURL: URL?
+	var photoText = ""
+
+	enum ShareResult {
+		case openAppWithURL(URL)
+		case enableOKButton(String, URL)
+		case notFound(String?)
+	}
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -50,16 +54,40 @@ class ShareViewController: UIViewController, URLSessionTaskDelegate {
 		popupView.layer.masksToBounds = true
 		popupView.layer.isOpaque = false
 		buttonOK.isEnabled = false
-		photoText = popupText.text
+		photoText = popupText.text!
 		popupText.text = NSLocalizedString("Processing data...",
 		                                   comment: "")
 	}
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
-		processShareItem()
+		Task { @MainActor in
+			let result: ShareResult = await processShareItem()
+			switch result {
+			case let .openAppWithURL(url):
+				// immediately jump to location
+				self.appURL = url
+				self.buttonOK.isEnabled = true
+				self.buttonPressOK()
+			case let .enableOKButton(text, url):
+				// give the user some text, and jump to location when they press OK
+				self.appURL = url
+				self.popupText.text = text
+				self.buttonOK.isEnabled = true
+			case let .notFound(text):
+				// error message with given text
+				if let text {
+					popupText.text = text
+				} else {
+					popupText.text = NSLocalizedString("The URL content isn't recognized.",
+					                                   comment: "Error message when sharing a URL to Go Map!!")
+				}
+			}
+		}
 	}
 
+	// dummy function so we can get the selector for it, but we'll actually call the
+	// instance that exists within UIApplication.
 	@objc func openURL(_ url: URL) {}
 
 	// intercept redirect when dealing with google maps
@@ -72,125 +100,117 @@ class ShareViewController: UIViewController, URLSessionTaskDelegate {
 		completionHandler(nil)
 	}
 
-	func setUnrecognizedText() {
-		DispatchQueue.main.async {
-			self.popupText.text = NSLocalizedString("The URL content isn't recognized.",
-			                                        comment: "Error message when sharing a URL to Go Map!!")
-		}
-	}
-
-	func processShareItem() {
-		var found = false
+	func processShareItem() async -> ShareResult {
 		for item in extensionContext?.inputItems ?? [] {
 			for provider in (item as? NSExtensionItem)?.attachments ?? [] {
 				if provider.hasItemConformingToTypeIdentifier("public.image") {
 					// A photo
-					found = true
-					provider.loadItem(forTypeIdentifier: "public.image", options: nil) { url, _ in
-						if let url = url as? URL,
-						   let exif = EXIFInfo(url: url)
-						{
-							DispatchQueue.main.async {
-								self.location = CLLocationCoordinate2D(latitude: exif.latitude,
-								                                       longitude: exif.longitude)
-								self.zoom = nil
-								self.direction = exif.direction ?? 0.0
-								self.buttonOK.isEnabled = true
-								self.popupText.text = self.photoText
-							}
-						} else {
-							DispatchQueue.main.async {
-								var text = self.photoText!
-								text += "\n\n"
-								text += NSLocalizedString(
-									"Unfortunately the selected image does not contain location information.",
-									comment: "")
-								self.popupText.text = text
-							}
-						}
+					if let url = try? await provider.loadItem(forTypeIdentifier: "public.image"),
+					   let url = url as? URL,
+					   let exif = EXIFInfo(url: url),
+					   let url = urlFor(location: (exif.latitude, exif.longitude),
+					                    zoom: nil,
+					                    direction: exif.direction ?? 0.0)
+					{
+						return .enableOKButton(self.photoText, url)
+					} else {
+						var text = self.photoText
+						text += "\n\n"
+						text += NSLocalizedString(
+							"Unfortunately the selected image does not contain location information.",
+							comment: "")
+						return .notFound(text)
 					}
 				} else if provider.hasItemConformingToTypeIdentifier("com.apple.mapkit.map-item") {
 					// An MKMapItem. There should also be a URL we can use instead.
 				} else if provider.hasItemConformingToTypeIdentifier("public.url") {
-					found = true
-					provider.loadItem(forTypeIdentifier: "public.url", options: nil) { urlData, _ in
-
-						// sometimes its a url, other times data containing a url
-						let url: URL
-						if let url2 = urlData as? URL {
-							url = url2
-						} else if let data = urlData as? Data,
-						          let string = String(data: data, encoding: .utf8),
-						          let url2 = URL(string: string)
-						{
-							url = url2
-						} else {
-							// error
-							self.setUnrecognizedText()
-							return
-						}
-
-						// decode as a location URL
-						if let loc = LocationParser.mapLocationFrom(url: url) {
-							DispatchQueue.main.async {
-								self.location = CLLocationCoordinate2D(latitude: loc.latitude,
-								                                       longitude: loc.longitude)
-								self.zoom = loc.zoom
-								self.buttonOK.isEnabled = true
-								self.buttonPressOK()
-							}
-							return
-						}
-
-						if LocationParser.isGoogleMapsRedirect(urlString: url.absoluteString, callback: { loc in
-							DispatchQueue.main.async {
-								guard let loc = loc else {
-									self.setUnrecognizedText()
-									return
-								}
-								self.location = CLLocationCoordinate2D(latitude: loc.latitude,
-								                                       longitude: loc.longitude)
-								self.zoom = loc.zoom
-								self.buttonOK.isEnabled = true
-								self.buttonPressOK()
-							}
-						}) {
-							return
-						}
-
-						// decode as a GPX file
-						if true {
-							// try downloading the headers for the URL to see if it's "application/gpx+xml"
-							let request = NSMutableURLRequest(url: url)
-							request.httpMethod = "HEAD"
-							let task = URLSession.shared.dataTask(with: request as URLRequest) { _, response, _ in
-								if let httpResponse = response as? HTTPURLResponse,
-								   let contentType = httpResponse.allHeaderFields["Content-Type"] as? String,
-								   contentType == "application/gpx+xml"
-								{
-									DispatchQueue.main.async {
-										// pass the original url to the app which will download it
-										let url: String = url.absoluteString.data(using: .utf8)!.base64EncodedString()
-										let app = URL(string: "gomaposm://?gpxurl=\(url)")!
-										self.openApp(withUrl: app)
-										self.extensionContext!.completeRequest(
-											returningItems: [],
-											completionHandler: nil)
-									}
-									return
-								}
-								self.setUnrecognizedText()
-							}
-							task.resume()
-							return
-						}
+					guard let urlData = try? await provider.loadItem(forTypeIdentifier: "public.url") else {
+						return .notFound(nil)
+					}
+					// sometimes its a url, other times data containing a url
+					let url: URL
+					if let url2 = urlData as? URL {
+						url = url2
+					} else if let data = urlData as? Data,
+					          let string = String(data: data, encoding: .utf8),
+					          let url2 = URL(string: string)
+					{
+						url = url2
+					} else {
+						return .notFound(nil)
+					}
+					return await commonUrlHandler(for: url)
+				} else if provider.hasItemConformingToTypeIdentifier("public.plain-text") {
+					guard let text = try? await provider.loadItem(forTypeIdentifier: "public.plain-text") else {
+						return .notFound(nil)
+					}
+					if let text = text as? String {
+						return await commonPlainTextHandler(for: text)
+					} else if let data = text as? Data,
+					          let text = String(data: data, encoding: .utf8)
+					{
+						return await commonPlainTextHandler(for: text)
+					} else {
+						return .notFound(nil)
 					}
 				}
 			}
 		}
-		if !found {
-			extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
+		return .notFound(nil)
+	}
+
+	func extractURLs(from text: String) -> [URL] {
+		let types: NSTextCheckingResult.CheckingType = .link
+		guard let detector = try? NSDataDetector(types: types.rawValue) else { return [] }
+
+		let matches = detector.matches(in: text, options: [], range: NSRange(text.startIndex..., in: text))
+		return matches.compactMap { match in
+			guard let range = Range(match.range, in: text) else { return nil }
+			return URL(string: String(text[range]))
 		}
+	}
+
+	func commonPlainTextHandler(for text: String) async -> ShareResult {
+		guard let url = extractURLs(from: text).first(where: { $0.scheme == "http" || $0.scheme == "https" })
+		else {
+			return .notFound(nil)
+		}
+		return await commonUrlHandler(for: url)
+	}
+
+	func commonUrlHandler(for url: URL) async -> ShareResult {
+		guard let httpResponse = await LocationParser.resolveShortenedURL(url: url),
+		      let url = httpResponse.url
+		else {
+			return .notFound(nil)
+		}
+
+		// decode as a location URL
+		if let mapLoc = LocationParser.mapLocationFrom(url: url),
+		   let url = urlFor(location: (mapLoc.latitude, mapLoc.longitude),
+		                    zoom: mapLoc.zoom)
+		{
+			return .openAppWithURL(url)
+		}
+
+		if let mapLoc = await LocationParser.isGoogleMapsRedirectAsync(urlString: url.absoluteString),
+		   let url = urlFor(location: (mapLoc.latitude, mapLoc.longitude),
+		                    zoom: mapLoc.zoom)
+		{
+			return .openAppWithURL(url)
+		}
+
+		// check if it is a GPX file
+		if let contentType = httpResponse.allHeaderFields["Content-Type"] as? String,
+		   contentType == "application/gpx+xml",
+		   let url = url.absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+		   let appURL = URL(string: "gomaposm://?gpxurl=\(url)")
+		{
+			// pass the original url to the app which will download it
+			return .openAppWithURL(appURL)
+		}
+
+		return .notFound(nil)
 	}
 
 	@objc @discardableResult private func openApp(withUrl url: URL) -> Bool {
@@ -209,18 +229,22 @@ class ShareViewController: UIViewController, URLSessionTaskDelegate {
 		return false
 	}
 
-	@IBAction func buttonPressOK() {
-		guard let coord = location else { return }
-		var string = "gomaposm://?center=\(coord.latitude),\(coord.longitude)&direction=\(direction)"
-		if let zoom = zoom {
+	func urlFor(location: (lat: Double, lon: Double), zoom: Double?, direction: Double = 0.0) -> URL? {
+		var string = "gomaposm://?center=\(location.lat),\(location.lon)&direction=\(direction)"
+		if let zoom {
 			string += "&zoom=\(zoom)"
 		}
-		let app = URL(string: string)!
-		openApp(withUrl: app)
-		extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
+		return URL(string: string)
+	}
+
+	@IBAction func buttonPressOK() {
+		if let appURL {
+			openApp(withUrl: appURL)
+		}
+		extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
 	}
 
 	@IBAction func buttonCancel() {
-		extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
+		extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
 	}
 }

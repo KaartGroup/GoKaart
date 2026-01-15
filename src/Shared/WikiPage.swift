@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SafariServices
 import UIKit
 
 class WikiPage {
@@ -49,26 +50,22 @@ class WikiPage {
 		return code.lowercased()
 	}
 
-	private func ifUrlExists(_ url: URL, completion: @escaping (_ exists: Bool) -> Void) {
-		let request = NSMutableURLRequest(url: url)
+	private func ifUrlExists(_ url: URL) async -> Bool {
+		var request = URLRequest(url: url)
+		request.setUserAgent()
 		request.httpMethod = "HEAD"
 		request.cachePolicy = .returnCacheDataElseLoad
-		let task = URLSession.shared.downloadTask(
-			with: request as URLRequest,
-			completionHandler: { _, response, error in
-				var exists = false
-				if error == nil {
-					let httpResponse = response as? HTTPURLResponse
-					switch httpResponse?.statusCode {
-					case 200, 301, 302:
-						exists = true
-					default:
-						break
-					}
-				}
-				completion(exists)
-			})
-		task.resume()
+		if let (_, response) = try? await URLSession.shared.data(for: request),
+		   let httpResponse = response as? HTTPURLResponse
+		{
+			switch httpResponse.statusCode {
+			case 200, 301, 302:
+				return true
+			default:
+				break
+			}
+		}
+		return false
 	}
 
 	private func encodedTag(_ tag: String) -> String {
@@ -84,8 +81,7 @@ class WikiPage {
 	func bestWikiPage(
 		forKey tagKey: String,
 		value tagValue: String,
-		language: String,
-		completion: @escaping (_ url: URL?) -> Void)
+		language: String) async -> URL?
 	{
 		let language = wikiPageTitleLanguageFor(languageCode: language)
 		let tagKey = encodedTag(tagKey)
@@ -102,37 +98,34 @@ class WikiPage {
 			pageList.append("Key:\(tagKey)")
 		}
 
+		let baseURL = URL(string: "https://wiki.openstreetmap.org/wiki/")!
 		var urlDict: [String: URL] = [:]
 
-		DispatchQueue.global(qos: .default).async(execute: { [self] in
-
-			let group = DispatchGroup()
-			let baseURL = URL(string: "https://wiki.openstreetmap.org/wiki/")!
-
+		await withTaskGroup(of: (String, URL)?.self) { group in
 			for page in pageList {
-				let url = baseURL.appendingPathComponent(page)
-				group.enter()
-				ifUrlExists(url, completion: { exists in
+				group.addTask {
+					let url = baseURL.appendingPathComponent(page)
+					let exists = await self.ifUrlExists(url)
 					if exists {
-						DispatchQueue.main.async(execute: {
-							urlDict[page] = url
-						})
-					}
-					group.leave()
-				})
-			}
-			_ = group.wait(timeout: DispatchTime.distantFuture)
-
-			DispatchQueue.main.async(execute: {
-				for page in pageList {
-					if let url = urlDict[page] {
-						completion(url)
-						return
+						return (page, url)
+					} else {
+						return nil
 					}
 				}
-				completion(nil)
-			})
-		})
+			}
+			for await page in group {
+				if let page {
+					urlDict[page.0] = page.1
+				}
+			}
+		}
+
+		for page in pageList {
+			if let url = urlDict[page] {
+				return url
+			}
+		}
+		return nil
 	}
 
 	private class KeyValueDescription {
@@ -171,7 +164,6 @@ class WikiPage {
 	private let imageCache = PersistentWebCache<UIImage>(name: "wikiImageStore",
 	                                                     memorySize: 10_000000,
 	                                                     daysToKeep: 45.0)
-	private let equals = "=".addingPercentEncoding(withAllowedCharacters: CharacterSet.alphanumerics) ?? ""
 
 	func resetCache() {
 		descriptionCache.removeAllObjects()
@@ -342,26 +334,37 @@ class WikiPage {
 		let meta = descriptionCache.object(
 			withKey: language + ":" + key + "=" + value,
 			fallbackURL: {
+				var comps = URLComponents(string: "https://wiki.openstreetmap.org/w/api.php")!
+				var titles: [String] = []
+				titles.append("Key:" + key)
+				if value != "" {
+					titles.append("Tag:" + key + "=" + value)
+				}
 				let otherLang = self.wikiLanguageCodeFor(languageCode: language)
-				let languages = otherLang == "" ? "en" : ("en%7C" + otherLang)
-				let tagTitle = value == ""
-					? "Key:" + self.encodedTag(key)
-					: "Tag:" + self.encodedTag(key) + self.equals + self.encodedTag(value)
-				let langTitle = otherLang != "" ? "%7CLocale:" + otherLang : ""
-				let path = "https://wiki.openstreetmap.org/w/api.php?" +
-					["action=wbgetentities",
-					 "sites=wiki",
-					 ("titles=" + tagTitle + langTitle).replacingOccurrences(of: "_", with: "%20"),
-					 "languages=" + languages.replacingOccurrences(of: "_", with: "%20"),
-					 "format=json"]
-					.joined(separator: "&")
-				return URL(string: path)
+				let languages = otherLang == "" ? ["en"] : [otherLang, "en"]
+				if otherLang != "" {
+					titles.append("Locale:" + otherLang)
+				}
+				comps.queryItems = [
+					URLQueryItem(name: "action", value: "wbgetentities"),
+					URLQueryItem(name: "sites", value: "wiki"),
+					URLQueryItem(name: "titles", value: titles
+						.map { $0.replacingOccurrences(of: "_", with: " ") }
+						.joined(separator: "|")),
+					URLQueryItem(name: "languages", value: languages
+						.map { $0.replacingOccurrences(of: "_", with: " ") }
+						.joined(separator: "|")),
+					URLQueryItem(name: "format", value: "json")
+				]
+				return comps.url ?? URL(string: "")
 			},
 			objectForData: { data in
 				self.descriptionForJson(data: data, language: language, imageWidth: imageWidth)
 			},
 			completion: { result in
-				guard let result = try? result.get() else {
+				guard let result = try? result.get(),
+				      result.description != ""
+				else {
 					update(nil)
 					return
 				}
@@ -406,5 +409,115 @@ class WikiPage {
 			return kv
 		}
 		return nil
+	}
+}
+
+extension WikiPage {
+	func pressed(infoButton: UIButton?, in parentVC: UIViewController?, key: String, value: String) {
+		guard !key.isEmpty,
+		      let infoButton,
+		      let parentVC
+		else {
+			return
+		}
+		let mapView = AppDelegate.shared.mapView
+		let geometry = mapView?.editorLayer.selectedPrimary?.geometry() ?? .POINT
+		let feature = PresetsDatabase.shared.presetFeatureMatching(tags: [key: value],
+		                                                           geometry: geometry,
+		                                                           location: mapView?.currentRegion ?? .none,
+		                                                           includeNSI: false)
+		let featureName: String?
+		if let feature = feature,
+		   feature.tags.count > 0 // not degenerate like point, line, etc.
+		{
+			featureName = feature.localizedName
+		} else {
+			let allPresets = PresetDisplayForFeature(withFeature: feature,
+			                                         objectTags: [key: value],
+			                                         geometry: geometry,
+			                                         update: nil)
+			if let preset = allPresets.allPresetKeys().first(where: { $0.tagKey == key }) {
+				featureName = preset.name
+			} else {
+				featureName = nil
+			}
+		}
+
+		let spinner = UIActivityIndicatorView(style: .medium)
+		spinner.frame = infoButton.bounds
+		infoButton.addSubview(spinner)
+		infoButton.isEnabled = false
+		infoButton.titleLabel?.alpha = 0
+		spinner.startAnimating()
+
+		func showPopup(title: String?, description: String?, wikiPageTitle: String?) {
+			spinner.removeFromSuperview()
+			infoButton.isEnabled = true
+			infoButton.titleLabel?.alpha = 1
+
+			if let description,
+			   parentVC.view.window != nil
+			{
+				let tag = "\(key)=\(value.isEmpty ? "*" : value)"
+				let alert = UIAlertController(
+					title: title ?? "",
+					message: "\(tag)\n\n\(description)",
+					preferredStyle: .alert)
+				alert.addAction(.init(title: "Done", style: .cancel, handler: nil))
+				alert.addAction(.init(title: "Read more on the Wiki", style: .default) { _ in
+					if let wikiPageTitle {
+						let url = self.urlFor(pageTitle: wikiPageTitle)
+						self.openSafariWith(parentVC: parentVC, url: url)
+					} else {
+						self.openSafari(parentVC: parentVC, key: key, value: value)
+					}
+				})
+				parentVC.present(alert, animated: true)
+			} else {
+				openSafari(parentVC: parentVC, key: key, value: value)
+			}
+		}
+
+		let languageCode = PresetLanguages.preferredLanguageCode()
+		if let wikiData = WikiPage.shared.wikiDataFor(key: key,
+		                                              value: value,
+		                                              language: languageCode,
+		                                              imageWidth: 24,
+		                                              update: { wikiData in
+		                                              	showPopup(
+		                                              		title: featureName,
+		                                              		description: wikiData?.description,
+		                                              		wikiPageTitle: wikiData?.pageTitle)
+		                                              })
+		{
+			showPopup(title: featureName,
+			          description: wikiData.description,
+			          wikiPageTitle: wikiData.pageTitle)
+		}
+	}
+
+	private func openSafari(parentVC: UIViewController, key: String, value: String) {
+		guard !key.isEmpty,
+		      parentVC.view.window != nil
+		else { return }
+
+		let languageCode = PresetLanguages.preferredLanguageCode()
+		Task {
+			guard let url = await WikiPage.shared.bestWikiPage(
+				forKey: key,
+				value: value,
+				language: languageCode)
+			else {
+				return
+			}
+			await MainActor.run {
+				self.openSafariWith(parentVC: parentVC, url: url)
+			}
+		}
+	}
+
+	private func openSafariWith(parentVC: UIViewController, url: URL) {
+		let vc = SFSafariViewController(url: url)
+		parentVC.present(vc, animated: true)
 	}
 }

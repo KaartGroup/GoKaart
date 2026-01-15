@@ -8,12 +8,6 @@
 
 import UIKit
 
-enum TypeCastError: Error {
-	case invalidType
-	case unexpectedNil
-	case invalidEnum
-}
-
 final class TileServerList {
 	private var userDefinedList: [TileServer] = [] // user-defined tile servers
 	private var downloadedList: [TileServer] = []
@@ -26,24 +20,27 @@ final class TileServerList {
 		set { UserPrefs.shared.lastImageryDownloadDate.value = newValue }
 	}
 
-	var onChange: (() -> Void)?
+	let onChange = NotificationService<Void>()
 
 	init() {
-		TileServer.fetchDynamicBingServer(nil)
+		Task {
+			// fetch the URL of the Bing server in the background
+			try? await TileServer.fetchDynamicBingServer()
+		}
 
 		fetchOsmLabAerials({ isAsync in
 			// This completion might be called twice: first when the cached version loads
 			// and then again when an update is downloaded from the internet
 			self.load()
 			if isAsync {
-				self.onChange?()
+				self.onChange.notify()
 			}
 		})
 
-		UserPrefs.shared.customAerialList.onChangePerform { _ in
+		UserPrefs.shared.customAerialList.onChange.subscribe(self) { [weak self] _ in
 			// This occurs if a user added imagery on a different device and it shared to us via iCloud
-			self.load()
-			self.onChange?()
+			self?.load()
+			self?.onChange.notify()
 		}
 	}
 
@@ -61,8 +58,8 @@ final class TileServerList {
 		return downloadedList.first(where: { identifier == $0.identifier })
 	}
 
-	private func pathToExternalAerialsCache() -> String {
-		return ArchivePath.aerialProviers.path()
+	var externalAerialsCache: URL {
+		return ArchivePath.aerialProviers.url()
 	}
 
 	func updateDownloadList(with list: [TileServer]) {
@@ -77,7 +74,7 @@ final class TileServerList {
 	func fetchOsmLabAerials(_ completion: @escaping (_ isAsync: Bool) -> Void) {
 		// get cached data
 		let startTime = CACurrentMediaTime()
-		var cachedData = NSData(contentsOfFile: pathToExternalAerialsCache()) as Data?
+		var cachedData = try? Data(contentsOf: externalAerialsCache)
 		let readTime = CACurrentMediaTime()
 		if let data = cachedData {
 			let externalAerials = Self.processOsmLabAerialsData(data)
@@ -102,30 +99,30 @@ final class TileServerList {
 		}
 
 		if cachedData == nil {
-			// download newer version periodically
-			// let urlString = "https://josm.openstreetmap.de/maps?format=geojson"
-			let urlString = "https://osmlab.github.io/editor-layer-index/imagery.geojson"
-			if let downloadUrl = URL(string: urlString) {
-				URLSession.shared.data(with: downloadUrl, completionHandler: { [self] result in
-					if case let .success(data) = result {
-						if data.count > 100000 {
-							// if the data is large then only download again periodically
-							self.lastDownloadDate = Date()
-						}
-						let externalAerials = Self.processOsmLabAerialsData(data)
-						if externalAerials.count > 100 {
-							// cache download for next time
-							let fileUrl = URL(fileURLWithPath: pathToExternalAerialsCache())
-							try? data.write(to: fileUrl, options: .atomic)
+			Task {
+				// download newer version periodically
+				// let urlString = "https://josm.openstreetmap.de/maps?format=geojson"
+				let urlString = "https://osmlab.github.io/editor-layer-index/imagery.geojson"
+				guard let downloadUrl = URL(string: urlString),
+				      let data = try? await URLSession.shared.data(with: downloadUrl)
+				else {
+					return
+				}
+				if data.count > 100000 {
+					// if the data is large then only download again periodically
+					self.lastDownloadDate = Date()
+				}
+				let externalAerials = Self.processOsmLabAerialsData(data)
+				if externalAerials.count > 100 {
+					// cache download for next time
+					try? data.write(to: externalAerialsCache, options: .atomic)
 
-							// notify caller of update
-							DispatchQueue.main.async(execute: { [self] in
-								updateDownloadList(with: externalAerials)
-								completion(true)
-							})
-						}
+					// notify caller of update
+					await MainActor.run {
+						updateDownloadList(with: externalAerials)
+						completion(true)
 					}
-				})
+				}
 			}
 		}
 	}

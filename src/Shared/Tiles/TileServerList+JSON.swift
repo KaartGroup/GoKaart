@@ -8,14 +8,6 @@
 
 import UIKit
 
-infix operator -->: AssignmentPrecedence
-func --> <T>(lhs: Any?, rhs: T.Type) throws -> T {
-	guard let lhs = lhs as? T else {
-		throw TypeCastError.invalidType
-	}
-	return lhs
-}
-
 extension TileServerList {
 	static let MapBoxLocatorId = "mapbox_locator_overlay"
 	static let MapBoxLayerId = "Mapbox"
@@ -161,8 +153,6 @@ extension TileServerList {
 		]
 		let discardRE = try discard.map { try NSRegularExpression(pattern: $0) }
 
-		let supportedProjections = Set<String>(TileServer.supportedProjections)
-
 		var externalAerials: [TileServer] = []
 		for entry in featureArray {
 			do {
@@ -237,8 +227,8 @@ extension TileServerList {
 				// we only support some types of WMS projections
 				var projection: String?
 				if type == .wms {
-					projection = try properties.available_projections?
-						.first(where: { supportedProjections.contains($0) })
+					let aerial = (try? properties.available_projections) ?? []
+					projection = TileServer.supportedProjections.first(where: { aerial.contains($0) })
 					if projection == nil {
 						continue
 					}
@@ -267,28 +257,29 @@ extension TileServerList {
 					continue
 				}
 
-				let service = TileServer(withName: name,
-				                         identifier: identifier,
-				                         url: url,
-				                         best: best,
-				                         overlay: overlay,
-				                         apiKey: apikey,
-				                         maxZoom: maxZoom,
-				                         roundUp: true,
-				                         startDate: startDateString,
-				                         endDate: endDateString,
-				                         wmsProjection: projection,
-				                         geoJSON: try entry.geometry,
-				                         attribString: attribString,
-				                         attribIconString: attribIconString,
-				                         attribUrl: attribUrl,
-				                         isVector: false)
+				let service = try TileServer(withName: name,
+				                             identifier: identifier,
+				                             url: url,
+				                             best: best,
+				                             overlay: overlay,
+				                             apiKey: apikey,
+				                             maxZoom: maxZoom,
+				                             roundUp: true,
+				                             startDate: startDateString,
+				                             endDate: endDateString,
+				                             wmsProjection: projection,
+				                             geoJSON: entry.geometry,
+				                             attribString: attribString,
+				                             attribIconString: attribIconString,
+				                             attribUrl: attribUrl,
+				                             isVector: false)
 
 				externalAerials.append(service)
 			} catch {
 				print("TileServer \((try? entry.properties.name) ?? "<unknown>"): \(error)")
 			}
 		}
+		// Add noName layer as an additional supported overlay layer
 		externalAerials.append(TileServer.noName)
 		return externalAerials
 	}

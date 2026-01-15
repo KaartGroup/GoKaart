@@ -14,12 +14,14 @@ enum OAuthError: LocalizedError {
 	case errorMessasge(String)
 	case badRedirectUrl(String)
 	case stateMismatch
+	case missingInformation
 
 	public var errorDescription: String? {
 		switch self {
 		case let .errorMessasge(message): return "OAuth error: \(message)"
 		case .badRedirectUrl: return "OAuth error: bad redirect URL"
 		case .stateMismatch: return "OAuth error: state mismatch"
+		case .missingInformation: return "OAuth error: missing information"
 		}
 	}
 }
@@ -115,7 +117,7 @@ class OAuth2 {
 
 	// Once the user responds to the Safari popup the application is invoked and
 	// the app delegate calls this function
-	func redirectHandler(url: URL, options: [UIApplication.OpenURLOptionsKey: Any]) {
+	func redirectHandler(url: URL) {
 		defer {
 			safariVC?.dismiss(animated: true)
 			safariVC = nil
@@ -154,30 +156,36 @@ class OAuth2 {
 			"code": code
 		])
 		var request = URLRequest(url: url)
+		request.setUserAgent()
 		request.httpMethod = "POST"
 		request.allHTTPHeaderFields = [
 			"Content-Type": "application/x-www-form-urlencoded"
 		]
-		URLSession.shared.data(with: request, completionHandler: { result in
-			switch result {
-			case let .success(data):
-				do {
-					if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-					   let token = json["access_token"] as? String
-					{
-						// Success
-						self.setAuthorizationToken(token: token)
-						self.doCallback(.success(()))
-					} else {
-						self.doCallback(.failure(OAuthError.errorMessasge("Unknown error parsing json")))
+		let immutableRequest = request
+		Task {
+			do {
+				let data = try await URLSession.shared.data(with: immutableRequest)
+				await MainActor.run {
+					do {
+						if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+						   let token = json["access_token"] as? String
+						{
+							// Success
+							self.setAuthorizationToken(token: token)
+							self.doCallback(.success(()))
+						} else {
+							self.doCallback(.failure(OAuthError.errorMessasge("Unknown error parsing json")))
+						}
+					} catch {
+						self.doCallback(.failure(error))
 					}
-				} catch {
+				}
+			} catch {
+				await MainActor.run {
 					self.doCallback(.failure(error))
 				}
-			case let .failure(error):
-				self.doCallback(.failure(error))
 			}
-		})
+		}
 	}
 
 	// This return a URLRequest with authorization headers set correctly
@@ -196,24 +204,18 @@ class OAuth2 {
 	}
 
 	// If everything is working correctly this function will succeed in getting user details.
-	func getUserDetails(callback: @escaping ([String: Any]?) -> Void) {
+	func getUserDetails() async throws -> [String: Any] {
 		let url = serverURL.appendingPathComponent("api/0.6/user/details.json")
-		if let request = urlRequest(url: url) {
-			URLSession.shared.data(with: request, completionHandler: { result in
-				DispatchQueue.main.async {
-					if let data = try? result.get(),
-					   let json = try? JSONSerialization.jsonObject(with: data),
-					   let dict = json as? [String: Any],
-					   let user = dict["user"] as? [String: Any]
-					{
-						callback(user)
-					} else {
-						callback(nil)
-					}
-				}
-			})
-		} else {
-			callback(nil)
+		guard let request = urlRequest(url: url) else {
+			throw URLError(.badURL)
 		}
+		let data = try await URLSession.shared.data(with: request)
+		let json = try JSONSerialization.jsonObject(with: data)
+		guard let dict = json as? [String: Any],
+		      let user = dict["user"] as? [String: Any]
+		else {
+			throw OAuthError.missingInformation
+		}
+		return user
 	}
 }

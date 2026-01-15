@@ -10,6 +10,20 @@ import MessageUI
 import QuartzCore
 import UIKit
 
+func sanitizedURL(_ urlString: String) -> String {
+	let sensitiveKeys = ["token", "auth", "api_key", "access_token", "connectid", "signature"]
+
+	guard var components = URLComponents(string: urlString) else { return urlString }
+	components.queryItems = components.queryItems?.map { item in
+		if sensitiveKeys.contains(item.name.lowercased()) {
+			return URLQueryItem(name: item.name, value: "{apikey}")
+		} else {
+			return item
+		}
+	}
+	return components.url?.absoluteString ?? urlString
+}
+
 class UploadViewController: UIViewController, UITextViewDelegate {
 	var mapData: OsmMapData!
 	@IBOutlet var commentContainerView: UIView!
@@ -150,8 +164,9 @@ class UploadViewController: UIViewController, UITextViewDelegate {
 
 	@IBAction func commit(_ sender: Any?) {
 		let appDelegate = AppDelegate.shared
-		guard let oAuth = OSM_SERVER.oAuth2,
-		      oAuth.isAuthorized()
+		guard
+			let oAuth = OSM_SERVER.oAuth2,
+			oAuth.isAuthorized()
 		else {
 			performSegue(withIdentifier: "loginSegue", sender: self)
 			return
@@ -233,18 +248,18 @@ class UploadViewController: UIViewController, UITextViewDelegate {
 				dismiss(animated: true)
 
 				// flash success message
-				DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
+				MainActor.runAfter(nanoseconds: 300_000000) {
 					appDelegate.mapView.editorLayer.setNeedsLayout()
-					appDelegate.mapView.flashMessage(title: nil,
-					                                 message: NSLocalizedString("Upload complete!", comment: ""),
-					                                 duration: 1.5)
+					MessageDisplay.shared.flashMessage(title: nil,
+					                                   message: NSLocalizedString("Upload complete!", comment: ""),
+					                                   duration: 1.5)
 
 					// record number of uploads
 					var editCount = UserPrefs.shared.uploadCountPerVersion.value ?? 0
 					editCount += 1
 					UserPrefs.shared.uploadCountPerVersion.value = editCount
 					appDelegate.mapView.ask(toRate: editCount)
-				})
+				}
 			}
 		}
 
@@ -255,7 +270,10 @@ class UploadViewController: UIViewController, UITextViewDelegate {
 			let server = appDelegate.mapView.aerialLayer.tileServer
 			if server.identifier.hasPrefix("http:") || server.identifier.hasPrefix("https:") {
 				// custom user imagery
-				imagery = server.identifier
+				imagery = sanitizedURL(server.identifier)
+				if imagery.count > 255 {
+					imagery = String(imagery.prefix(255))
+				}
 			} else {
 				imagery = server.name
 			}

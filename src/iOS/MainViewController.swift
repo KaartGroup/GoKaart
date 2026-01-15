@@ -15,20 +15,44 @@ enum MainViewButtonLayout: Int {
 	case buttonsOnRight
 }
 
-class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureRecognizerDelegate,
-	UIContextMenuInteractionDelegate, UIPointerInteractionDelegate, UIAdaptivePresentationControllerDelegate
+protocol MapViewProgress {
+	func progressIncrement(_ delta: Int)
+	func progressDecrement()
+}
+
+final class MainViewController: UIViewController,
+	UIActionSheetDelegate, UIGestureRecognizerDelegate,
+	UIContextMenuInteractionDelegate, UIPointerInteractionDelegate,
+	UIAdaptivePresentationControllerDelegate
 {
+	@IBOutlet var settingsButton: UIButton!
+	@IBOutlet var displayButton: UIButton!
 	@IBOutlet var uploadButton: UIButton!
 	@IBOutlet var undoButton: UIButton!
 	@IBOutlet var redoButton: UIButton!
-	@IBOutlet var undoRedoView: UIView!
+	@IBOutlet var undoRedoView: UIVisualEffectView!
 	@IBOutlet var searchButton: UIButton!
+	@IBOutlet var compassButton: CompassButton!
+	@IBOutlet var aerialServiceLogo: UIButton!
+	@IBOutlet var helpButton: UIButton!
+	@IBOutlet var centerOnGPSButton: UIButton!
+	@IBOutlet var addNodeButton: UIButton!
+	@IBOutlet var rulerView: RulerView!
+	@IBOutlet var aerialAlignmentButton: UIButton!
+	@IBOutlet var dPadView: DPadView!
+	@IBOutlet var progressIndicator: UIActivityIndicatorView!
+	@IBOutlet var fpsLabel: FpsLabel!
+	@IBOutlet var userInstructionLabel: UILabel!
+	@IBOutlet var locationButton: UIButton!
+	@IBOutlet var flashLabel: UILabel!
 
 	@IBOutlet var mapView: MapView!
-	@IBOutlet var locationButton: UIButton!
+	let locationBallView = LocationBallView()
 
 	override var shouldAutorotate: Bool { true }
 	override var supportedInterfaceOrientations: UIInterfaceOrientationMask { .all }
+
+	let viewPort = MapViewPortObject()
 
 	var buttonLayout: MainViewButtonLayout! {
 		didSet {
@@ -36,8 +60,245 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 		}
 	}
 
-	@IBOutlet private var settingsButton: UIButton!
-	@IBOutlet private var displayButton: UIButton!
+	var addNodeButtonLongPressGestureRecognizer: UILongPressGestureRecognizer?
+	var plusButtonTimestamp: TimeInterval = 0.0
+
+	// Set true when the user moved the screen manually, so GPS updates shouldn't recenter screen on user
+	public var userOverrodeLocationPosition = false {
+		didSet {
+			centerOnGPSButton.isHidden = !userOverrodeLocationPosition || gpsState == .NONE
+		}
+	}
+
+	public var userOverrodeLocationZoom = false {
+		didSet {
+			centerOnGPSButton.isHidden = !userOverrodeLocationZoom || gpsState == .NONE
+		}
+	}
+
+	var enableBirdsEye = false {
+		didSet {
+			if !enableBirdsEye {
+				// remove birdsEye
+				viewPort.rotateBirdsEye(by: -viewPort.mapTransform.birdsEyeRotation)
+			}
+		}
+	}
+
+	var enableRotation = false {
+		didSet {
+			if !enableRotation {
+				// remove rotation
+				let centerPoint = viewPort.screenCenterPoint()
+				let angle = CGFloat(viewPort.mapTransform.rotation())
+				viewPort.rotate(by: -angle, aroundScreenPoint: centerPoint)
+			}
+		}
+	}
+
+	// MARK: Initialization
+
+	override func viewDidLoad() {
+		super.viewDidLoad()
+
+		// set up delegates
+		AppDelegate.shared.mainView = self
+
+		// configure views in MapView
+		mapView.setUpChildViews(with: self)
+
+		navigationController?.isNavigationBarHidden = true
+
+		rulerView.mapView = mapView
+		//    _rulerView.layer.zPosition = Z_RULER;
+
+		// undo/redo buttons
+		updateUndoRedoButtonState()
+		updateUploadButtonState()
+
+		mapView.editorLayer.mapData.addChangeCallback({ [weak self] in
+			self?.updateUndoRedoButtonState()
+			self?.updateUploadButtonState()
+		})
+
+		setupAccessibility()
+
+		// long press for quick access to aerial imagery
+		let longPress = UILongPressGestureRecognizer(target: self, action: #selector(displayButtonLongPressGesture(_:)))
+		displayButton.addGestureRecognizer(longPress)
+
+		// long-press on + for adding nodes via taps
+		addNodeButtonLongPressGestureRecognizer = UILongPressGestureRecognizer(
+			target: self,
+			action: #selector(plusButtonLongPressHandler(_:)))
+		addNodeButtonLongPressGestureRecognizer?.minimumPressDuration = 0.001
+		addNodeButtonLongPressGestureRecognizer?.delegate = self
+		addNodeButton.addGestureRecognizer(addNodeButtonLongPressGestureRecognizer!)
+
+		// center button
+		centerOnGPSButton.isHidden = true
+
+		// dPadView
+		dPadView.delegate = mapView
+		dPadView.layer.zPosition = ZLAYER.D_PAD.rawValue
+		dPadView.isHidden = true
+
+		// Zoom to Edit message:
+		userInstructionLabel.layer.cornerRadius = 5
+		userInstructionLabel.layer.masksToBounds = true
+		userInstructionLabel.backgroundColor = UIColor(white: 0.0, alpha: 0.3)
+		userInstructionLabel.textColor = UIColor.white
+		userInstructionLabel.isHidden = true
+
+		// Location ball appearance
+		locationBallView.heading = 0.0
+		locationBallView.showHeading = true
+		locationBallView.isHidden = true
+		locationBallView.viewPort = viewPort
+		LocationProvider.shared.onChangeLocation.subscribe(self) { [weak self] location in
+			self?.locationBallView.updateLocation(location)
+		}
+		LocationProvider.shared.onChangeSmoothHeading.subscribe(self) { [weak self] heading, accuracy in
+			self?.headingChanged(heading, accuracy: accuracy)
+		}
+		mapView.addSubview(locationBallView)
+
+		// Compass button
+		compassButton.viewPort = viewPort
+
+		// customize buttons
+		setButtonAppearances()
+
+		// update button layout constraints
+		buttonLayout = MainViewButtonLayout(rawValue: UserPrefs.shared.mapViewButtonLayout.value
+			?? MainViewButtonLayout.buttonsOnRight.rawValue)
+
+		progressIndicator.color = UIColor.green
+
+		// tell our error display manager where to display messages
+		MessageDisplay.shared.topViewController = self
+		MessageDisplay.shared.flashLabel = flashLabel
+
+		mapView.updateAerialAttributionButton()
+
+		// Install gesture recognizers
+
+		let tap = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
+		tap.delegate = self
+		view.addGestureRecognizer(tap)
+
+		let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+		pan.delegate = self
+		view.addGestureRecognizer(pan)
+
+		let pinch = UIPinchGestureRecognizer(target: self, action: #selector(handlePinchGesture(_:)))
+		pinch.delegate = self
+		view.addGestureRecognizer(pinch)
+
+		// two-finger rotation
+		let rotate = UIRotationGestureRecognizer(target: self, action: #selector(handleRotationGesture(_:)))
+		view.addGestureRecognizer(rotate)
+
+		// Support zoom via tap and drag
+		let tapAndDragGesture = TapAndDragGesture(target: self, action: #selector(handleTapAndDragGesture(_:)))
+		tapAndDragGesture.delegate = self
+		tapAndDragGesture.delaysTouchesBegan = false
+		tapAndDragGesture.delaysTouchesEnded = false
+		view.addGestureRecognizer(tapAndDragGesture)
+
+		if #available(iOS 13.4, macCatalyst 13.0, *) {
+			// mouseover support for Mac Catalyst and iPad:
+			let hover = UIHoverGestureRecognizer(target: self, action: #selector(hover(_:)))
+			mapView.addGestureRecognizer(hover)
+
+#if targetEnvironment(macCatalyst)
+			// right-click support for Mac Catalyst
+			let rightClick = UIContextMenuInteraction(delegate: self)
+			view.addInteraction(rightClick)
+#else
+			// right-click support for iPad:
+			let rightClick = UITapGestureRecognizer(target: self, action: #selector(handleRightClick(_:)))
+			rightClick.allowedTouchTypes = [NSNumber(integerLiteral: UITouch.TouchType.indirect.rawValue)]
+			rightClick.buttonMaskRequired = .secondary
+			view.addGestureRecognizer(rightClick)
+#endif
+
+			// pan gesture to recognize mouse-wheel scrolling (zoom) on iPad and Mac Catalyst
+			let scrollWheelGesture = UIPanGestureRecognizer(
+				target: self,
+				action: #selector(handleScrollWheelGesture(_:)))
+			scrollWheelGesture.allowedScrollTypesMask = .discrete
+			scrollWheelGesture.maximumNumberOfTouches = 0
+			view.addGestureRecognizer(scrollWheelGesture)
+		}
+
+		// get current location
+		if let lat = UserPrefs.shared.view_latitude.value,
+		   let lon = UserPrefs.shared.view_longitude.value,
+		   let scale = UserPrefs.shared.view_scale.value
+		{
+			viewPort.setTransformFor(latLon: LatLon(latitude: lat, longitude: lon),
+			                         scale: scale,
+			                         rotation: 0.0)
+		} else {
+			let rc = OSMRect(mapView.layer.bounds)
+			viewPort.mapTransform.transform = OSMTransform.translation(rc.origin.x + rc.size.width / 2 - 128,
+			                                                           rc.origin.y + rc.size.height / 2 - 128)
+			// turn on GPS which will move us to current location
+			gpsState = .LOCATION
+		}
+
+		enableRotation = UserPrefs.shared.mapViewEnableRotation.value ?? true
+		enableBirdsEye = UserPrefs.shared.mapViewEnableBirdsEye.value ?? false
+	}
+
+	func setupAccessibility() {
+		locationButton.accessibilityIdentifier = "location_button"
+		undoButton.accessibilityLabel = NSLocalizedString("Undo", comment: "")
+		redoButton.accessibilityLabel = NSLocalizedString("Redo", comment: "")
+		settingsButton.accessibilityLabel = NSLocalizedString("Settings", comment: "")
+		uploadButton.accessibilityLabel = NSLocalizedString("Upload your changes", comment: "")
+		displayButton.accessibilityLabel = NSLocalizedString("Display options", comment: "")
+	}
+
+	func applicationWillEnterBackground() {
+		mapView.voiceAnnouncement?.removeAll()
+		save()
+	}
+
+	func save() {
+		// save preferences first
+		let latLon = viewPort.screenCenterLatLon()
+		let scale = viewPort.mapTransform.scale()
+#if false && DEBUG
+		assert(scale > 1.0)
+#endif
+		UserPrefs.shared.view_scale.value = scale
+		UserPrefs.shared.view_latitude.value = latLon.lat
+		UserPrefs.shared.view_longitude.value = latLon.lon
+
+		UserPrefs.shared.mapViewState.value = mapView.viewState.rawValue
+		UserPrefs.shared.mapViewOverlays.value = mapView.viewOverlayMask.rawValue
+
+		UserPrefs.shared.mapViewEnableRotation.value = enableRotation
+		UserPrefs.shared.mapViewEnableBirdsEye.value = enableBirdsEye
+		UserPrefs.shared.mapViewEnableBreadCrumb.value = mapView.displayGpxTracks
+		UserPrefs.shared.mapViewEnableDataOverlay.value = mapView.displayDataOverlayLayers
+		UserPrefs.shared.mapViewEnableTurnRestriction.value = mapView.enableTurnRestriction
+		UserPrefs.shared.automaticCacheManagement.value = mapView.enableAutomaticCacheManagement
+
+		mapView.currentRegion.saveToUserPrefs()
+
+		UserPrefs.shared.synchronize()
+
+		mapView.tileServerList.save()
+		mapView.gpxLayer.saveActiveTrack()
+
+		// then save data
+		mapView.editorLayer.save()
+	}
+
+	// MARK: Button state
 
 	func updateUndoRedoButtonState() {
 		guard undoButton != nil else { return } // during init it can be null
@@ -63,14 +324,22 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 		uploadButton.isHidden = changeCount == 0
 	}
 
+	func updateGpsButtonState() {
+		// update GPS icon
+		let isActive = gpsState != GPS_STATE.NONE
+		let imageName = isActive ? "location.fill" : "location"
+		var image = UIImage(systemName: imageName)
+		image = image?.withRenderingMode(.alwaysTemplate)
+		locationButton.setImage(image, for: .normal)
+	}
+
 	func updateButtonPositionsFor(layout: MainViewButtonLayout) {
 		UserPrefs.shared.mapViewButtonLayout.value = layout.rawValue
 
 		guard
-			let addButton = mapView.addNodeButton,
-			let superview = addButton.superview,
+			let superview = addNodeButton.superview,
 			let c = superview.constraints.first(where: {
-				if ($0.firstItem as? UIView) == addButton,
+				if ($0.firstItem as? UIView) == addNodeButton,
 				   ($0.secondItem is UILayoutGuide) || ($0.secondItem is UIView),
 				   $0.firstAttribute == .leading || $0.firstAttribute == .trailing,
 				   $0.secondAttribute == .leading || $0.secondAttribute == .trailing
@@ -95,93 +364,10 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 		superview.addConstraint(c2)
 	}
 
-	// MARK: Initialization
-
-	override func viewDidLoad() {
-		super.viewDidLoad()
-
-		mapView.mainViewController = self
-
-		AppDelegate.shared.mapView = mapView
-
-		// undo/redo buttons
-		updateUndoRedoButtonState()
-		updateUploadButtonState()
-
-		weak var weakSelf = self
-		mapView.editorLayer.mapData.addChangeCallback({
-			weakSelf?.updateUndoRedoButtonState()
-			weakSelf?.updateUploadButtonState()
-		})
-
-		setupAccessibility()
-
-		// long press for quick access to aerial imagery
-		let longPress = UILongPressGestureRecognizer(target: self, action: #selector(displayButtonLongPressGesture(_:)))
-		displayButton.addGestureRecognizer(longPress)
-	}
-
-	override func viewWillAppear(_ animated: Bool) {
-		super.viewWillAppear(animated)
-		navigationController?.isNavigationBarHidden = true
-
-		// update button layout constraints
-		buttonLayout = MainViewButtonLayout(rawValue: UserPrefs.shared.mapViewButtonLayout.value
-			?? MainViewButtonLayout.buttonsOnRight.rawValue)
-
-		if #available(iOS 13.4, macCatalyst 13.0, *) {
-			// mouseover support for Mac Catalyst and iPad:
-			let hover = UIHoverGestureRecognizer(target: self, action: #selector(hover(_:)))
-			mapView.addGestureRecognizer(hover)
-
-#if targetEnvironment(macCatalyst)
-			// right-click support for Mac Catalyst
-			let rightClick = UIContextMenuInteraction(delegate: self)
-			mapView.addInteraction(rightClick)
-#else
-			// right-click support for iPad:
-			let rightClick = UITapGestureRecognizer(target: self, action: #selector(rightClick(_:)))
-			rightClick.allowedTouchTypes = [NSNumber(integerLiteral: UITouch.TouchType.indirect.rawValue)]
-			rightClick.buttonMaskRequired = .secondary
-			mapView.addGestureRecognizer(rightClick)
-#endif
-		}
-	}
-
-	override func viewDidAppear(_ animated: Bool) {
-		super.viewDidAppear(animated)
-#if USER_MOVABLE_BUTTONS
-		makeMovableButtons()
-#endif
-
-		// this is necessary because we need the frame to be set on the view before we set the previous lat/lon for the view
-		mapView.viewDidAppear()
-	}
-
-	func setupAccessibility() {
-		locationButton.accessibilityIdentifier = "location_button"
-		undoButton.accessibilityLabel = NSLocalizedString("Undo", comment: "")
-		redoButton.accessibilityLabel = NSLocalizedString("Redo", comment: "")
-		settingsButton.accessibilityLabel = NSLocalizedString("Settings", comment: "")
-		uploadButton.accessibilityLabel = NSLocalizedString("Upload your changes", comment: "")
-		displayButton.accessibilityLabel = NSLocalizedString("Display options", comment: "")
-	}
-
 	// MARK: Notifications
-
-	override func viewDidLayoutSubviews() {
-		// Set button shadows, colors, etc.
-		// Need to do this after layout to propery support dynamic text
-		setButtonAppearances()
-	}
 
 	func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
 		// We were just displayed so update map
-	}
-
-	@objc func rightClick(_ recognizer: UIGestureRecognizer) {
-		let location = recognizer.location(in: mapView)
-		mapView.rightClick(atLocation: location)
 	}
 
 	@available(iOS 13.0, *)
@@ -189,8 +375,19 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 		_ interaction: UIContextMenuInteraction,
 		configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration?
 	{
-		mapView.rightClick(atLocation: location)
+		let location = interaction.location(in: mapView)
+		rightClick(at: location)
 		return nil
+	}
+
+	@objc func handleRightClick(_ recognizer: UIGestureRecognizer) {
+		let location = recognizer.location(in: mapView)
+		rightClick(at: location)
+	}
+
+	func rightClick(at location: CGPoint) {
+		// right-click is equivalent to holding + and clicking
+		mapView.editorLayer.addNode(at: location)
 	}
 
 	@objc func hover(_ recognizer: UIGestureRecognizer) {
@@ -202,12 +399,13 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 		   mapView.hitTest(loc, with: nil) == mapView
 		{
 			if mapView.editorLayer.selectedWay != nil {
-				hit = mapView.editorLayer.osmHitTestNode(inSelectedWay: loc, radius: DefaultHitTestRadius)
+				hit = mapView.editorLayer.osmHitTestNode(inSelectedWay: loc,
+				                                         radius: EditorMapLayer.DefaultHitTestRadius)
 			}
 			if hit == nil {
 				hit = mapView.editorLayer.osmHitTest(
 					loc,
-					radius: DefaultHitTestRadius,
+					radius: EditorMapLayer.DefaultHitTestRadius,
 					isDragConnect: false,
 					ignoreList: [],
 					segment: &segment)
@@ -227,10 +425,10 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 		let size = view.bounds.size
 		let delta = CGPoint(x: size.width * 0.15, y: size.height * 0.15)
 		switch key.keyCode {
-		case .keyboardRightArrow: mapView.adjustOrigin(by: CGPoint(x: -delta.x, y: 0))
-		case .keyboardLeftArrow: mapView.adjustOrigin(by: CGPoint(x: delta.x, y: 0))
-		case .keyboardDownArrow: mapView.adjustOrigin(by: CGPoint(x: 0, y: -delta.y))
-		case .keyboardUpArrow: mapView.adjustOrigin(by: CGPoint(x: 0, y: delta.y))
+		case .keyboardRightArrow: viewPort.adjustOrigin(by: CGPoint(x: -delta.x, y: 0))
+		case .keyboardLeftArrow: viewPort.adjustOrigin(by: CGPoint(x: delta.x, y: 0))
+		case .keyboardDownArrow: viewPort.adjustOrigin(by: CGPoint(x: 0, y: -delta.y))
+		case .keyboardUpArrow: viewPort.adjustOrigin(by: CGPoint(x: 0, y: delta.y))
 		default: break
 		}
 	}
@@ -271,59 +469,46 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 
 	// MARK: Button configuration
 
-	class func applyButtonShadow(layer: CALayer) {
-		layer.shadowColor = UIColor.black.cgColor
-		layer.shadowOffset = CGSize(width: 0, height: 0)
-		layer.shadowRadius = 4
-		layer.shadowOpacity = 0.5
-		layer.masksToBounds = false
-	}
-
 	func setButtonAppearances() {
 		// Update button styling
 		// This is called every time fonts change, screen rotates, etc so
 		// it needs to be idempotent.
 		let buttons: [UIView] = [
 			// these aren't actually buttons, but they get similar tinting and shadows
-			mapView.editControl,
 			undoRedoView,
 			// these are buttons
-			locationButton,
 			undoButton,
 			redoButton,
-			mapView.addNodeButton,
-			mapView.compassButton,
-			mapView.centerOnGPSButton,
-			mapView.helpButton,
-			mapView.aerialAlignmentButton,
+			locationButton,
+			addNodeButton,
+			compassButton,
+			centerOnGPSButton,
+			helpButton,
+			aerialAlignmentButton,
 			settingsButton,
 			uploadButton,
 			displayButton,
 			searchButton
 		]
+
 		for view in buttons {
-			// corners
-			if view == mapView.compassButton || view == mapView.editControl {
+				// corners
+			if view == compassButton || view == mapView.editToolbar {
 				// these buttons take care of themselves
-			} else if view == mapView.helpButton || view == mapView.addNodeButton {
+			} else if view == helpButton || view == addNodeButton {
 				// The button is a circle.
 				let width = view.bounds.size.width
 				view.layer.cornerRadius = width / 2
 			} else {
 				// rounded corners
 				view.layer.cornerRadius = 10.0
-			}
-			// shadow
-			if view.superview != undoRedoView {
-				Self.applyButtonShadow(layer: view.layer)
-				view.layer.shadowPath = UIBezierPath(roundedRect: view.bounds,
-				                                     cornerRadius: view.layer.cornerRadius).cgPath
+				view.clipsToBounds = true
 			}
 			// image blue tint
 			if let button = view as? UIButton,
-			   button != mapView.compassButton,
-			   button != mapView.helpButton,
-			   button != mapView.aerialAlignmentButton
+			   button != compassButton,
+			   button != helpButton,
+			   button != aerialAlignmentButton
 			{
 				let image = button.currentImage?.withRenderingMode(.alwaysTemplate)
 				button.setImage(image, for: .normal)
@@ -332,13 +517,7 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 				} else {
 					button.tintColor = UIColor.systemBlue
 				}
-				if button == mapView.addNodeButton {
-					// resize images on button to be smaller
-					button.imageEdgeInsets = UIEdgeInsets(top: 15, left: 15, bottom: 15, right: 15)
-				} else {
-					// resize images on button to be smaller
-					button.imageEdgeInsets = UIEdgeInsets(top: 9, left: 9, bottom: 9, right: 9)
-				}
+				button.setImage(image?.withConfiguration(UIImage.SymbolConfiguration(pointSize: 24)), for: .normal)
 			}
 
 			// normal background color
@@ -363,9 +542,9 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 
 		// special handling for aerial logo button
 		if #available(iOS 13.4, *) {
-			if !mapView.aerialServiceLogo.interactions.contains(where: { $0.isKind(of: UIPointerInteraction.self) }) {
+			if !aerialServiceLogo.interactions.contains(where: { $0.isKind(of: UIPointerInteraction.self) }) {
 				let interaction = UIPointerInteraction(delegate: self)
-				mapView.aerialServiceLogo.interactions.append(interaction)
+				aerialServiceLogo.interactions.append(interaction)
 			}
 		}
 	}
@@ -384,11 +563,7 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 #if targetEnvironment(macCatalyst)
 // This messes up the button styling on macOS
 #else
-		if #available(iOS 13.0, *) {
-			button.backgroundColor = UIColor.secondarySystemBackground
-		} else {
-			button.backgroundColor = UIColor.lightGray
-		}
+		button.backgroundColor = UIColor.secondarySystemBackground
 #endif
 	}
 
@@ -396,106 +571,21 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 #if targetEnvironment(macCatalyst)
 // This messes up the button styling on macOS
 #else
-		if #available(iOS 13.0, *) {
-			button.backgroundColor = UIColor.systemBackground
-		} else {
-			button.backgroundColor = UIColor.white
-		}
-		if button == mapView.aerialAlignmentButton {
+		button.backgroundColor = UIColor.systemBackground
+		if button == aerialAlignmentButton {
 			button.backgroundColor = button.backgroundColor?.withAlphaComponent(0.4)
-			// shadows don't work correctly with semi-transparent views
-			// see https://ikyle.me/blog/2020/calayer-external-only-shadow for a workaround
-			button.layer.shadowColor = nil
-			button.layer.shadowRadius = 0
-			button.layer.shadowOpacity = 0.0
 		}
 #endif
 	}
-
-	// MARK: User-movable buttons
-
-#if USER_MOVABLE_BUTTONS
-	func removeConstrains(on view: UIView?) {
-		var superview = view?.superview
-		while superview != nil {
-			for c in superview?.constraints ?? [] {
-				if (c.firstItem as? UIView) == view || (c.secondItem as? UIView) == view {
-					superview?.removeConstraint(c)
-				}
-			}
-			superview = superview?.superview
-		}
-		for c in view?.constraints ?? [] {
-			if (c.firstItem as? UIView)?.superview == view || (c.secondItem as? UIView)?.superview == view {
-				// skip
-			} else {
-				view?.removeConstraint(c)
-			}
-		}
-	}
-
-	func makeMovableButtons() {
-		let buttons = [
-			//		_mapView.editControl,
-			undoRedoView,
-			locationButton,
-			searchButton,
-			mapView.addNodeButton,
-			settingsButton,
-			uploadButton,
-			displayButton,
-			mapView.compassButton,
-			mapView.helpButton,
-			mapView.centerOnGPSButton
-			//		_mapView.rulerView,
-		]
-		// remove layout constraints
-		for button in buttons {
-			guard let button = button as? UIButton else {
-				continue
-			}
-			removeConstrains(on: button)
-			button.translatesAutoresizingMaskIntoConstraints = true
-		}
-		for button in buttons {
-			guard let button = button as? UIButton else {
-				continue
-			}
-			let panGesture = UIPanGestureRecognizer(target: self, action: #selector(buttonPan(_:)))
-			// panGesture.delegate = self;
-			button.addGestureRecognizer(panGesture)
-		}
-		let message = """
-		This build has a temporary feature: Drag the buttons in the UI to new locations that looks and feel best for you.\n\n\
-		* Submit your preferred layouts either via email or on GitHub.\n\n\
-		* Positions reset when the app terminates\n\n\
-		* Orientation changes are not supported\n\n\
-		* Buttons won't move when they're disabled (undo/redo, upload)
-		"""
-		let alert = UIAlertController(buttonLabel: "Attention Testers!", message: message, preferredStyle: .alert)
-		let ok = UIAlertAction(buttonLabel: NSLocalizedString("OK", comment: ""), style: .default, handler: { _ in
-			alert.dismiss(animated: true)
-		})
-		alert.addAction(ok)
-		present(alert, animated: true)
-	}
-
-	@objc func buttonPan(_ pan: UIPanGestureRecognizer?) {
-		if pan?.state == .began {
-		} else if pan?.state == .changed {
-			pan?.view?.center = pan?.location(in: view) ?? CGPoint.zero
-		} else {}
-	}
-#endif
 
 	// MARK: Keyboard shortcuts
 
 	override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
 		switch action {
 		case #selector(undo(_:)):
-			return mapView.editorLayer.mapData.canUndo()
+			return !mapView.editorLayer.isHidden && mapView.editorLayer.mapData.canUndo()
 		case #selector(redo(_:)):
-			return mapView.editorLayer.mapData.canRedo()
+			return !mapView.editorLayer.isHidden && mapView.editorLayer.mapData.canRedo()
 		case #selector(copy(_:)):
 			return mapView.editorLayer.selectedPrimary != nil
 		case #selector(paste(_:)):
@@ -533,31 +623,230 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 		openHelp()
 	}
 
+	// MARK: Progress indicator
+
+	var progressActive = AtomicInt(0)
+
 	// MARK: Gesture recognizers
 
 	// disable gestures inside toolbar buttons
 	func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
 		// http://stackoverflow.com/questions/3344341/uibutton-inside-a-view-that-has-a-uitapgesturerecognizer
-		if (touch.view is UIControl) || (touch.view is UIToolbar) {
-			// we touched a button, slider, or other UIControl
-			return false // ignore the touch
+		var view = touch.view
+		while view != nil, !((view is UIControl) || (view is UIToolbar)) {
+			view = view?.superview
+		}
+		if view != nil {
+			// We touched a button, slider, or other UIControl.
+			// When the user taps a button we don't want to
+			// select the object underneath it, so we reject
+			// Tap recognizers.
+			if gestureRecognizer is UITapGestureRecognizer || view is PushPinView {
+				return false // ignore the touch
+			}
 		}
 		return true // handle the touch
 	}
 
-	func installGestureRecognizer(_ gesture: UIGestureRecognizer, on button: UIButton) {
-		if (button.gestureRecognizers?.count ?? 0) == 0 {
-			button.addGestureRecognizer(gesture)
+	func gestureRecognizer(
+		_ gestureRecognizer: UIGestureRecognizer,
+		shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool
+	{
+		if gestureRecognizer == addNodeButtonLongPressGestureRecognizer ||
+			otherGestureRecognizer == addNodeButtonLongPressGestureRecognizer
+		{
+			// if holding down the + button then always allow other gestures to proceeed
+			return true
 		}
+
+		if gestureRecognizer is UILongPressGestureRecognizer ||
+			otherGestureRecognizer is UILongPressGestureRecognizer
+		{
+			// don't register long-press when other gestures are occuring
+			return false
+		}
+
+		if (gestureRecognizer is UIPanGestureRecognizer && otherGestureRecognizer is TapAndDragGesture) ||
+			(gestureRecognizer is TapAndDragGesture && otherGestureRecognizer is UIPanGestureRecognizer)
+		{
+			// Tap-and-drag is a shortcut for zooming, so it's not compatible with the Pan gesture
+			return false
+		} else if gestureRecognizer is TapAndDragGesture {
+			return true
+		}
+
+		if gestureRecognizer is UITapGestureRecognizer || otherGestureRecognizer is UITapGestureRecognizer {
+			// don't register taps during panning/zooming/rotating
+			return false
+		}
+
+		// allow other things so we can pan/zoom/rotate simultaneously
+		return true
 	}
 
 	@objc func displayButtonLongPressGesture(_ recognizer: UILongPressGestureRecognizer) {
 		if recognizer.state == .began {
-			showPopupToSelectFromRecentAerialImagery()
+			displayButtonLongPressHandler()
 		}
 	}
 
-	func showPopupToSelectFromRecentAerialImagery() {
+	@objc func handlePanGesture(_ pan: UIPanGestureRecognizer) {
+		userOverrodeLocationPosition = true
+
+		if pan.state == .began {
+			// start pan
+			DisplayLink.shared.removeName(DisplayLinkPanning)
+			// disable frame rate test if active
+			mapView.automatedFramerateTestActive = false
+		} else if pan.state == .changed {
+			// move pan
+			if SHOW_3D {
+				// multi-finger drag to initiate 3-D view
+				if enableBirdsEye, pan.numberOfTouches == 3 {
+					let translation = pan.translation(in: self.view)
+					let delta = Double(-translation.y / 40 / 180 * .pi)
+					viewPort.rotateBirdsEye(by: delta)
+					return
+				}
+			}
+			let translation = pan.translation(in: mapView)
+			viewPort.adjustOrigin(by: translation)
+			pan.setTranslation(CGPoint(x: 0, y: 0), in: self.view)
+		} else if pan.state == .ended || pan.state == .cancelled {
+			// cancelled occurs when we throw an error dialog
+			let duration = 0.5
+
+			// finish pan with inertia
+			let initialVelecity = pan.velocity(in: self.view)
+			if hypot(initialVelecity.x, initialVelecity.y) < 100.0 {
+				// don't use inertia for small movements because it interferes with dropping the pin precisely
+			} else {
+				let startTime = CACurrentMediaTime()
+				let displayLink = DisplayLink.shared
+				displayLink.addName(DisplayLinkPanning, block: {
+					let timeOffset = CACurrentMediaTime() - startTime
+					if timeOffset >= duration {
+						displayLink.removeName(DisplayLinkPanning)
+					} else {
+						var translation = CGPoint()
+						let t = timeOffset / duration // time [0..1]
+						translation.x = CGFloat(1 - t) * initialVelecity.x * CGFloat(displayLink.duration())
+						translation.y = CGFloat(1 - t) * initialVelecity.y * CGFloat(displayLink.duration())
+						self.viewPort.adjustOrigin(by: translation)
+					}
+				})
+			}
+		} else if pan.state == .failed {
+			DLog("pan gesture failed")
+		} else {
+			DLog("pan gesture \(pan.state)")
+		}
+	}
+
+	@IBAction func handleTapGesture(_ tap: UITapGestureRecognizer) {
+		mapView.handleTapGesture(tap)
+	}
+
+	// unfortunately macCatalyst does't handle setting pinch.scale correctly, so
+	// we need to track the previous scale
+	var prevousPinchScale = 0.0
+
+	@IBAction func handlePinchGesture(_ pinch: UIPinchGestureRecognizer) {
+		switch pinch.state {
+		case .began:
+			prevousPinchScale = 1.0
+			fallthrough
+		case .changed:
+			userOverrodeLocationZoom = true
+
+			DisplayLink.shared.removeName(DisplayLinkPanning)
+
+#if targetEnvironment(macCatalyst)
+			// On Mac we want to zoom around the screen center, not the cursor.
+			// This is better determined by testing for indirect touches, but
+			// that information isn't exposed by the gesture recognizer.
+			// If we're zooming via mouse then we'll follow the zoom path, not the pinch path.
+			let zoomCenter = viewPort.screenCenterPoint()
+#else
+			let zoomCenter = pinch.location(in: mapView)
+#endif
+			let scale = pinch.scale / prevousPinchScale
+			viewPort.adjustZoom(by: scale, aroundScreenPoint: zoomCenter)
+			prevousPinchScale = pinch.scale
+		case .ended:
+			break
+		default:
+			break
+		}
+	}
+
+	@IBAction func handleRotationGesture(_ rotationGesture: UIRotationGestureRecognizer) {
+		// Rotate screen
+		guard enableRotation else {
+			return
+		}
+
+		switch rotationGesture.state {
+		case .began:
+			break // ignore
+		case .changed:
+#if targetEnvironment(macCatalyst)
+			// On Mac we want to rotate around the screen center, not the cursor.
+			// This is better determined by testing for indirect touches, but
+			// that information isn't exposed by the gesture recognizer.
+			let centerPoint = viewPort.screenCenterPoint()
+#else
+			let centerPoint = rotationGesture.location(in: mapView)
+#endif
+			let angle = rotationGesture.rotation
+			viewPort.rotate(by: angle, aroundScreenPoint: centerPoint)
+			rotationGesture.rotation = 0.0
+
+			if gpsState == .HEADING {
+				gpsState = .LOCATION
+			}
+		case .ended:
+			mapView.updateMapMarkersFromServer(withDelay: 0, including: [])
+		default:
+			break // ignore
+		}
+	}
+
+	@objc func handleTapAndDragGesture(_ tapAndDrag: TapAndDragGesture) {
+		mapView.handleTapAndDragGesture(tapAndDrag)
+	}
+
+	@objc func handleScrollWheelGesture(_ pan: UIPanGestureRecognizer) {
+		if pan.state == .changed {
+			let delta = pan.translation(in: mapView)
+			var center = pan.location(in: mapView)
+			center.y -= delta.y
+			let zoom = delta.y >= 0 ? (1000.0 + delta.y) / 1000.0 : 1000.0 / (1000.0 - delta.y)
+			viewPort.adjustZoom(by: zoom, aroundScreenPoint: center)
+		}
+	}
+
+	@objc func plusButtonLongPressHandler(_ recognizer: UILongPressGestureRecognizer) {
+		switch recognizer.state {
+		case .began:
+			plusButtonTimestamp = TimeInterval(CACurrentMediaTime())
+		case .ended:
+			if CACurrentMediaTime() - plusButtonTimestamp < 0.5 {
+				// treat as tap, but make sure it occured inside the button
+				let touch = recognizer.location(in: recognizer.view)
+				if recognizer.view?.bounds.contains(touch) ?? false {
+					mapView.editorLayer.addNode(at: mapView.crossHairs.position)
+				}
+			}
+			plusButtonTimestamp = 0.0
+		case .cancelled, .failed:
+			plusButtonTimestamp = 0.0
+		default:
+			break
+		}
+	}
+
+	func displayButtonLongPressHandler() {
 		// show the most recently used aerial imagery
 		let tileServerlList = mapView.tileServerList
 		let actionSheet = UIAlertController(
@@ -626,7 +915,90 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 		present(actionSheet, animated: true)
 	}
 
-	// MARK: Other stuff
+	// MARK: GPS tracking
+
+	var gpsState: GPS_STATE = .NONE {
+		didSet {
+			if gpsState != oldValue {
+				if gpsState == .NONE {
+					centerOnGPSButton.isHidden = true
+					LocationProvider.shared.stop()
+					locationBallView.isHidden = true
+					mapView.voiceAnnouncement?.enabled = false
+					mapView.gpxLayer.endActiveTrack(continuingCurrentTrack: false)
+				} else {
+					userOverrodeLocationPosition = false
+					userOverrodeLocationZoom = false
+					locationBallView.isHidden = false
+					LocationProvider.shared.start()
+					mapView.voiceAnnouncement?.enabled = true
+					if oldValue == .NONE {
+						// because recording GPX tracks is cheap we record them any time GPS is enabled
+						mapView.gpxLayer.startNewTrack(continuingCurrentTrack: false)
+					}
+				}
+
+				updateUploadButtonState()
+			}
+		}
+	}
+
+	func headingChanged(_ heading: Double, accuracy: Double) {
+		let screenAngle = viewPort.mapTransform.rotation()
+
+		if gpsState == .HEADING {
+			// rotate to new heading
+			let center = viewPort.screenCenterPoint()
+			let delta = -(heading + screenAngle)
+			viewPort.rotate(by: CGFloat(delta), aroundScreenPoint: center)
+		} else {
+			// rotate location ball
+			locationBallView.headingAccuracy = CGFloat(accuracy * (.pi / 180))
+			locationBallView.showHeading = true
+			locationBallView.heading = CGFloat(heading + screenAngle - .pi / 2)
+		}
+	}
+
+	// MARK: Button actions
+
+	@IBAction func toggleLocationButton(_ sender: Any) {
+		switch gpsState {
+		case GPS_STATE.NONE:
+			// if the user hasn't rotated the screen then start facing north, otherwise follow heading
+			if fabs(viewPort.mapTransform.rotation()) < 0.0001 {
+				gpsState = .LOCATION
+			} else {
+				gpsState = .HEADING
+			}
+		case GPS_STATE.LOCATION, GPS_STATE.HEADING:
+			gpsState = .NONE
+		}
+	}
+
+	@IBAction func compassPressed(_ sender: Any) {
+		switch gpsState {
+		case .HEADING:
+			gpsState = .LOCATION
+			viewPort.rotateToNorth()
+		case .LOCATION:
+			gpsState = .HEADING
+			if let clHeading = LocationProvider.shared.currentHeading {
+				let heading = LocationProvider.headingAdjustedForInterfaceOrientation(clHeading)
+				viewPort.rotateToHeading(heading)
+			}
+		case .NONE:
+			viewPort.rotateToNorth()
+		}
+	}
+
+	@IBAction func centerOnGPS(_ sender: Any) {
+		if let location = LocationProvider.shared.currentLocation {
+			userOverrodeLocationPosition = false
+			viewPort.centerOn(latLon: LatLon(location.coordinate),
+			                  zoom: nil, // don't change zoom
+			                  rotation: nil) // don't change rotation
+		}
+	}
 
 	@IBAction func openHelp() {
 		let urlAsString = "https://wiki.openstreetmap.org/w/index.php?title=Go_Map!!&mobileaction=toggle_view_mobile"
@@ -637,6 +1009,8 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 		safariViewController.popoverPresentationController?.sourceView = view
 		present(safariViewController, animated: true)
 	}
+
+	// MARK: Other stuff
 
 	override func didReceiveMemoryWarning() {
 		super.didReceiveMemoryWarning()
@@ -656,36 +1030,9 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 			}
 #endif
 		}
-		mapView.flashMessage(title: nil,
-		                     message: NSLocalizedString("Low memory: clearing cache", comment: ""))
+		MessageDisplay.shared.flashMessage(title: nil,
+		                                   message: NSLocalizedString("Low memory: clearing cache", comment: ""))
 		mapView.editorLayer.didReceiveMemoryWarning()
-	}
-
-	func setGpsState(_ state: GPS_STATE) {
-		if mapView.gpsState != state {
-			mapView.gpsState = state
-
-			// update GPS icon
-			let imageName = (mapView.gpsState == GPS_STATE.NONE) ? "location2" : "location.fill"
-			var image = UIImage(named: imageName)
-			image = image?.withRenderingMode(.alwaysTemplate)
-			locationButton.setImage(image, for: .normal)
-		}
-	}
-
-	@IBAction func toggleLocationButton(_ sender: Any) {
-		switch mapView.gpsState {
-		case GPS_STATE.NONE:
-			// if the user hasn't rotated the screen then start facing north, otherwise follow heading
-			if fabs(mapView.screenFromMapTransform.rotation()) < 0.0001 {
-				setGpsState(GPS_STATE.LOCATION)
-			} else {
-				setGpsState(GPS_STATE.HEADING)
-			}
-		case GPS_STATE.LOCATION,
-		     GPS_STATE.HEADING:
-			setGpsState(GPS_STATE.NONE)
-		}
 	}
 
 	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -714,4 +1061,19 @@ class MainViewController: UIViewController, UIActionSheetDelegate, UIGestureReco
 	}
 }
 
-let USER_MOVABLE_BUTTONS = 0
+extension MainViewController: MapViewProgress {
+
+	func progressIncrement(_ delta: Int = 1) {
+		if progressActive.value() == 0, delta > 0 {
+			progressIndicator.startAnimating()
+		}
+		progressActive.increment(delta)
+	}
+
+	func progressDecrement() {
+		progressActive.decrement()
+		if progressActive.value() == 0 {
+			progressIndicator.stopAnimating()
+		}
+	}
+}

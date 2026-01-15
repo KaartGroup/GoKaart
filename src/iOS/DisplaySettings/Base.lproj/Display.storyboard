@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -206,17 +206,17 @@
             <objects>
                 <viewController id="Nkd-2e-8Au" customClass="GpxConfigureViewController" customModule="Go_Map__" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="kkY-2X-K4y">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="886"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="838"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="GPX Tracks you record or download will be automatically deleted after:" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MeQ-4N-FqC">
-                                <rect key="frame" x="20" y="76" width="374" height="42.5"/>
+                                <rect key="frame" x="20" y="124" width="374" height="42.5"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <navigationBar contentMode="scaleToFill" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dWF-I1-mgM">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="56"/>
+                                <rect key="frame" x="0.0" y="48" width="414" height="56"/>
                                 <items>
                                     <navigationItem title="Configure GPX Tracks" id="oSD-0y-Vt0">
                                         <barButtonItem key="backBarButtonItem" title="Cancel" id="1SY-O5-qJR"/>
@@ -234,7 +234,7 @@
                                 </items>
                             </navigationBar>
                             <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PK9-1m-unf">
-                                <rect key="frame" x="20" y="126.5" width="374" height="216"/>
+                                <rect key="frame" x="20" y="174.5" width="374" height="216"/>
                             </pickerView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="8pi-lE-GdV"/>
@@ -381,6 +381,41 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
                                         <connections>
                                             <outlet property="detailLabel" destination="GNK-bZ-i9X" id="fMB-dh-uAL"/>
                                             <outlet property="titleLabel" destination="fFT-hv-mKl" id="GDY-7g-fJy"/>
+                                        </connections>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="ClearCacheCell" id="Q7M-3m-rXI" customClass="ClearCacheCell" customModule="Go_Map__" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="279" width="414" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Q7M-3m-rXI" id="5M8-rv-chF">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" verticalCompressionResistancePriority="751" text="Aerial Tiles" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r78-B4-pAU">
+                                                    <rect key="frame" x="16" y="3" width="87" height="20.5"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="Details" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fVu-8o-Ldq">
+                                                    <rect key="frame" x="16" y="24.5" width="47" height="17.5"/>
+                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="r78-B4-pAU" secondAttribute="trailing" constant="15" id="5XH-B1-wwF"/>
+                                                <constraint firstAttribute="bottom" secondItem="fVu-8o-Ldq" secondAttribute="bottom" constant="2" id="Eca-01-msQ"/>
+                                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="fVu-8o-Ldq" secondAttribute="trailing" constant="15" id="FcZ-dk-LMQ"/>
+                                                <constraint firstItem="r78-B4-pAU" firstAttribute="leading" secondItem="5M8-rv-chF" secondAttribute="leading" constant="16" id="NHR-2c-UvO"/>
+                                                <constraint firstItem="r78-B4-pAU" firstAttribute="top" secondItem="5M8-rv-chF" secondAttribute="top" constant="3" id="PLe-w1-ZgL"/>
+                                                <constraint firstItem="fVu-8o-Ldq" firstAttribute="top" secondItem="r78-B4-pAU" secondAttribute="bottom" constant="1" id="S3Q-y7-XoH"/>
+                                                <constraint firstItem="fVu-8o-Ldq" firstAttribute="leading" secondItem="5M8-rv-chF" secondAttribute="leading" constant="16" id="udq-Qb-gGU"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="detailLabel" destination="fVu-8o-Ldq" id="m1N-If-5f5"/>
+                                            <outlet property="titleLabel" destination="r78-B4-pAU" id="Z8A-2K-gbS"/>
                                         </connections>
                                     </tableViewCell>
                                 </cells>
@@ -1120,7 +1155,7 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
             <objects>
                 <navigationController storyboardIdentifier="DisplayViewController" id="3il-wo-nAN" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" restorationIdentifier="DisplayViewController" insetsLayoutMarginsFromSafeArea="NO" id="6od-EN-7Ax">
-                        <rect key="frame" x="0.0" y="48" width="414" height="44"/>
+                        <rect key="frame" x="0.0" y="96" width="414" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="xbm-5N-YoL">
@@ -1292,11 +1327,11 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
                             </tableViewSection>
                             <tableViewSection headerTitle="Overlays" id="8es-4f-sj3">
                                 <cells>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="Dt6-c9-5sp">
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="Dt6-c9-5sp">
                                         <rect key="frame" x="0.0" y="371.5" width="414" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Dt6-c9-5sp" id="cgo-vx-DaW">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="383.5" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="GPX Tracks" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1f0-8q-yCi">
@@ -1306,30 +1341,23 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1jq-Mx-hmn">
-                                                    <rect key="frame" x="335" y="6.5" width="51" height="31"/>
+                                                    <rect key="frame" x="316.5" y="6.5" width="51" height="31"/>
                                                     <connections>
                                                         <action selector="gpsSwitchChanged:" destination="UfZ-fJ-hyB" eventType="valueChanged" id="akt-la-BJd"/>
                                                     </connections>
                                                 </switch>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8S7-Kw-QHF">
-                                                    <rect key="frame" x="275" y="5.5" width="52" height="33"/>
-                                                    <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
-                                                    <state key="normal" title="Details"/>
-                                                    <connections>
-                                                        <segue destination="56N-ha-lzj" kind="push" id="B8X-vg-T4B"/>
-                                                    </connections>
-                                                </button>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="1jq-Mx-hmn" firstAttribute="centerY" secondItem="1f0-8q-yCi" secondAttribute="centerY" id="1MO-KK-Qyq"/>
                                                 <constraint firstItem="1jq-Mx-hmn" firstAttribute="centerY" secondItem="cgo-vx-DaW" secondAttribute="centerY" id="TwA-1a-sTg"/>
                                                 <constraint firstAttribute="trailingMargin" secondItem="1jq-Mx-hmn" secondAttribute="trailing" constant="10" id="dQ2-Xl-i2a"/>
-                                                <constraint firstItem="8S7-Kw-QHF" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="1f0-8q-yCi" secondAttribute="trailing" constant="5" id="fjF-k1-K41"/>
-                                                <constraint firstItem="1jq-Mx-hmn" firstAttribute="leading" secondItem="8S7-Kw-QHF" secondAttribute="trailing" constant="8" id="gJF-JO-lOm"/>
                                                 <constraint firstItem="1f0-8q-yCi" firstAttribute="leading" secondItem="cgo-vx-DaW" secondAttribute="leading" constant="16" id="rXH-bN-Xb6"/>
-                                                <constraint firstItem="8S7-Kw-QHF" firstAttribute="centerY" secondItem="cgo-vx-DaW" secondAttribute="centerY" id="zeB-6r-9od"/>
+                                                <constraint firstItem="1jq-Mx-hmn" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="1f0-8q-yCi" secondAttribute="trailing" constant="10" id="vcm-tK-5oq"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <segue destination="56N-ha-lzj" kind="push" id="CLv-Cd-laK"/>
+                                        </connections>
                                     </tableViewCell>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="hbb-yD-agM">
                                         <rect key="frame" x="0.0" y="415.5" width="414" height="44"/>
@@ -1584,7 +1612,7 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EQr-Is-etH" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-3504" y="654"/>
+            <point key="canvasLocation" x="-3156" y="631"/>
         </scene>
         <!--DataOverlays-->
         <scene sceneID="OwS-LW-XSU">
@@ -1594,7 +1622,7 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bvk-zX-ijn" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-3512" y="693"/>
+            <point key="canvasLocation" x="-3236" y="587"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>

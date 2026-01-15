@@ -9,6 +9,7 @@
 import CoreText
 import Foundation
 import QuartzCore
+import UIKit
 
 final class CurvedTextLayer {
 	public static let shared = CurvedTextLayer()

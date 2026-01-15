@@ -12,7 +12,7 @@ extension Scanner {
 	func scanAnyCharacter(from string: String) -> String? {
 		for ch in string {
 			let chs = String(ch)
-			if scanString(chs, into: nil) {
+			if scanString(chs) != nil {
 				return chs
 			}
 		}
@@ -39,23 +39,24 @@ class LocationParser {
 
 	private static func scanDegreesMinutesSeconds(scanner: Scanner) -> Double? {
 		// Parse degrees, minutes, seconds:
-		var degrees = 0
-		var minutes = 0
-		var seconds = 0.0
-		guard scanner.scanInt(&degrees), // Degrees (integer),
-		      scanner.scanString("°", into: nil), // followed by °,
-		      scanner.scanInt(&minutes), // minutes (integer)
+		guard let degrees = scanner.scanInt(), // Degrees (integer),
+		      scanner.scanString("°") != nil, // followed by °,
+		      let minutes = scanner.scanInt(), // minutes (integer)
 		      scanner.scanAnyCharacter(from: "'′") != nil // followed by '
-		else { return nil }
+		else {
+			return nil
+		}
 		// optional seconds
-		let pos = scanner.scanLocation
-		if scanner.scanDouble(&seconds), // seconds (floating point),
+		let seconds: Double
+		let index = scanner.currentIndex
+		if let tempSeconds = scanner.scanDouble(), // seconds (floating point),
 		   scanner.scanAnyCharacter(from: "\"″") != nil // followed by "
 		{
+			seconds = tempSeconds
 			// got seconds too
 		} else {
 			seconds = 0.0
-			scanner.scanLocation = pos
+			scanner.currentIndex = index
 		}
 
 		let value = Double(abs(degrees)) + Double(minutes) / 60.0 + seconds / 3600.0
@@ -75,7 +76,7 @@ class LocationParser {
 		else { return nil }
 		let firstDir2 = scanNSEW(scanner: scanner)
 
-		let _ = scanner.scanAnyCharacter(from: "+,")
+		_ = scanner.scanAnyCharacter(from: "+,")
 
 		let secondDir1 = scanNSEW(scanner: scanner)
 		guard let second = scanDegreesMinutesSeconds(scanner: scanner)
@@ -136,32 +137,28 @@ class LocationParser {
 		                   sLat: String, lat: Double)]()
 
 		while true {
-			scanner.scanUpToCharacters(from: digits, into: nil)
+			_ = scanner.scanUpToCharacters(from: digits)
 			if scanner.isAtEnd {
 				break
 			}
-			let pos = scanner.scanLocation
-			var sLat: NSString?
-			var sLon: NSString?
-			if scanner.scanCharacters(from: floats, into: &sLat),
-			   let sLat = sLat,
-			   let lat = Double(sLat as String),
+			let pos = scanner.currentIndex
+			if let sLat = scanner.scanCharacters(from: floats),
+			   let lat = Double(sLat),
 			   lat > -90,
 			   lat < 90,
-			   scanner.scanCharacters(from: comma, into: nil),
-			   scanner.scanCharacters(from: floats, into: &sLon),
-			   let sLon = sLon,
-			   let lon = Double(sLon as String),
+			   scanner.scanCharacters(from: comma) != nil,
+			   let sLon = scanner.scanCharacters(from: floats),
+			   let lon = Double(sLon),
 			   lon >= -180,
 			   lon <= 180
 			{
-				candidates.append((sLon as String, lon, sLat as String, lat))
+				candidates.append((sLon, lon, sLat, lat))
 			}
-			if scanner.scanLocation == pos {
-				scanner.scanLocation = pos + 1
+			if scanner.currentIndex == pos {
+				scanner.currentIndex = scanner.string.index(after: pos)
 			} else {
-				scanner.scanLocation = pos
-				scanner.scanCharacters(from: floats, into: nil)
+				scanner.currentIndex = pos
+				_ = scanner.scanCharacters(from: floats)
 			}
 		}
 		if candidates.isEmpty {
@@ -190,16 +187,14 @@ class LocationParser {
 
 		// geo:47.75538,-122.15979?z=18
 		if components.scheme == "geo" {
-			var lat: Double = 0
-			var lon: Double = 0
-			var zoom: Double = 0
 			let scanner = Scanner(string: components.path)
-			guard scanner.scanDouble(&lat),
-			      scanner.scanString(",", into: nil),
-			      scanner.scanDouble(&lon)
+			guard let lat = scanner.scanDouble(),
+			      scanner.scanString(",") != nil,
+			      let lon = scanner.scanDouble()
 			else {
 				return nil
 			}
+			var zoom: Double = 0
 			if let z = components.queryItems?.first(where: { $0.name == "z" })?.value,
 			   let z2 = Double(z)
 			{
@@ -224,11 +219,9 @@ class LocationParser {
 				case "center":
 					// scan center
 					let scanner = Scanner(string: queryItem.value ?? "")
-					var pLat = 0.0
-					var pLon = 0.0
-					if scanner.scanDouble(&pLat),
-					   scanner.scanString(",", into: nil),
-					   scanner.scanDouble(&pLon),
+					if let pLat = scanner.scanDouble(),
+					   scanner.scanString(",") != nil,
+					   let pLon = scanner.scanDouble(),
 					   scanner.isAtEnd
 					{
 						lat = pLat
@@ -275,11 +268,10 @@ class LocationParser {
 		   	$0.name == "ll" || $0.name == "coordinate"
 		   })?.value
 		{
-			var lat = 0.0, lon = 0.0
 			let scanner = Scanner(string: latLon)
-			if scanner.scanDouble(&lat),
-			   scanner.scanString(",", into: nil),
-			   scanner.scanDouble(&lon)
+			if let lat = scanner.scanDouble(),
+			   scanner.scanString(",") != nil,
+			   let lon = scanner.scanDouble()
 			{
 				return MapLocation(longitude: lon,
 				                   latitude: lat,
@@ -290,7 +282,7 @@ class LocationParser {
 
 		// parse as an Organic Maps shared link
 		// See https://github.com/organicmaps/organicmaps/blob/e27bad2e3b53590208a3b3d5bf18dd226fefc7ad/ge0/parser.cpp#L55
-		if components.host == "omaps.app",
+		if components.host == "omaps.app" || components.host == "comaps.at",
 		   let base64 = components.path.components(separatedBy: "/").dropFirst().first,
 		   base64.count == 10
 		{
@@ -336,12 +328,11 @@ class LocationParser {
 				let name = (path as NSString).lastPathComponent
 				if name.hasPrefix("@") {
 					let scanner = Scanner(string: String(name.dropFirst()))
-					var lat = 0.0, lon = 0.0, zoom = 0.0
-					if scanner.scanDouble(&lat),
-					   scanner.scanString(",", into: nil),
-					   scanner.scanDouble(&lon),
-					   scanner.scanString(",", into: nil),
-					   scanner.scanDouble(&zoom)
+					if let lat = scanner.scanDouble(),
+					   let _ = scanner.scanString(","),
+					   let lon = scanner.scanDouble(),
+					   let _ = scanner.scanString(","),
+					   let zoom = scanner.scanDouble()
 					{
 						return MapLocation(longitude: lon,
 						                   latitude: lat,
@@ -413,18 +404,14 @@ class LocationParser {
 		if let hash = string.firstIndex(of: "#") {
 			string = String(string[..<hash])
 		}
-		var objIdent: NSString?
-		var objType: NSString?
 		let delim = CharacterSet(charactersIn: ":/,. -")
 		let scanner = Scanner(string: String(string.reversed()))
 		scanner.charactersToBeSkipped = nil
-		if scanner.scanCharacters(from: CharacterSet.alphanumerics, into: &objIdent),
-		   let objIdent = objIdent,
+		if let objIdent = scanner.scanCharacters(from: CharacterSet.alphanumerics),
 		   let objIdent2 = Int64(String((objIdent as String).reversed())),
-		   scanner.scanCharacters(from: delim, into: nil),
-		   scanner.scanCharacters(from: CharacterSet.alphanumerics, into: &objType),
-		   let objType = objType,
-		   let objType2 = try? OSM_TYPE(string: String((objType as String).reversed()))
+		   let _ = scanner.scanCharacters(from: delim),
+		   let objType = scanner.scanCharacters(from: CharacterSet.alphanumerics),
+		   let objType2 = try? OSM_TYPE(string: String(objType.reversed()))
 		{
 			return (objType2, objIdent2)
 		}
@@ -441,10 +428,9 @@ class LocationParser {
 			return false
 		}
 
-		// First, resolve the shortened URL
-		let api_key = GoogleToken
-		resolveGoogleShortURL(url: url) { resolvedURL in
-			guard let resolvedURL = resolvedURL else {
+		Task {
+			// First, resolve the shortened URL
+			guard let resolvedURL = await resolveShortenedURL(url: url)?.url else {
 				callback(nil)
 				return
 			}
@@ -452,19 +438,28 @@ class LocationParser {
 			// Extract the ftid value and construct the new URL
 			if let latLong = extractLatLongFromGoogleURL(resolvedURL) {
 				callback(latLong)
-			} else if let ftidValue = parseSecondPartOfGoogleFTID(from: resolvedURL),
-			          let newURL = URL(string:
-			          	"https://maps.googleapis.com/maps/api/place/details/json?key=\(api_key)&cid=\(ftidValue)")
+			} else if let ftid = googleFTID(from: resolvedURL),
+			          let url = URL(string: "https://www.google.com/maps?ftid=\(ftid)"),
+			          let resolvedURL = await resolveShortenedURL(url: url)?.url,
+			          let latLong = extractLatLongFromGoogleURL(resolvedURL)
 			{
-				print(newURL.absoluteString)
-				fetchGoogleLocationDetails(url: newURL) { location in
-					callback(location)
-				}
+				callback(latLong)
 			} else {
 				callback(nil)
 			}
 		}
 		return true
+	}
+
+	static func isGoogleMapsRedirectAsync(urlString: String) async -> MapLocation? {
+		await withCheckedContinuation { continuation in
+			guard isGoogleMapsRedirect(urlString: urlString, callback: { location in
+				continuation.resume(returning: location)
+			}) else {
+				continuation.resume(returning: nil)
+				return
+			}
+		}
 	}
 
 	static func extractLatLongFromGoogleURL(_ url: URL) -> MapLocation? {
@@ -488,22 +483,22 @@ class LocationParser {
 		return nil
 	}
 
-	static func fetchGoogleLocationDetails(url: URL, completion: @escaping (MapLocation?) -> Void) {
-		URLSession.shared.dataTask(with: url) { data, _, error in
-			guard let data = data, error == nil else {
-				completion(nil)
-				return
-			}
-
-			do {
-				let response = try JSONDecoder().decode(ApiResponse.self, from: data)
-				let location = response.result.geometry.location
-				let mapLocation = MapLocation(longitude: location.lng, latitude: location.lat)
-				completion(mapLocation)
-			} catch {
-				completion(nil)
-			}
-		}.resume()
+	static func fetchGoogleLocationDetails(ftid: String) async throws -> MapLocation {
+		let url = URL(string: "https://places.googleapis.com/v1/places/\(ftid)")!
+		let request = {
+			var request = URLRequest(url: url)
+			request.allHTTPHeaderFields = ["Accept": "application/json",
+			                               "X-Goog-Api-Key": GoogleToken,
+			                               "X-Goog-FieldMask": "displayName,formattedAddress"]
+			return request
+		}()
+		let (data, _) = try await URLSession.shared.data(for: request)
+		let text = String(data: data, encoding: .utf8)!
+		print("\(text)")
+		let response = try JSONDecoder().decode(ApiResponse.self, from: data)
+		let location = response.result.geometry.location
+		let mapLocation = MapLocation(longitude: location.lng, latitude: location.lat)
+		return mapLocation
 	}
 
 	struct ApiResponse: Codable {
@@ -524,47 +519,28 @@ class LocationParser {
 	}
 
 	// Helper function to resolve a shortened URL
-	static func resolveGoogleShortURL(url: URL, completion: @escaping (URL?) -> Void) {
-		var request = URLRequest(url: url)
-		request.httpMethod = "GET" // Changed from HEAD to GET
-		let task = URLSession.shared.dataTask(with: request) { _, response, _ in
-			completion((response as? HTTPURLResponse)?.url)
-		}
-		task.resume()
-	}
-
-	func parseSecondPartOfGoogleFTID(from url: URL) -> String? {
-		guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
-		      let queryItems = components.queryItems
-		else {
+	static func resolveShortenedURL(url: URL, method: String = "GET") async -> HTTPURLResponse? {
+		let request = {
+			var request = URLRequest(url: url)
+			request.httpMethod = method // Apple Maps doesn't give us a redirect URL when using HEAD
+			let userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0.1 Safari/605.1.15"
+			request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+			return request
+		}()
+		guard let (_, response) = try? await URLSession.shared.data(for: request) else {
 			return nil
 		}
-
-		if let ftid = queryItems.first(where: { $0.name == "ftid" })?.value,
-		   let range = ftid.range(of: ":")
-		{
-			let secondPart = ftid[range.upperBound...]
-			return String(secondPart)
-		}
-		print("Trying to parse FTID Failed")
-		return nil
+		return response as? HTTPURLResponse
 	}
 
 	// Helper function to extract the ftid parameter from a URL
-	static func parseSecondPartOfGoogleFTID(from url: URL) -> String? {
+	static func googleFTID(from url: URL) -> String? {
 		guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
-		      let queryItems = components.queryItems
+		      let queryItems = components.queryItems,
+		      let ftid = queryItems.first(where: { $0.name == "ftid" })?.value
 		else {
 			return nil
 		}
-
-		if let ftid = queryItems.first(where: { $0.name == "ftid" })?.value,
-		   let range = ftid.range(of: ":")
-		{
-			let secondPart = ftid[range.upperBound...]
-			return String(secondPart)
-		}
-
-		return nil
+		return ftid
 	}
 }

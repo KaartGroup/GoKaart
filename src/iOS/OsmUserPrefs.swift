@@ -37,19 +37,17 @@ class OsmUserPrefs: CustomStringConvertible, CustomDebugStringConvertible {
 
 	private static func allPreferences(data callback: @escaping (Data?) -> Void) {
 		let url = OSM_SERVER.apiURL + "api/0.6/user/preferences.json"
-		guard let request = OSM_SERVER.oAuth2?.urlRequest(string: url) else {
+		guard var request = OSM_SERVER.oAuth2?.urlRequest(string: url) else {
 			callback(nil)
 			return
 		}
-		URLSession.shared.data(with: request, completionHandler: { result in
-			DispatchQueue.main.async(execute: {
-				guard let data = try? result.get() else {
-					callback(nil)
-					return
-				}
+		request.setUserAgent()
+		Task {
+			let data = try? await URLSession.shared.data(with: request)
+			DispatchQueue.main.async {
 				callback(data)
-			})
-		})
+			}
+		}
 	}
 
 	private static func allPreferences(dict callback: @escaping ([String: String]?) -> Void) {
@@ -154,13 +152,17 @@ class OsmUserPrefs: CustomStringConvertible, CustomDebugStringConvertible {
 				callback(false)
 				return
 			}
+			request.setUserAgent()
 			if value.isEmpty {
 				request.httpMethod = "DELETE"
 			} else {
 				request.httpMethod = "PUT"
 				request.httpBody = value.data(using: .utf8)
 			}
-			URLSession.shared.data(with: request, completionHandler: { _ in })
+			let immutableRequest = request
+			Task {
+				_ = try? await URLSession.shared.data(with: immutableRequest)
+			}
 		}
 		oldPreferenceKeys = dict.compactMap { $0.key.hasPrefix(self.PREFIX) && !$0.value.isEmpty ? $0.key : nil }
 

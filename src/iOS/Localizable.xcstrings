@@ -2835,6 +2835,12 @@
             "value" : "%.0f m²"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.0f m²"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "needs_review",
@@ -2881,6 +2887,12 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "%.0f м^2"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.0f 平方米"
           }
         },
         "zh-Hant" : {
@@ -3267,14 +3279,14 @@
                 "plural" : {
                   "one" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg metro"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg metros"
                     }
                   }
                 }
@@ -3287,14 +3299,14 @@
                 "plural" : {
                   "one" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg nodo"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg nodos"
                     }
                   }
                 }
@@ -3428,8 +3440,8 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "%#@meters@ mètres, %#@nodes@ nœuds"
+            "state" : "translated",
+            "value" : "%#@meters@, %#@nodes@"
           },
           "substitutions" : {
             "meters" : {
@@ -3439,14 +3451,14 @@
                 "plural" : {
                   "one" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg mètre"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg mètres"
                     }
                   }
                 }
@@ -3459,14 +3471,14 @@
                 "plural" : {
                   "one" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg noeud"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg noeuds"
                     }
                   }
                 }
@@ -3487,20 +3499,20 @@
                 "plural" : {
                   "few" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg metra"
                     }
                   },
                   "one" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg metar"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg metara"
                     }
                   }
                 }
@@ -3513,20 +3525,20 @@
                 "plural" : {
                   "few" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg čvora"
                     }
                   },
                   "one" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg čvor"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg čvorova"
                     }
                   }
                 }
@@ -4436,8 +4448,8 @@
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "%#@meters@ 米, %#@nodes@ 个节点"
+            "state" : "translated",
+            "value" : "即将在%#@meters@ 米后驶入%#@nodes@"
           },
           "substitutions" : {
             "meters" : {
@@ -5101,8 +5113,8 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "%#@megabytes@ Mo, %#@files@ fichiers"
+            "state" : "translated",
+            "value" : "%#@megabytes@, %#@files@"
           },
           "substitutions" : {
             "files" : {
@@ -5112,14 +5124,14 @@
                 "plural" : {
                   "one" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg fichier"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg fichiers"
                     }
                   }
                 }
@@ -5132,14 +5144,14 @@
                 "plural" : {
                   "one" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg Mo"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg Mo"
                     }
                   }
                 }
@@ -5160,20 +5172,20 @@
                 "plural" : {
                   "few" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg datoteke"
                     }
                   },
                   "one" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg datoteka"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg datoteka"
                     }
                   }
                 }
@@ -5186,20 +5198,20 @@
                 "plural" : {
                   "few" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg MB"
                     }
                   },
                   "one" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg MB"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg MB"
                     }
                   }
                 }
@@ -6768,8 +6780,8 @@
             "plural" : {
               "one" : {
                 "stringUnit" : {
-                  "state" : "needs_review",
-                  "value" : "%ld jours"
+                  "state" : "translated",
+                  "value" : "%ld jour"
                 }
               },
               "other" : {
@@ -8401,7 +8413,7 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "%#@meters@, %#@nodes@"
           },
           "substitutions" : {
@@ -8412,14 +8424,14 @@
                 "plural" : {
                   "one" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%arg meter"
+                      "state" : "translated",
+                      "value" : "%arg mètres"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%arg meters"
+                      "state" : "translated",
+                      "value" : "%arg mètres"
                     }
                   }
                 }
@@ -8432,14 +8444,14 @@
                 "plural" : {
                   "one" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%arg node"
+                      "state" : "translated",
+                      "value" : "%arg noeuds"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%arg nodes"
+                      "state" : "translated",
+                      "value" : "%arg noeuds"
                     }
                   }
                 }
@@ -9301,7 +9313,7 @@
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "%#@meters@, %#@nodes@"
           },
           "substitutions" : {
@@ -9409,8 +9421,8 @@
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "%#@meters@, %#@nodes@"
+            "state" : "translated",
+            "value" : "即将在%#@meters@%米后 驶入%#@nodes@"
           },
           "substitutions" : {
             "meters" : {
@@ -9420,8 +9432,8 @@
                 "plural" : {
                   "other" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%arg meters"
+                      "state" : "translated",
+                      "value" : "%arg 米"
                     }
                   }
                 }
@@ -10074,8 +10086,8 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "%#@meters@ mètres, %#@points@ points"
+            "state" : "translated",
+            "value" : "%#@meters@, %#@points@"
           },
           "substitutions" : {
             "meters" : {
@@ -10085,14 +10097,14 @@
                 "plural" : {
                   "one" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg mètre"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg mètres"
                     }
                   }
                 }
@@ -10105,14 +10117,14 @@
                 "plural" : {
                   "one" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg point"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg points"
                     }
                   }
                 }
@@ -10172,7 +10184,7 @@
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "%ld točke"
+                      "value" : "%ld točaka"
                     }
                   }
                 }
@@ -11082,8 +11094,8 @@
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "%#@meters@ 米, %#@points@ 个点"
+            "state" : "translated",
+            "value" : "即将在%#@meters@ 米, 然后驶入%#@points@"
           },
           "substitutions" : {
             "meters" : {
@@ -11093,8 +11105,8 @@
                 "plural" : {
                   "other" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg米"
                     }
                   }
                 }
@@ -11987,7 +11999,7 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "%#@meters@, %#@points@, %#@waypoints@"
           },
           "substitutions" : {
@@ -11998,14 +12010,14 @@
                 "plural" : {
                   "one" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%ld meter"
+                      "state" : "translated",
+                      "value" : "%ld mètre"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%ld meters"
+                      "state" : "translated",
+                      "value" : "%ld mètres"
                     }
                   }
                 }
@@ -12038,14 +12050,14 @@
                 "plural" : {
                   "one" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%ld waypoint"
+                      "state" : "translated",
+                      "value" : "%ld point de tracé"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%ld waypoints"
+                      "state" : "translated",
+                      "value" : "%ld points de tracé"
                     }
                   }
                 }
@@ -13269,7 +13281,7 @@
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "%#@meters@, %#@points@, %#@waypoints@"
           },
           "substitutions" : {
@@ -13423,8 +13435,8 @@
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "%#@meters@, %#@points@, %#@waypoints@"
+            "state" : "translated",
+            "value" : "距离%#@meters@, 途经%#@points@,包含 %#@waypoints@"
           },
           "substitutions" : {
             "meters" : {
@@ -13462,8 +13474,8 @@
                 "plural" : {
                   "other" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%ld waypoints"
+                      "state" : "translated",
+                      "value" : "%ld 航点"
                     }
                   }
                 }
@@ -14130,8 +14142,8 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "%#@routes@ imported,\n%#@duplicates@ skipped"
+            "state" : "translated",
+            "value" : "%#@routes@ importées,\n%#@duplicates@ sautés"
           },
           "substitutions" : {
             "duplicates" : {
@@ -14141,14 +14153,14 @@
                 "plural" : {
                   "one" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%arg duplicate"
+                      "state" : "translated",
+                      "value" : "%arg doublon"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%arg duplicates"
+                      "state" : "translated",
+                      "value" : "%arg doublons"
                     }
                   }
                 }
@@ -14161,14 +14173,14 @@
                 "plural" : {
                   "one" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%arg new route"
+                      "state" : "translated",
+                      "value" : "%arg nouvelle route"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%arg new routes"
+                      "state" : "translated",
+                      "value" : "%arg nouvelle routes"
                     }
                   }
                 }
@@ -14815,7 +14827,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%#@routes@,\n%#@duplicates@"
+            "value" : "%#@routes@ импортировано,\n%#@duplicates@ пропущено"
           },
           "substitutions" : {
             "duplicates" : {
@@ -14838,13 +14850,13 @@
                   "one" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "%arg дубликат пропущен"
+                      "value" : "%arg дубликат"
                     }
                   },
                   "other" : {
                     "stringUnit" : {
                       "state" : "translated",
-                      "value" : "%arg дубликата пропущено"
+                      "value" : "%arg дубликата"
                     }
                   }
                 }
@@ -15030,8 +15042,8 @@
         },
         "uk" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "%#@routes@ imported,\n%#@duplicates@ skipped"
+            "state" : "translated",
+            "value" : "%#@routes@ імпортовані,\n%#@duplicates@ пропущено"
           },
           "substitutions" : {
             "duplicates" : {
@@ -15138,8 +15150,8 @@
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "%#@routes@ imported,\n%#@duplicates@ skipped"
+            "state" : "translated",
+            "value" : "已导入%#@routes@，跳过%#@duplicates@"
           },
           "substitutions" : {
             "duplicates" : {
@@ -15149,8 +15161,8 @@
                 "plural" : {
                   "other" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%arg duplicates"
+                      "state" : "translated",
+                      "value" : "%arg 个重复项"
                     }
                   }
                 }
@@ -15163,8 +15175,8 @@
                 "plural" : {
                   "other" : {
                     "stringUnit" : {
-                      "state" : "new",
-                      "value" : "%arg new routes"
+                      "state" : "translated",
+                      "value" : "%arg 新路线"
                     }
                   }
                 }
@@ -15199,8 +15211,8 @@
                 "plural" : {
                   "other" : {
                     "stringUnit" : {
-                      "state" : "needs_review",
-                      "value" : "%arg"
+                      "state" : "translated",
+                      "value" : "%arg全新路線"
                     }
                   }
                 }
@@ -16472,13 +16484,13 @@
               "few" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Потрібно %lu тайлів"
+                  "value" : "Потрібно %lu плиток"
                 }
               },
               "many" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Потрібно %lu тайлів"
+                  "value" : "Потрібно %lu тайли"
                 }
               },
               "one" : {
@@ -16490,7 +16502,7 @@
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Потрібно %lu тайлів"
+                  "value" : "Потрібно %lu тайли"
                 }
               }
             }
@@ -16588,7 +16600,7 @@
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "+ Posizione pulsante"
+            "value" : "Posizione pulsante +"
           }
         },
         "ja" : {
@@ -16981,6 +16993,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Se han copiado en el portapapeles todas las misiones personalizadas en formato JSON. Puede pegarlas en algún sitio para guardarlas o enviárselas a otra persona."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une copie de toutes les quêtes d’utilisateur a été copié en format JSON sur le presse-papiers."
           }
         },
         "hr" : {
@@ -17516,6 +17534,12 @@
             "value" : "Eraikuntza mota gehitu"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter le type de bâtiment"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -17609,6 +17633,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lisa maantee pinnakate"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter le type de surface d’autoroute"
           }
         },
         "hr" : {
@@ -18282,6 +18312,12 @@
             "value" : "Lisa tööajad"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter les heures d’ouverture"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -18340,6 +18376,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Додати години роботи"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增营业时间数据"
           }
         },
         "zh-Hant" : {
@@ -18532,6 +18574,18 @@
             "value" : "Lisa Panoramaxi foto"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter une photo Panoramax"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj Panoramax fotografiju"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -18548,6 +18602,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "பனோரமாக்ச் புகைப்படத்தைச் சேர்க்கவும்"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Додати фото Panoramax"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加全景照片"
           }
         },
         "zh-Hant" : {
@@ -18583,6 +18649,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lisa parkimise tüüp"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter le type de parking"
           }
         },
         "hr" : {
@@ -18645,6 +18717,12 @@
             "value" : "Додати тип стоянки"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增停车场类型数据"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -18684,6 +18762,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lisa kõnnitee pinnakate"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter le type de surface de trottoir"
           }
         },
         "hr" : {
@@ -18746,6 +18830,12 @@
             "value" : "Додати поверхню тротуара"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新增人行道路径数据"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -18787,10 +18877,22 @@
             "value" : "Lisa kiiruspiirang"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter la limite de vitesse"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dodaj ograničenje brzine"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi limite di velocità"
           }
         },
         "ja" : {
@@ -18880,6 +18982,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lisa telefoninumber"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter le numéro de téléphone"
           }
         },
         "hr" : {
@@ -19123,6 +19231,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lisa veebisait"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter le site web"
           }
         },
         "hr" : {
@@ -19643,6 +19757,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Creador de misiones avanzado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créateur de quêtes avancé"
           }
         },
         "hr" : {
@@ -20214,6 +20334,12 @@
             "value" : "Huts bat igorriz: %@"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une erreur est survenue pendant l’export: %@"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -20309,6 +20435,12 @@
             "value" : "Huts bat kargatuz: %@"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une erreur est survenue pendant l’importation: %@"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -20371,160 +20503,6 @@
         }
       }
     },
-    "An unknown error occurred fetching metadata" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "حدث خطأ غير معروف أثناء جلب البيانات الوصفية"
-          }
-        },
-        "ars" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "حدث خطأ غير معروف أثناء جلب البيانات الوصفية"
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Při stahování metadat došlo k neznámé chybě"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ein unbekannter Fehler beim Abrufen der Metadaten ist aufgetreten"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se produjo un error desconocido al recuperar los metadatos"
-          }
-        },
-        "et" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Metaandmete hankimisel tekkis tundmatu viga"
-          }
-        },
-        "fi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tunnistamaton virhe tapahtui metadataa haettaessa."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Une erreur inconnue s'est produite pendant la récupération des données"
-          }
-        },
-        "hr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dogodila se nepoznata greška pri dohvaćanju metapodataka"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sebuah kesalahan yang tak diketahui terjadi ketika mengambil metadata"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Si è verificato un errore sconosciuto nel recupero dei metadati"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "メタデータ取得時に不明なエラーが発生しました"
-          }
-        },
-        "mr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "मेटाडेटा आणताना एक अज्ञात त्रुटी उद्भवली"
-          }
-        },
-        "nb-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ukjent feil ved innhenting av metadata"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Een onbekende fout is opgetreden tijdens het ophalen van de metadata"
-          }
-        },
-        "nn" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Det oppstod ein ukjent feil under innhenting av metadata"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wystąpił nieznany błąd podczas pobierania metadanych"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ocorreu um erro desconhecido ao obter os metadados"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ocorreu um erro desconhecido ao obter metadados"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Неизвестная ошибка при получении метаданных"
-          }
-        },
-        "ta" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "மெட்டாடேட்டாவைப் பெறுவது தெரியாத பிழை ஏற்பட்டது"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Невідома помилка під час отримання метаданих"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "读取元数据时发生未知错误"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新詮釋資料時發生未知錯誤"
-          }
-        },
-        "zh-Hant-HK" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更新詮釋資料時發生未知錯誤"
-          }
-        }
-      }
-    },
     "Area" : {
       "comment" : "Area of an object in m^2\nObject geometry: a closed way or multipolygon)",
       "localizations" : {
@@ -20556,6 +20534,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pindala"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Superficie"
           }
         },
         "hr" : {
@@ -21592,6 +21576,12 @@
             "value" : "Parempilaatuinen taustakuva on saatavilla sijainnillesi. Vaihdetaanko siihen?"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une meilleure image de fond est disponible pour votre localisation. Voulez-vous changer vers cette dernière?"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -21646,6 +21636,12 @@
             "value" : "Для цього місця доступне краще фонове зображення. Бажаєте замінити фон на кращий?"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您所在位置有更好的背景图像可用，是否要切换？"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -21690,6 +21686,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Saadaval on paremad aluskaardid"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meilleure image de fond disponible"
           }
         },
         "hr" : {
@@ -21746,6 +21748,12 @@
             "value" : "Є кращий фоновий шар"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有更好的图像可用"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -21784,6 +21792,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Koosta uus ülesanne"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créer une nouvelle quête"
           }
         },
         "hr" : {
@@ -21834,6 +21848,12 @@
             "value" : "Створити новий квест"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建立新任务"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -21881,6 +21901,12 @@
             "value" : "Eraikuntza"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bâtiment"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -21909,6 +21935,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Будівля"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "建筑"
           }
         },
         "zh-Hant" : {
@@ -22987,6 +23019,12 @@
             "value" : "Не можна видалити компонент маршруту чи схожого звʼязка"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法删除路由组件或类似关联关系"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -23217,6 +23255,12 @@
             "value" : "Не можна видалити точку «via» зі звʼязка для обмежень маневрів"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法删除“转弯”限制的中间节点"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -23333,6 +23377,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не можна видалити точку обмежень маневрів що зʼєднує «to»/«from» з «via»"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法删除连接起点/终点到中间节点的转弯限制"
           }
         },
         "zh-Hant" : {
@@ -23457,6 +23507,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не можна видалити лінію з роллю «to» або «from» якою позначене обмеження маневрів"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法删除连接道路的转弯限制"
           }
         },
         "zh-Hant" : {
@@ -23744,6 +23800,12 @@
             "value" : "Не вдалося скласти повідомлення"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法撰写消息"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -23862,6 +23924,12 @@
             "value" : "Не вдалося зʼєднати лінію «inner» з лінією «outer»"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内层路径无法与外层路径连接"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -23912,6 +23980,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aldatu"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changer"
           }
         },
         "hr" : {
@@ -23966,6 +24040,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Замінити"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更改"
           }
         },
         "zh-Hant" : {
@@ -24140,6 +24220,12 @@
             "value" : "Vybrat již existující snímek"
           }
         },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle ein vorhandenes Foto aus"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -24152,10 +24238,34 @@
             "value" : "Elegir foto existente"
           }
         },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vali olemasolev foto"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir une photo existante"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odaberi postojeću fotografiju"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "既存の写真を選択してください"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите готовую фотографию"
           }
         },
         "ta" : {
@@ -24164,10 +24274,16 @@
             "value" : "இருக்கும் புகைப்படத்தைத் தேர்வுசெய்க"
           }
         },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вибрати існуюче фото"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "选择一张现有照片"
+            "value" : "选一张现有照片"
           }
         },
         "zh-Hant" : {
@@ -24210,6 +24326,12 @@
             "value" : "Ezabatu dena"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tout effacer"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -24244,6 +24366,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Почистити все"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除所有"
           }
         },
         "zh-Hant" : {
@@ -24293,6 +24421,12 @@
             "value" : "Basemap laukiak hustu"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effacer les tuiles de carte de base"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -24323,10 +24457,69 @@
             "value" : "Почистити тайли базової мапи"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除底图瓦片"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "清除基底地圖圖磚"
+          }
+        }
+      }
+    },
+    "Clear Data Caches" : {
+      "comment" : "Delete cached data",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vyčistit data v mezipaměti"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daten- Zwischenspeicher löschen"
+          }
+        },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kustuta puhverdatud andmed"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Isprazni predmemoriju podataka"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистить кэш данных"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистити кеш даних"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除数据缓存"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除資料暫存"
           }
         }
       }
@@ -25193,6 +25386,12 @@
             "value" : "Kopiatua"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copié"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -25239,6 +25438,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Скопійовано"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "己复制"
           }
         },
         "zh-Hant" : {
@@ -25714,6 +25919,12 @@
             "value" : "Crea una fila en la tabla para cada par de clave/valor y si los objetos coincidentes deben incluirse o excluirse. Deja el valor vacío para indicar que la clave no está presente. Utilice clave=* para que coincida cualquier valor."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créez une ligne dans le tableau pour chaque paire clé/valeur et indiquez si les objets correspondants doivent être inclus ou exclus. Laissez la valeur vide pour indiquer que la clé n'est pas présente. Utilisez key=* pour faire correspondre n'importe quelle valeur."
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -25754,6 +25965,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Створіть рядок у таблиці для кожної пари ключ/значення і вкажіть, чи потрібно включати або виключати обʼєкти, що збігаються. Залиште значення порожнім, щоб вказати, що ключ відсутній. Використовуйте key=* для збігу з будь-яким значенням."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "为每个键/值对在表中创建一行，并指定匹配对象应被包含还是排除。留空值表示键不存在。使用key=*匹配任意值。"
           }
         },
         "zh-Hant" : {
@@ -26875,10 +27092,28 @@
             "value" : "Nastave si vlastní funkce s unikátními kombinacemi značek pro rychlé přidávání speciální typů objektů. Vyhledat je můžete mezi běžnými značkami."
           }
         },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Definiere deine eigenen Funktionen mit einzigartigen Tag-Kombinationen, um schnell spezielle Objekttypen hinzuzufügen. Diese kannst du dann unter „Allgemeine Tags” suchen."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Defina sus propias características personalizadas con combinaciones de etiquetas únicas para añadir rápidamente tipos especiales de objetos. Estos se pueden buscar en Etiquetas comunes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Définissez vos propres caractéristiques personnalisées à l'aide de combinaisons de balises uniques afin d'ajouter rapidement des types d'objets particuliers. Ceux-ci peuvent être recherchés dans les balises communes."
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Definiraj vlastite prilagođene funkcije s jedinstvenim kombinacijama oznaka za brzo dodavanje posebnih vrsta objekata. One se mogu pretraživati u „Uobičajene oznake”."
           }
         },
         "ja" : {
@@ -26887,10 +27122,28 @@
             "value" : "独自のタグの組み合わせを使用して独自のカスタムフィーチャを定義すると、特殊なタイプのオブジェクトをすばやく追加できます。これらはよくあるタグで検索できます。"
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Создайте свои собственные объекты, чтобы быстро добавлять их. Эти объекты можно будет искать по общим тегам."
+          }
+        },
         "ta" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "சிறப்பு வகை பொருள்களை விரைவாகச் சேர்க்க தனித்துவமான குறிச்சொல் சேர்க்கைகளுடன் உங்கள் சொந்த தனிப்பயன் அம்சங்களை வரையறுக்கவும். பொதுவான குறிச்சொற்களில் இவை தேடப்படலாம்."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Визначте власні функції за допомогою унікальних комбінацій тегів, щоб швидко додавати спеціальні типи об’єктів. Їх можна шукати в розділі «Спільні теги»."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通过独特的标签组合定义自定义特征，可快速添加特殊类型对象。这些对象可在\"常用标签\"中搜索。"
           }
         },
         "zh-Hant" : {
@@ -27325,6 +27578,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Видалити %@?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "删除%@？"
           }
         },
         "zh-Hant" : {
@@ -28966,10 +29225,22 @@
             "value" : "Baztertu"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abandonner"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Odbaci"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scarta"
           }
         },
         "ja" : {
@@ -29012,6 +29283,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Відкинути"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "舍弃"
           }
         },
         "zh-Hant" : {
@@ -29428,6 +29705,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Відстань: %1$@ ± %2$@ метрів"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "距离：%1$@ ± %2$@ 米"
           }
         },
         "zh-Hant" : {
@@ -30876,6 +31159,12 @@
             "value" : "Chắc chắn rằng Dịch vụ Định vị được kích hoạt và rằng bạn đã cấp phép truy cập cho ứng dụng này.\n\nLỗi: %@"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请确保已启用位置服务并授予本应用访问权限。\n\n错误：%@"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -30992,6 +31281,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Впевніться що режим редагування увімкнений і видно обʼєкти навколо"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请确保编辑器视图可见并显示本地区域对象"
           }
         },
         "zh-Hant" : {
@@ -31545,6 +31840,12 @@
             "value" : "Подовження лінії «via» яка бере участь у обмеженні маневрів зламає звʼязок"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扩展转向限制中的'途经点'将破坏该关系"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -31657,6 +31958,12 @@
             "value" : "Подовження лінії що входить до маршруту чи схожого звʼязку може пошкодити звʼязок"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扩展属于路线或关联关系的路径可能损坏该关系"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -31692,6 +31999,12 @@
             "value" : "Extraer nodo"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extraire le noeud"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -31720,6 +32033,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Видобути точку"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提取节点"
           }
         },
         "zh-Hant" : {
@@ -31755,6 +32074,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Filtrid"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filtres"
           }
         },
         "hr" : {
@@ -31809,6 +32134,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Фільтри"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "筛选器"
           }
         },
         "zh-Hant" : {
@@ -31880,6 +32211,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "фт"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "英尺"
           }
         },
         "zh-Hant" : {
@@ -31987,6 +32324,12 @@
             "value" : "Geomeetria"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Géométrie"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -32082,6 +32425,12 @@
             "value" : "GPX"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPX"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -32110,6 +32459,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "GPX"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPX轨迹"
           }
         },
         "zh-Hant" : {
@@ -32431,6 +32786,12 @@
             "value" : "HealthKit"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kit Santé"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -32446,7 +32807,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "HealthKit"
+            "value" : "Apple Здоровье"
           }
         },
         "ta" : {
@@ -32584,6 +32945,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Висота: %1$@ ± %2$@ метрів"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "海拔：%1$@ ± %2$@ 米"
           }
         },
         "zh-Hant" : {
@@ -32761,6 +33128,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ikoon"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icône"
           }
         },
         "hr" : {
@@ -33130,6 +33503,12 @@
             "value" : "Impordi"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -33218,6 +33597,12 @@
             "value" : "Viga importimisel"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erreur d’importation"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -33266,6 +33651,12 @@
             "value" : "Помилка імпорту"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入出错了"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -33276,6 +33667,53 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "匯入錯誤"
+          }
+        }
+      }
+    },
+    "Import GPX" : {
+      "comment" : "GPX track",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importovat GPX"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GPX importieren"
+          }
+        },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impordi GPX-andmed"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uvezi GPX"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скачать GPX"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Імпорт GPX"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匯入 GPX"
           }
         }
       }
@@ -33304,6 +33742,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impordi ülesandeid"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer des quêtes"
           }
         },
         "hr" : {
@@ -33881,6 +34325,12 @@
             "value" : "Приєднання зробить недійсним обмеження маневрів до якого входить лінія"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接会破坏该道路归属的转弯限制"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -33926,6 +34376,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gakoak"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clés"
           }
         },
         "hr" : {
@@ -34047,6 +34503,12 @@
             "value" : "кг"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "千克"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -34110,6 +34572,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "км"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "千米"
           }
         },
         "zh-Hant" : {
@@ -34205,6 +34673,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "км/г"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "千米/时"
           }
         },
         "zh-Hant" : {
@@ -34554,7 +35028,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "lbs"
+            "value" : "фунтов"
           }
         },
         "ta" : {
@@ -34780,6 +35254,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sisi kiri"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lato sinistro"
           }
         },
         "ja" : {
@@ -35025,6 +35505,12 @@
             "value" : "Joon"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lignes"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -35222,6 +35708,9 @@
           }
         }
       }
+    },
+    "Location updated to the location and orientation stored in the photo." : {
+
     },
     "Login successful" : {
       "localizations" : {
@@ -35603,6 +36092,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "м"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "米"
           }
         },
         "zh-Hant" : {
@@ -36119,6 +36614,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tối đa 2.000 nốt sau khi nối liền"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合并后的道路节点数上限为2000"
           }
         },
         "zh-Hant" : {
@@ -37137,6 +37638,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "мил"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "英里"
           }
         },
         "zh-Hant" : {
@@ -38662,6 +39169,12 @@
             "value" : "миль/г"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "英里/时"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -38842,6 +39355,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Izena"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nom"
           }
         },
         "hr" : {
@@ -39490,6 +40009,12 @@
             "value" : "ні"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "否"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -39902,6 +40427,53 @@
         }
       }
     },
+    "No match" : {
+      "comment" : "No value available",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Žádná shoda"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Übereinstimmung"
+          }
+        },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vastet pole"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nema poklapanja"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Значение не найдено"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Немає збігу"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒有相符"
+          }
+        }
+      }
+    },
     "No results found" : {
       "localizations" : {
         "ar" : {
@@ -40092,6 +40664,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tidak ada batasan Dilarang Belok Kanan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna limitazione di svolta a destra"
           }
         },
         "ja" : {
@@ -40671,7 +41249,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Точка"
+            "value" : "Вузол"
           }
         },
         "vi" : {
@@ -42265,6 +42843,12 @@
             "value" : "Balore zaharra: %@"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ancienne valeur : %@"
+          }
+        },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -42422,7 +43006,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "只有左转限制"
+            "value" : "只允许左转"
           }
         },
         "zh-Hant" : {
@@ -42625,6 +43209,12 @@
             "value" : "Batasan Harus Belok Kanan"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo limitazione di svolta a destra"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -42676,7 +43266,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "只有右转限制"
+            "value" : "只许右转"
           }
         },
         "zh-Hant" : {
@@ -42800,7 +43390,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "只有直行限制"
+            "value" : "只许直行"
           }
         },
         "zh-Hant" : {
@@ -42934,6 +43524,9 @@
           }
         }
       }
+    },
+    "Open Image File" : {
+
     },
     "Open Settings" : {
       "comment" : "Open the iOS Settings app",
@@ -45020,7 +45613,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Приостановить запись GPX треков"
+            "value" : "Приостановить запись GPX треков."
           }
         },
         "ta" : {
@@ -45043,138 +45636,48 @@
         }
       }
     },
-    "Perform Action" : {
+    "Photo not available" : {
       "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "تنفيذ الإجراء"
-          }
-        },
-        "ars" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "تنفيذ الإجراء"
-          }
-        },
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Provést akci"
+            "value" : "Fotka je nedostupná"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aktion ausführen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Efectuar acción"
+            "value" : "Foto nicht verfügbar"
           }
         },
         "et" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Teosta tegevus"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Effectuer l'action"
+            "value" : "Fotot pole saadaval"
           }
         },
         "hr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Izvedi radnju"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lakukan Tindakan"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esegui l'azione"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "操作を実行"
-          }
-        },
-        "nb-NO" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Utfør handling"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Actie uitvoeren"
-          }
-        },
-        "pt" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Executar a ação"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Executar a ação"
+            "value" : "Fotografija nije dostupna"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Выполнить действие"
-          }
-        },
-        "ta" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "செயலைச் செய்யுங்கள்"
+            "value" : "Фотография недоступна"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Здійснити дію"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thực hiện Tác vụ"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "执行操作"
+            "value" : "Фото недоступне"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "繼續執行"
-          }
-        },
-        "zh-Hant-HK" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "繼續執行"
+            "value" : "照片不存在"
           }
         }
       }
@@ -45400,6 +45903,53 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "點"
+          }
+        }
+      }
+    },
+    "Predefined" : {
+      "comment" : "Items that are built into the app",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přednastaveno"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vordefiniert"
+          }
+        },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eelmääratletud"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unaprijed definirano"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отобразить на карте"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Попередньо визначено"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "預先定義"
           }
         }
       }
@@ -45672,7 +46222,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "上一個航跡"
+            "value" : "之前的航跡"
           }
         },
         "zh-Hant-HK" : {
@@ -45701,6 +46251,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Proporciona un símbolo de un solo carácter (emoji o carácter unicode) para identificar esta búsqueda:"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fournissez un symbole d'un seul caractère (émoji ou caractère Unicode) pour identifier cette quête :"
           }
         },
         "hr" : {
@@ -48362,6 +48918,12 @@
             "value" : "Kanan"
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Destra"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -48497,6 +49059,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sisi kanan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lato destro"
           }
         },
         "ja" : {
@@ -49173,6 +49741,12 @@
             "value" : "Odaberi jezik za predodređene postavke. Drugi sadržaj aplikacije koristit će tvoj standardni jezik."
           }
         },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleziona la lingua utilizzata per i preset. Gli altri contenuti dell'app utilizzeranno la tua lingua predefinita."
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
@@ -49182,13 +49756,19 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Язык пресетов тегов в редакторе"
+            "value" : "Язык пресетов тегов в редакторе. В других разделах приложения будет использоваться язык по умолчанию."
           }
         },
         "ta" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "முன்னமைவுகளுக்கு பயன்படுத்தப்படும் மொழியைத் தேர்ந்தெடுக்கவும். பிற பயன்பாட்டு உள்ளடக்கம் உங்கள் இயல்புநிலை மொழியைப் பயன்படுத்தும்."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Виберіть мову, яка використовуватиметься для пресетів. Інший вміст програми використовуватиме мову за замовчуванням."
           }
         },
         "zh-Hant" : {
@@ -49892,6 +50472,9 @@
           }
         }
       }
+    },
+    "Settings…" : {
+      "comment" : "Settings menu item in Mac menu bar"
     },
     "Share" : {
       "comment" : "Open iOS sharing sheet\nTitle for sharing options",
@@ -50632,6 +51215,12 @@
             "value" : "кор. т"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "短吨"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -51024,7 +51613,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Начать записывать GPX треки"
+            "value" : "Начать записывать треки GPX."
           }
         },
         "ta" : {
@@ -51294,7 +51883,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Перестать записывать GPX треки"
+            "value" : "Перестать записывать GPX треки."
           }
         },
         "ta" : {
@@ -51528,6 +52117,12 @@
             "value" : "Успіх"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "成功"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -51591,6 +52186,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "т"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "吨"
           }
         },
         "zh-Hant" : {
@@ -51828,10 +52429,28 @@
             "value" : "Pořídit nový snímek"
           }
         },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neues Foto machen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hacer foto nueva"
+          }
+        },
+        "et" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pildista"
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snimi novu fotografiju"
           }
         },
         "ja" : {
@@ -51840,10 +52459,22 @@
             "value" : "新しい写真を撮る"
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сфотографируйте"
+          }
+        },
         "ta" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "புதிய புகைப்படம் எடு"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зробити нове фото"
           }
         },
         "zh-Hans" : {
@@ -51914,6 +52545,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tombol + dapat diposisikan pada antara sisi kiri atau sisi kanan dari layar"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il pulsante + può essere posizionato sul lato sinistro o destro dello schermo"
           }
         },
         "ja" : {
@@ -52218,6 +52855,12 @@
             "value" : "Các nốt được gộp có thẻ mâu thuẫn"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合并节点中存在标签冲突"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -52334,6 +52977,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Các nốt có vai trò mâu thuẫn trong các quan hệ chứa"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前路网节点在父级关系数据中存在角色定义冲突"
           }
         },
         "zh-Hant" : {
@@ -52590,6 +53239,12 @@
             "value" : "Không thể xóa hạn chế"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "该转向限制无法删除"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -52603,6 +53258,9 @@
           }
         }
       }
+    },
+    "The selected image file does not contain location information." : {
+
     },
     "The selected way must be completely visible" : {
       "localizations" : {
@@ -52706,6 +53364,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Лінія яку обрали має бути цілком на видноті"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所选路径必须完整显示"
           }
         },
         "zh-Hant" : {
@@ -52820,6 +53484,12 @@
             "value" : "Цільова лінія невизначена"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目标路径存在歧义"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -52930,6 +53600,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Поворот містить нерозпізнане обмеження маневру. Якщо продовжите, знищите його."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前转向限制包含未识别样式，继续操作将导致数据丢失。"
           }
         },
         "zh-Hant" : {
@@ -53054,6 +53730,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lối thuộc quan hệ chưa được tải về hoàn toàn"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前路径所属关系数据未完整下载"
           }
         },
         "zh-Hant" : {
@@ -53186,6 +53868,12 @@
             "value" : "Lối không đủ thẳng"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前路径弯曲度不符合要求"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -53308,6 +53996,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lối phải có ít nhất 2 nốt"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "路径必须包含至少2个路网节点"
           }
         },
         "zh-Hant" : {
@@ -53440,6 +54134,12 @@
             "value" : "Các lối có thẻ mâu thuẫn"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前路径包含不兼容的标签数据"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -53570,6 +54270,12 @@
             "value" : "Щоб здійснити дію GPS має бути увімкненим"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本操作需开启GPS卫星定位服务"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -53674,6 +54380,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Цей застосунок поки що не підтримує редагування обмежень повороту без точки з роллю «via»"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本应用暂不支持编辑无节点作为'经由点'的转向限制"
           }
         },
         "zh-Hant" : {
@@ -53782,6 +54494,12 @@
             "value" : "Цей пристрій не може надати дані про курс."
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当前设备不支持提供航向数据"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -53864,6 +54582,12 @@
             "value" : "Ця функція працює лише починаючи з iOS 15"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本功能需iOS 15及以上系统支持"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -53944,6 +54668,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "На цій сторінці можна створювати квести з конкретнішими критеріями, ніж на звичайній сторінці «Редактор квестів»."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本页面支持设置比常规任务构建更精确的路线条件。"
           }
         },
         "zh-Hant" : {
@@ -54056,6 +54786,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Щоб додати інший член до звʼязку «затримайте» палець на лінії яку хочете додати"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "长按待添加路线可新增关系成员"
           }
         },
         "zh-Hant" : {
@@ -54185,6 +54921,12 @@
             "value" : "CHO PHÉP đi từ %1$@ sang %2$@"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仅允许从%@前往%@"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -54301,6 +55043,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Đi từ %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从%@出发"
           }
         },
         "zh-Hant" : {
@@ -54427,6 +55175,12 @@
             "value" : "CHỈ cho phép đi từ %1$@ sang %2$@"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仅允许从%@前往%@"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -54551,6 +55305,12 @@
             "value" : "CẤM đi từ %1$@ sang %2$@"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "禁止从%@前往%@"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -54673,6 +55433,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bật Dịch vụ Định vị để Cho phép %@ Xác định Vị trí của Bạn"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请开启定位服务以使%@获取您的位置信息"
           }
         },
         "zh-Hant" : {
@@ -54904,6 +55670,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Обмеження поворотів вказують, на які дороги ви можете повернути при вʼїзді на перехрестя із заданого напрямку.\n\nВиберіть шосе, з якого ви наближаєтеся до перехрестя, а потім натисніть стрілку, щоб вказати, чи є дорога призначення дозволеним маршрутом."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "转向限制规则定义了从特定方向进入路口时可转向的道路。请选择您当前驶入路口的主干道，通过点击箭头图标切换目标道路是否允许通行。"
           }
         },
         "zh-Hant" : {
@@ -55153,6 +55925,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Розворот з %@ дозволено"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许从%@调头"
           }
         },
         "zh-Hant" : {
@@ -55667,7 +56445,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Скасувати"
+            "value" : "Відмінити"
           }
         },
         "vi" : {
@@ -55929,6 +56707,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kiểu hạn chế rẽ bất ngờ"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不支持的转向限制类型"
           }
         },
         "zh-Hant" : {
@@ -57304,7 +58088,7 @@
       }
     },
     "Version" : {
-      "comment" : "OSM object versioh",
+      "comment" : "OSM object version",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -58331,6 +59115,12 @@
             "value" : "Яка назва цього квесту? Найкраще написати її у формі дії, наприклад «Додати тип поверхні»:"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请以'添加表面'这类动作格式命名本任务"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -58411,6 +59201,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Який ключ теґа модифікується цим квестом?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本任务将修改哪个标签键？"
           }
         },
         "zh-Hant" : {
@@ -58495,6 +59291,12 @@
             "value" : "Яких саме типів обʼєктів стосується цей квест?"
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本任务适用于哪些类型的对象？"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -58575,6 +59377,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "так"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "是"
           }
         },
         "zh-Hant" : {
@@ -58689,6 +59497,12 @@
             "value" : "Ви збираєтеся внести зміни до живої бази даних OpenStreetMap. Ваші зміни будуть видимі для всіх у світі.\n\nЩоб продовжити, натисніть «Здійснити зміни» ще раз, якщо передумали — натисніть «Скасувати»."
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您即将修改OpenStreetMap在线生产数据库。您的更改将对全球所有用户可见。\n\n如需继续，请再次点击'提交'；否则请点击'取消'。"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -58712,10 +59526,22 @@
             "value" : "Můžete si nastavit vlastní pole předvoleb. Pole tvoří pár: značka a hodnota, vztahující se k funkci."
           }
         },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kannst eigene Felder für Voreinstellungen festlegen. Ein Feld ist ein einzelnes Schlüssel/Wert-Paar, das mit einer Funktion verbunden ist."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Puede definir campos personalizados para las preconfiguraciones. Un campo es un par clave/valor asociado a una característica."
+          }
+        },
+        "hr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Možeš definirati prilagođena polja za unaprijed postavljene postavke. Polje je jedan par ključeva/vrijednosti povezan s funkcijom."
           }
         },
         "ja" : {
@@ -58724,10 +59550,28 @@
             "value" : "プリセットのカスタムフィールドを定義できます。フィールドは、機能に関連付けられた単一のキーと値のペアです。"
           }
         },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пресет это дополнительный тег с вариантами значений, который вы хотите быстро добавлять к объекту. В пресете указывается, при редактировании какого объекта (задано тоже тегом), этот дополнительный тег виден в начале списка, а также перечисляются варианты его значений."
+          }
+        },
         "ta" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "முன்னமைவுகளுக்கான தனிப்பயன் புலங்களை நீங்கள் வரையறுக்கலாம். ஒரு புலம் என்பது ஒரு அம்சத்துடன் தொடர்புடைய ஒற்றை விசை/மதிப்பு இணை."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ви можете визначити власні поля для пресетів. Поле — це окрема пара ключ/значення, пов’язана з функцією."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您可为预设项定义自定义字段。一个字段是与功能关联的单个键值对。"
           }
         },
         "zh-Hant" : {
@@ -58834,6 +59678,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ви можете перейти до члена звʼязку, лише якщо він вже завантажений.\nЦі члени позначені символом «>»."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只有当关联成员已下载时，才能导航至该成员。\n这些成员会以'>'符号标记。"
           }
         },
         "zh-Hant" : {
@@ -58954,6 +59804,12 @@
             "value" : "Ви зробили зміни і ще не завантажили їх на сервер. Якщо очистити кеш, ці зміни будуть втрачені."
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您已进行的更改尚未上传至服务器，清除缓存将导致这些更改丢失。"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -59070,6 +59926,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ви повинні зберегти або відкинути зміни до поточного обʼєкта, перш ніж редагувати повʼязаний з ним звʼязок"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "必须先保存或放弃当前对象的修改，才能编辑其关联关系"
           }
         },
         "zh-Hant" : {
@@ -59806,6 +60668,12 @@
             "value" : "Розмір кеш-памʼяті для даних OSM збільшився, тому застосунок може відкриватися й закриватися повільніше.\n\nВи можете почистити кеш-памʼять (у налаштуваннях перегляду) щоб зробити застосунок швидшим."
           }
         },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您的OSM数据缓存正在增大，这可能导致启动和关闭速度变慢。\n\n建议清除缓存（位于显示设置中）以提升性能。"
+          }
+        },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
@@ -59909,7 +60777,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Приблизьте, чтобы приступить к редактированию"
+            "value" : "Приблизьте для редактирования"
           }
         },
         "ta" : {

@@ -105,6 +105,22 @@ func IntersectionOfTwoVectors(_ pos1: OSMPoint, _ dir1: OSMPoint, _ pos2: OSMPoi
 	return pt
 }
 
+@inline(__always) func UnitVector(_ v: OSMPoint) -> OSMPoint {
+	let len = Mag(v)
+	if len == 0 { return OSMPoint(x: 0, y: 0) }
+	return OSMPoint(x: v.x / len, y: v.y / len)
+}
+
+@inline(__always) func OSMPointFromCGPoint(_ pt: CGPoint) -> OSMPoint {
+	return OSMPoint(x: Double(pt.x), y: Double(pt.y))
+}
+
+func DistanceFromLineToPoint(_ lineStart: OSMPoint, _ lineDir: OSMPoint, _ point: OSMPoint) -> Double {
+	// Distance from point to line defined by lineStart + t*lineDir
+	let v = Sub(point, lineStart)
+	return abs(CrossMag(v, lineDir))
+}
+
 // MARK: CGRect
 
 extension CGRect {
@@ -458,6 +474,7 @@ extension OSMTransform {
 		let d = sqrt(m11 * m11 + m12 * m12 + m13 * m13)
 		return d
 #else
+		// We never have skew, and scaleX == scaleY, so just compute scaleX:
 		return hypot(a, c)
 #endif
 	}
@@ -646,6 +663,19 @@ struct LatLon: Equatable, Codable {
 	@inline(__always) public static func ==(_ a: LatLon, _ b: LatLon) -> Bool {
 		return a.lon == b.lon && a.lat == b.lat
 	}
+
+	// Add PList representation
+	typealias PlistType = [Double]
+
+	init?(_ plist: PlistType) {
+		guard plist.count == 2 else { return nil }
+		lon = plist[0]
+		lat = plist[1]
+	}
+
+	var plist: PlistType {
+		[lon, lat]
+	}
 }
 
 // MARK: miscellaneous
@@ -694,6 +724,10 @@ func GreatCircleDistance(_ p1: LatLon, _ p2: LatLon) -> Double {
 	let c: Double = 2 * atan2(sqrt(a), sqrt(1 - a))
 	let meters = EarthRadius * c
 	return meters
+}
+
+func GreatCircleDistance(_ p1: CLLocationCoordinate2D, _ p2: CLLocationCoordinate2D) -> Double {
+	return GreatCircleDistance(LatLon(p1), LatLon(p2))
 }
 
 // area of a closed polygon (first and last points repeat), and boolean if it's clockwise

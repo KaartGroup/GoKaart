@@ -33,63 +33,13 @@ struct MapViewOverlays: OptionSet {
 }
 
 enum GPS_STATE: Int {
-	case NONE
-	case LOCATION
-	case HEADING
+	case NONE // none
+	case LOCATION // location only
+	case HEADING // location and heading
 }
 
-enum EDIT_ACTION: Int {
-	// used by edit control:
-	case EDITTAGS
-	case ADDNOTE
-	case DELETE
-	case MORE
-	// used for action sheet edits:
-	case SPLIT
-	case RECTANGULARIZE
-	case STRAIGHTEN
-	case REVERSE
-	case DUPLICATE
-	case ROTATE
-	case JOIN
-	case DISCONNECT
-	case EXTRACTNODE
-	case CIRCULARIZE
-	case COPYTAGS
-	case PASTETAGS
-	case RESTRICT
-	case CREATE_RELATION
-    case TOGGLEONEWAY
-
-	/// Localized names of edit actions
-	func actionTitle(abbreviated: Bool = false) -> String {
-		switch self {
-		case .SPLIT: return NSLocalizedString("Split", comment: "Edit action")
-		case .RECTANGULARIZE: return NSLocalizedString("Make Rectangular", comment: "Edit action")
-		case .STRAIGHTEN: return NSLocalizedString("Straighten", comment: "Edit action")
-		case .REVERSE: return NSLocalizedString("Reverse", comment: "Edit action")
-		case .DUPLICATE: return NSLocalizedString("Duplicate", comment: "Edit action")
-		case .ROTATE: return NSLocalizedString("Rotate", comment: "Edit action")
-		case .CIRCULARIZE: return NSLocalizedString("Make Circular", comment: "Edit action")
-		case .JOIN: return NSLocalizedString("Join", comment: "Edit action")
-		case .DISCONNECT: return NSLocalizedString("Disconnect", comment: "Edit action")
-		case .EXTRACTNODE: return NSLocalizedString("Extract Node", comment: "Edit action")
-		case .COPYTAGS: return NSLocalizedString("Copy Tags", comment: "Edit action")
-		case .PASTETAGS: return NSLocalizedString("Paste", comment: "Edit action")
-		case .EDITTAGS: return NSLocalizedString("Tags", comment: "Edit action")
-		case .ADDNOTE: return NSLocalizedString("Add Note", comment: "Edit action")
-		case .DELETE: return NSLocalizedString("Delete", comment: "Edit action")
-		case .MORE: return NSLocalizedString("More...", comment: "Edit action")
-		case .RESTRICT: return abbreviated
-			? NSLocalizedString("Restrict", comment: "Edit action")
-			: NSLocalizedString("Turn Restrictions", comment: "Edit action")
-		case .CREATE_RELATION: return NSLocalizedString("Create Relation", comment: "Edit action")
-        case .TOGGLEONEWAY: return NSLocalizedString("Toggle One Way", comment: "Edit action")
-		}
-	}
-}
-
-private enum ZLAYER: CGFloat {
+// FIXME: Move to MainViewController
+enum ZLAYER: CGFloat {
 	case AERIAL = -100
 	case BASEMAP = -98
 	case LOCATOR = -50
@@ -104,73 +54,49 @@ private enum ZLAYER: CGFloat {
 	case LOCATION_BALL = 10
 	case TOOLBAR = 90
 	case PUSHPIN = 105
-	case FLASH = 110
 }
-
-// how close to an object do we need to tap to select it
-let DefaultHitTestRadius: CGFloat = 10.0
-
-// how close to an object do we need to drag a node to connect to it
-let DragConnectHitTestRadius = (DefaultHitTestRadius * 0.6)
 
 struct MapLocation {
-	var longitude = 0.0
-	var latitude = 0.0
-	var zoom = 0.0
-	var direction = 0.0 // degrees clockwise from north
-	var viewState: MapViewState? = nil
+	var longitude: Double
+	var latitude: Double
+	var zoom: Double
+	var direction: Double // degrees clockwise from north
+	var viewState: MapViewState?
+
+	init(longitude: Double,
+	     latitude: Double,
+	     zoom: Double = 0,
+	     direction: Double = 0,
+	     viewState: MapViewState? = nil)
+	{
+		self.longitude = longitude
+		self.latitude = latitude
+		self.zoom = zoom
+		self.direction = direction
+		self.viewState = viewState
+	}
+
+	init(exif: EXIFInfo) {
+		longitude = exif.longitude
+		latitude = exif.latitude
+		direction = exif.direction ?? 0.0
+		zoom = 0
+		viewState = nil
+	}
 }
 
-protocol MapViewProgress {
-	func progressIncrement(_ delta: Int)
-	func progressDecrement()
-}
+// MARK: MapView
 
-// MARK: Gestures
-
-private let DisplayLinkHeading = "Heading"
-private let DisplayLinkPanning = "Panning" // disable gestures inside toolbar buttons
-
-final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActionSheetDelegate,
+final class MapView: UIView, UIActionSheetDelegate,
 	UIGestureRecognizerDelegate, SKStoreProductViewControllerDelegate, DPadDelegate,
 	UISheetPresentationControllerDelegate
 {
-	var lastMouseDragPos = CGPoint.zero
-	var progressActive = AtomicInt(0)
-	var locationBallLayer: LocationBallLayer
-	var addWayProgressLayer: CAShapeLayer?
-	var blinkObject: OsmBaseObject? // used for creating a moving dots animation during selection
-	var blinkSegment = 0
-	var blinkLayer: CAShapeLayer?
-	var isZoomScroll = false // Command-scroll zooms instead of scrolling (desktop only)
-
 	var isRotateObjectMode: (rotateObjectOverlay: CAShapeLayer, rotateObjectCenter: LatLon)?
 
-	var lastErrorDate: Date? // to prevent spamming of error dialogs
-	var ignoreNetworkErrorsUntilDate: Date?
 	var voiceAnnouncement: VoiceAnnouncement?
-	var tapAndDragGesture: TapAndDragGesture!
+	var objectRotationGesture: UIRotationGestureRecognizer!
 
-	var addNodeButtonLongPressGestureRecognizer: UILongPressGestureRecognizer?
-	var plusButtonTimestamp: TimeInterval = 0.0
-
-	var windowPresented = false
-	var locationManagerExtraneousNotification = false
-
-	var mainViewController = MainViewController()
-	@IBOutlet var fpsLabel: FpsLabel!
-	@IBOutlet var userInstructionLabel: UILabel!
-	@IBOutlet var compassButton: CompassButton!
-	@IBOutlet var flashLabel: UILabel!
-	@IBOutlet var aerialServiceLogo: UIButton!
-	@IBOutlet var helpButton: UIButton!
-	@IBOutlet var centerOnGPSButton: UIButton!
-	@IBOutlet var addNodeButton: UIButton!
-	@IBOutlet var rulerView: RulerView!
-	@IBOutlet var progressIndicator: UIActivityIndicatorView!
-	@IBOutlet var editControl: UISegmentedControl!
-	@IBOutlet var aerialAlignmentButton: UIButton!
-	@IBOutlet var dPadView: DPadView!
+	@IBOutlet var editToolbar: CustomSegmentedControl!
 
 	/// Displays the current zoom level on the map
 	private(set) var zoomLevelLabel: ZoomLevelLabel!
@@ -182,6 +108,9 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		let viewState: MapViewState
 		let centerLatLon: LatLon
 		let scale: Double
+		let editorWasHidden: Bool
+		let aerialWasHidden: Bool
+		let basemapWasHidden: Bool
 	}
 
 	/// Whether we're currently in planning mode (exploring the map without editing)
@@ -193,12 +122,15 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 	/// Button to toggle planning mode (upper left corner)
 	private(set) var planningModeButton: UIButton!
 
+	/// Button to toggle unnamed roads overlay (below planning mode button)
+	private(set) var unnamedRoadsButton: UIButton!
+
 	private var magnifyingGlass: MagnifyingGlass!
 
 	private var editControlActions: [EDIT_ACTION] = []
 
-	let locationManager = CLLocationManager()
-	private(set) var currentLocation = CLLocation()
+	var mainView: MainViewController!
+	var viewPort: MapViewPort { mainView.viewPort }
 
 	public var viewState: MapViewState = .EDITORAERIAL {
 		willSet(newValue) {
@@ -225,19 +157,6 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 	/// Tracks whether we're past the zoom threshold for hybrid aerial/basemap mode
 	private var viewStatePastZoomThreshold = false
 
-	// Set true when the user moved the screen manually, so GPS updates shouldn't recenter screen on user
-	public var userOverrodeLocationPosition = false {
-		didSet {
-			centerOnGPSButton.isHidden = !userOverrodeLocationPosition || gpsState == .NONE
-		}
-	}
-
-	public var userOverrodeLocationZoom = false {
-		didSet {
-			centerOnGPSButton.isHidden = !userOverrodeLocationZoom || gpsState == .NONE
-		}
-	}
-
 	public var basemapServer: TileServer {
 		get {
 			let ident = UserPrefs.shared.currentBasemapSelection.value
@@ -245,39 +164,29 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		}
 		set {
 			let oldServerId = basemapServer.identifier
-			backgroundLayers.removeAll(where: {
-				switch $0 {
-				case let .tileLayer(layer):
-					if layer.tileServer.identifier == oldServerId {
-						layer.removeFromSuperlayer()
-						return true
-					}
-				case let .tileView(view):
-					if view.tileServer.identifier == oldServerId {
-						view.removeFromSuperview()
-						return true
-					}
-				case .otherLayer:
-					break
+			allLayers.removeAll(where: {
+				if $0.hasTileServer?.identifier == oldServerId {
+					$0.removeFromSuper()
+					return true
 				}
 				return false
 			})
 
 			if newValue.isVector {
 				let view = MapLibreVectorTilesView(mapView: self, tileServer: newValue)
-				view.styleURL = URL(string: newValue.url)!
 				view.layer.zPosition = ZLAYER.BASEMAP.rawValue
 				insertSubview(view, at: 0) // place at bottom so MapMarkers are above it
-				basemapLayer = .tileView(view)
+				basemapLayer = view
 			} else {
-				let layer = MercatorTileLayer(mapView: self)
+				let layer = MercatorTileLayer(viewPort: viewPort,
+				                              progress: mainView)
 				layer.tileServer = newValue
 				layer.supportDarkMode = true
 				layer.zPosition = ZLAYER.BASEMAP.rawValue
 				self.layer.addSublayer(layer)
-				basemapLayer = .tileLayer(layer)
+				basemapLayer = layer
 			}
-			backgroundLayers.append(basemapLayer)
+			allLayers.append(basemapLayer)
 
 			UserPrefs.shared.currentBasemapSelection.value = newValue.identifier
 
@@ -287,238 +196,55 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 
 	private(set) lazy var mapMarkerDatabase = MapMarkerDatabase()
 
-	private(set) lazy var aerialLayer = MercatorTileLayer(mapView: self)
-	private(set) lazy var basemapLayer: LayerOrView = .tileLayer(MercatorTileLayer(mapView: self))
-	private(set) lazy var noNameLayer = MercatorTileLayer(mapView: self)
-	private(set) lazy var editorLayer = EditorMapLayer(owner: self)
-	private(set) lazy var gpxLayer = GpxLayer(mapView: self)
-	private(set) lazy var dataOverlayLayer = DataOverlayLayer(mapView: self)
-	private(set) var quadDownloadLayer: QuadDownloadLayer?
+	// background layers
+	private(set) var aerialLayer: MercatorTileLayer!
+	private(set) var basemapLayer: (any LayerOrView & DiskCacheSizeProtocol)!
+	private(set) var editorLayer: EditorMapLayer!
 
 	// overlays
-	private(set) lazy var locatorLayer = MercatorTileLayer(mapView: self)
+	private(set) var gpxLayer: GpxLayer!
+	private(set) var locatorLayer: MercatorTileLayer!
+	private(set) var dataOverlayLayer: DataOverlayLayer!
+	private(set) var quadDownloadLayer: QuadDownloadLayer?
 
-	enum LayerOrView: Equatable {
-		case otherLayer(CALayer)
-		case tileLayer(MercatorTileLayer)
-		case tileView(MapLibreVectorTilesView)
-
-		var isHidden: Bool {
-			get {
-				switch self {
-				case let .otherLayer(layer): return layer.isHidden
-				case let .tileLayer(layer): return layer.isHidden
-				case let .tileView(view): return view.isHidden
-				}
-			}
-			set {
-				switch self {
-				case let .otherLayer(layer): layer.isHidden = newValue
-				case let .tileLayer(layer): layer.isHidden = newValue
-				case let .tileView(view): view.isHidden = newValue
-				}
-			}
-		}
+	// List of all layers that are displayed and need to be resized, etc.
+	// These can be either UIView or CALayer based.
+	// Includes:
+	// * MapLibre and MercatorTile basemap layers
+	// * Editor layer
+	// * Aerial imagery
+	// * Gpx Layer
+	// * DataOverlays like GeoJson
+	@MainActor
+	protocol LayerOrView {
+		var hasTileServer: TileServer? { get }
+		var isHidden: Bool { get set }
+		func removeFromSuper()
 	}
 
-	private(set) var backgroundLayers: [LayerOrView] = [] // list of all layers that need to be resized, etc.
-
-	var mapTransform = MapTransform()
-	var screenFromMapTransform: OSMTransform {
-		get {
-			return mapTransform.transform
-		}
-		set(t) {
-			if t == mapTransform.transform {
-				return
-			}
-			var t = t
-
-			// save pushpinView coordinates
-			var pp: LatLon?
-			if let pushpinView = pushPin {
-				pp = mapTransform.latLon(forScreenPoint: pushpinView.arrowPoint)
-			}
-			// we could move the blink outline similar to pushpin, but it's complicated and less important
-			unblinkObject()
-
-			// Wrap around if we translate too far longitudinally
-			let unitX = t.unitX()
-			let unitY = OSMPoint(x: -unitX.y, y: unitX.x)
-			let tran = t.translation()
-			let dx = Dot(tran, unitX) // translation distance in x direction
-			let dy = Dot(tran, unitY)
-			let scale = t.scale()
-			let mapSize = 256 * scale
-			if dx > 0 {
-				let mul = ceil(dx / mapSize)
-				t = t.translatedBy(dx: -mul * mapSize / scale, dy: 0.0)
-			} else if dx < -mapSize {
-				let mul = floor(-dx / mapSize)
-				t = t.translatedBy(dx: mul * mapSize / scale, dy: 0.0)
-			}
-
-			// limit scrolling latitudinally
-			if dy > mapSize {
-				t = t.translatedBy(dx: 0.0, dy: mapSize - dy)
-			} else if dy < -2 * mapSize {
-				t = t.translatedBy(dx: 0.0, dy: -2 * mapSize - dy)
-			}
-
-			// update transform
-			mapTransform.transform = t
-
-			// Determine if we've zoomed out enough to disable editing
-			// We can only compute a precise surface area size at high zoom since it's possible
-			// for the earth to be larger than the screen
-			let area = mapTransform.zoom() > 8 ? SurfaceAreaOfRect(screenLatLonRect()) : Double.greatestFiniteMagnitude
-			var isZoomedOut = area > 2.0 * 1000 * 1000
-			if !editorLayer.isHidden,
-			   !editorLayer.atVisibleObjectLimit,
-			   area < 1000.0 * 1000 * 1000
-			{
-				isZoomedOut = false
-			}
-			viewStateZoomedOut = isZoomedOut
-
-			// Track zoom threshold for hybrid aerial/basemap mode
-			let currentZoom = mapTransform.zoom()
-			let oldPastThreshold = viewStatePastZoomThreshold
-			let newPastThreshold = currentZoom < MapView.aerialBasemapZoomThreshold
-
-			// Only trigger state change when actually crossing the threshold (not on every zoom change)
-			if oldPastThreshold != newPastThreshold {
-				// Pass the new threshold so the function can calculate the correct new state
-				viewStateWillChangeTo(viewState, overlays: viewOverlayMask, zoomedOut: viewStateZoomedOut, pastZoomThreshold: newPastThreshold)
-				// Update the instance variable after the function call
-				viewStatePastZoomThreshold = newPastThreshold
-			}
-
-			// Update zoom level display
-			zoomLevelLabel?.updateZoom(currentZoom)
-
-			updateUserLocationIndicator(nil)
-			updateCurrentRegionForLocationUsingCountryCoder()
-			promptForBetterBackgroundImagery()
-
-			// update pushpin location
-			if let pushpinView = pushPin,
-			   let pp = pp
-			{
-				if pushpinView.isDragging {
-					// moving the screen while dragging the pin moves the pin/object
-					let pt = mapTransform.screenPoint(forLatLon: pp, birdsEye: true)
-					let drag = pushpinView.arrowPoint.minus(pt)
-					pushpinView.dragCallback(.changed, drag.x, drag.y)
-				} else {
-					// if not dragging then make sure pin placement is updated
-					let wasInside = bounds.contains(pushpinView.arrowPoint)
-					pushpinView.arrowPoint = mapTransform.screenPoint(forLatLon: pp,
-					                                                  birdsEye: true)
-					let isInside = bounds.contains(pushpinView.arrowPoint)
-					if wasInside, !isInside {
-						// generate feedback if the user scrolled the pushpin off the screen
-						let feedback = UINotificationFeedbackGenerator()
-						feedback.notificationOccurred(.warning)
-					}
-				}
-			}
-
-			// We moved to a new location so update markers
-			updateMapMarkerButtonPositions()
-		}
-	}
-
-	var mapFromScreenTransform: OSMTransform {
-		return screenFromMapTransform.inverse()
-	}
-
-	var gpsLastActive = Date.distantPast
-	var gpsState: GPS_STATE = .NONE {
-		didSet {
-			if gpsState != oldValue {
-				// update collection of GPX points
-				if oldValue == .NONE, gpsState != .NONE {
-					// because recording GPX tracks is cheap we record them every time GPS is enabled
-					gpxLayer.startNewTrack(continuingCurrentTrack: false)
-				} else if gpsState == .NONE {
-					gpxLayer.endActiveTrack(continuingCurrentTrack: false)
-				}
-
-				if gpsState == .NONE {
-					centerOnGPSButton.isHidden = true
-					voiceAnnouncement?.enabled = false
-				} else {
-					voiceAnnouncement?.enabled = true
-				}
-
-				if gpsState != .NONE {
-					locating = true
-				} else {
-					locating = false
-				}
-			}
-		}
-	}
-
-	var gpsInBackground: Bool {
-		get {
-			return GpxLayer.backgroundTracking
-		}
-		set(gpsInBackground) {
-			GpxLayer.backgroundTracking = gpsInBackground
-
-			locationManager.allowsBackgroundLocationUpdates = gpsInBackground && displayGpxLogs
-
-			if gpsInBackground {
-				// ios 8 and later:
-				if locationManager.responds(to: #selector(CLLocationManager.requestAlwaysAuthorization)) {
-					locationManager.requestAlwaysAuthorization()
-				}
-			}
-		}
-	}
+	private(set) var allLayers: [LayerOrView] = []
 
 	private(set) var pushPin: PushPinView?
+	var pushPinIsOnscreen = false
 
 	let tileServerList: TileServerList
 
-	var enableBirdsEye = false {
+	var displayGpxTracks = false {
 		didSet {
-			if !enableBirdsEye {
-				// remove birdsEye
-				rotateBirdsEye(by: -mapTransform.birdsEyeRotation)
-			}
+			gpxLayer.isHidden = !displayGpxTracks
+			LocationProvider.shared.allowsBackgroundLocationUpdates
+				= GpxLayer.recordTracksInBackground && displayGpxTracks
 		}
 	}
 
-	var enableRotation = false {
+	var displayDataOverlayLayers = false {
 		didSet {
-			if !enableRotation {
-				// remove rotation
-				let centerPoint = centerPoint()
-				let angle = CGFloat(screenFromMapTransform.rotation())
-				rotate(by: -angle, aroundScreenPoint: centerPoint)
-			}
-		}
-	}
+			dataOverlayLayer.isHidden = !displayDataOverlayLayers
 
-	var displayGpxLogs = false {
-		didSet {
-			gpxLayer.isHidden = !displayGpxLogs
-			locationManager.allowsBackgroundLocationUpdates = gpsInBackground && displayGpxLogs
-		}
-	}
-
-	var displayDataOverlayLayer = false {
-		didSet {
-            print("here");
-			dataOverlayLayer.isHidden = !displayDataOverlayLayer
-
-			if displayDataOverlayLayer {
+			if displayDataOverlayLayers {
 				dataOverlayLayer.setNeedsLayout()
 			}
-			updateTileOverlayLayers()
+			updateTileOverlayLayers(latLon: viewPort.screenCenterLatLon())
 		}
 	}
 
@@ -547,7 +273,7 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 
 			if enable {
 				// automaatically scroll view for frame rate testing
-				fpsLabel.showFPS = true
+				mainView.fpsLabel.showFPS = true
 
 				// this set's the starting center point
 				let startLatLon = LatLon(lon: -122.2060122462481, lat: 47.675389766549706)
@@ -559,19 +285,18 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 				let radius2 = CGPoint(x: radius / mpd.x, y: radius / mpd.y)
 				let startTime = CACurrentMediaTime()
 				let periodSeconds = 2.0
-				weak var weakSelf = self
 
-				displayLink.addName(AUTOSCROLL_DISPLAYLINK_NAME, block: {
-					guard let myself = weakSelf else { return }
+				displayLink.addName(AUTOSCROLL_DISPLAYLINK_NAME, block: { [weak self] in
+					guard let myself = self else { return }
 					let offset = 1.0 - fmod((CACurrentMediaTime() - startTime) / periodSeconds, 1.0)
 					let origin = LatLon(lon: startLatLon.lon + cos(offset * 2.0 * .pi) * radius2.x,
 					                    lat: startLatLon.lat + sin(offset * 2.0 * .pi) * radius2.y)
 					let zoomFrac = (1.0 + cos(offset * 2.0 * .pi)) * 0.5
 					let zoom = startZoom * (1 + zoomFrac * 0.01)
-					myself.centerOn(latLon: origin, zoom: zoom)
+					myself.viewPort.centerOn(latLon: origin, zoom: zoom, rotation: nil)
 				})
 			} else {
-				fpsLabel.showFPS = false
+				mainView.fpsLabel.showFPS = false
 				displayLink.removeName(AUTOSCROLL_DISPLAYLINK_NAME)
 			}
 		}
@@ -579,86 +304,71 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 
 	private(set) var crossHairs: CAShapeLayer!
 
-	struct CurrentRegion: Codable, Equatable {
-		let latLon: LatLon
-		let country: String
-		let regions: [String]
+	// This contains the user's general vicinity. Although it contains a lat/lon it only
+	// gets updated if the user moves a large distance.
+	private(set) var currentRegion: RegionInfoForLocation
 
-		static let none = CurrentRegion(latLon: LatLon(x: 0, y: 0),
-		                                country: "",
-		                                regions: [])
-
-		func saveToUserPrefs() {
-			UserPrefs.shared.currentRegion.value = try? PropertyListEncoder().encode(self)
-		}
-
-		static func fromUserPrefs() -> Self? {
-			if let data = UserPrefs.shared.currentRegion.value {
-				return try? PropertyListDecoder().decode(CurrentRegion.self, from: data)
-			}
-			return nil
-		}
-
-		func callingCodes() -> [String] {
-			let regionDict = CountryCoder.shared.regionDict
-			let regionList = regions.compactMap({ regionDict[$0] })
-			return regionList.first(where: { $0.callingCodes.count > 0 })?.callingCodes ?? []
-		}
-	}
-
-	private(set) var currentRegion: CurrentRegion
-
-	private var locating: Bool {
-		didSet {
-			if oldValue == locating {
-				return
-			}
-			if locating {
-				let status = CLLocationManager.authorizationStatus()
-				switch status {
-				case .notDetermined:
-					// we haven't asked user before, so have iOS pop up the question
-					locationManager.requestWhenInUseAuthorization()
-					gpsState = .NONE
-					return
-				case .restricted, .denied:
-					// user denied permission previously, so ask if they want to open Settings
-					AppDelegate.askUser(toAllowLocationAccess: mainViewController)
-					gpsState = .NONE
-					return
-				case .authorizedAlways, .authorizedWhenInUse:
-					break
-				default:
-					break
-				}
-
-				userOverrodeLocationPosition = false
-				userOverrodeLocationZoom = false
-				locationManager.startUpdatingLocation()
-				locationManager.startUpdatingHeading()
-				locationBallLayer.isHidden = false
-			} else {
-				locationManager.stopUpdatingLocation()
-				locationManager.stopUpdatingHeading()
-				locationBallLayer.isHidden = true
-			}
-		}
-	}
-
-	@IBOutlet private var statusBarBackground: UIVisualEffectView!
+	@IBOutlet private var statusBarBackground: StatusBarGradient!
 
 	// MARK: initialization
 
 	required init?(coder: NSCoder) {
 		tileServerList = TileServerList()
-		locationBallLayer = LocationBallLayer()
-		locating = false
-		currentRegion = CurrentRegion.none
+		currentRegion = RegionInfoForLocation.none
 
 		super.init(coder: coder)
+	}
 
-		tileServerList.onChange = {
-			self.promptForBetterBackgroundImagery()
+	override func awakeFromNib() {
+		super.awakeFromNib()
+
+		// set up action button
+		editToolbar.isHidden = true
+		editToolbar.layer.zPosition = ZLAYER.TOOLBAR.rawValue
+		editToolbar.layer.cornerRadius = 8.0
+		editToolbar.layer.masksToBounds = true
+#if targetEnvironment(macCatalyst)
+		// We add a constraint in the storyboard to make the edit control buttons taller
+		// so they're easier to push, but on Mac the constraints doesn't work correctly
+		// and the buttons look ugly, so remove it.
+		if let height = editToolbar.constraints.first(where: {
+			$0.firstAttribute == .height && $0.constant == 43.0
+		}) {
+			editToolbar.removeConstraint(height)
+		}
+#endif
+
+		// long press for selecting from multiple objects (for multipolygon members)
+		let longPress = UILongPressGestureRecognizer(target: self, action: #selector(screenLongPressGesture(_:)))
+		longPress.delegate = self
+		addGestureRecognizer(longPress)
+
+		// two-finger rotation of OSM objects
+		objectRotationGesture = UIRotationGestureRecognizer(target: self, action: #selector(handleRotationGesture(_:)))
+		objectRotationGesture.delegate = self
+		objectRotationGesture.isEnabled = false // disabled until needed
+		addGestureRecognizer(objectRotationGesture)
+
+		// magnifying glass
+		magnifyingGlass = MagnifyingGlass(sourceView: self, radius: 70.0, scale: 2.0)
+		superview!.addSubview(magnifyingGlass)
+		magnifyingGlass.setPosition(.topLeft, animated: false)
+		magnifyingGlass.isHidden = true
+	}
+
+	func setUpChildViews(with main: MainViewController) {
+		self.mainView = main
+
+		viewPort.mapTransform.onChange.subscribe(self) { [weak self] in
+			self?.mapTransformDidChange()
+		}
+
+		tileServerList.onChange.subscribe(self) { [weak self] in
+			self?.promptForBetterBackgroundImagery()
+		}
+
+		LocationProvider.shared.onChangeLocation.subscribe(self) { [weak self] location in
+			self?.locationUpdated(to: location)
 		}
 
 		layer.masksToBounds = true
@@ -667,33 +377,38 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		// this option needs to be set before the editor is initialized
 		enableAutomaticCacheManagement = UserPrefs.shared.automaticCacheManagement.value ?? true
 
-		locatorLayer = MercatorTileLayer(mapView: self)
+		locatorLayer = MercatorTileLayer(viewPort: viewPort, progress: mainView)
 		locatorLayer.zPosition = ZLAYER.LOCATOR.rawValue
 		locatorLayer.tileServer = TileServer.mapboxLocator
 		locatorLayer.isHidden = true
-		backgroundLayers.append(.tileLayer(locatorLayer))
+		allLayers.append(locatorLayer)
 
-		aerialLayer = MercatorTileLayer(mapView: self)
+		aerialLayer = MercatorTileLayer(viewPort: viewPort, progress: mainView)
 		aerialLayer.zPosition = ZLAYER.AERIAL.rawValue
 		aerialLayer.tileServer = tileServerList.currentServer
 		aerialLayer.isHidden = true
-		backgroundLayers.append(.tileLayer(aerialLayer))
+		allLayers.append(aerialLayer)
 
 		// self-assigning will do everything to set up the appropriate layer
 		basemapServer = basemapServer
 		basemapLayer.isHidden = true
 
-		editorLayer = EditorMapLayer(owner: self)
+		editorLayer = EditorMapLayer(owner: self,
+		                             viewPort: viewPort,
+		                             display: MessageDisplay.shared,
+		                             progress: mainView)
 		editorLayer.zPosition = ZLAYER.EDITOR.rawValue
-		backgroundLayers.append(.otherLayer(editorLayer))
+		allLayers.append(editorLayer)
 
+		gpxLayer = GpxLayer(viewPort: viewPort)
 		gpxLayer.zPosition = ZLAYER.GPX.rawValue
 		gpxLayer.isHidden = true
-		backgroundLayers.append(.otherLayer(gpxLayer))
+		allLayers.append(gpxLayer)
 
+		dataOverlayLayer = DataOverlayLayer(viewPort: viewPort)
 		dataOverlayLayer.zPosition = ZLAYER.DATA.rawValue
 		dataOverlayLayer.isHidden = true
-		backgroundLayers.append(.otherLayer(dataOverlayLayer))
+		allLayers.append(dataOverlayLayer)
 
 #if DEBUG && false
 		quadDownloadLayer = QuadDownloadLayer(mapView: self)
@@ -704,14 +419,14 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		}
 #endif
 
-		for bg in backgroundLayers {
+		for bg in allLayers {
 			switch bg {
-			case let .otherLayer(layer):
-				self.layer.addSublayer(layer)
-			case let .tileLayer(layer):
-				self.layer.addSublayer(layer)
-			case let .tileView(view):
+			case let view as UIView:
 				addSubview(view)
+			case let layer as CALayer:
+				self.layer.addSublayer(layer)
+			default:
+				fatalError()
 			}
 		}
 
@@ -721,59 +436,30 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		crossHairs.zPosition = ZLAYER.CROSSHAIRS.rawValue
 		layer.addSublayer(crossHairs)
 
-		locationBallLayer.zPosition = ZLAYER.LOCATION_BALL.rawValue
-		locationBallLayer.heading = 0.0
-		locationBallLayer.showHeading = true
-		locationBallLayer.isHidden = true
-		layer.addSublayer(locationBallLayer)
-
 #if false
 		voiceAnnouncement = VoiceAnnouncement()
 		voiceAnnouncement?.mapView = self
 		voiceAnnouncement?.radius = 30 // meters
 #endif
+
+		// GoKaart custom UI
+		setupGoKaartUI()
 	}
 
-	override func awakeFromNib() {
-		super.awakeFromNib()
-
-		NotificationCenter.default.addObserver(
-			self,
-			selector: #selector(applicationWillTerminate(_:)),
-			name: UIApplication.willResignActiveNotification,
-			object: nil)
-
-		userInstructionLabel.layer.cornerRadius = 5
-		userInstructionLabel.layer.masksToBounds = true
-		userInstructionLabel.backgroundColor = UIColor(white: 0.0, alpha: 0.3)
-		userInstructionLabel.textColor = UIColor.white
-		userInstructionLabel.isHidden = true
-
-		// Create zoom level indicator label - use MANUAL frame positioning in layoutSubviews
+	// GoKaart: Setup custom UI elements
+	func setupGoKaartUI() {
+		// Create zoom level indicator label
 		zoomLevelLabel = ZoomLevelLabel(frame: CGRect(x: 0, y: 0, width: 60, height: 24))
-		zoomLevelLabel.translatesAutoresizingMaskIntoConstraints = true  // USE MANUAL LAYOUT
+		zoomLevelLabel.translatesAutoresizingMaskIntoConstraints = true
 		zoomLevelLabel.isHidden = false
-		// Add as sibling to compassButton in the same parent view
-		if let compassParent = compassButton?.superview {
-			compassParent.addSubview(zoomLevelLabel)
-		} else if let parentView = self.superview {
-			parentView.addSubview(zoomLevelLabel)
-		} else {
-			addSubview(zoomLevelLabel)
-		}
+		addSubview(zoomLevelLabel)
 
-		// Create planning mode toggle button (positioned in layoutSubviews with manual frame)
+		// Create planning mode toggle button
 		planningModeButton = UIButton(type: .system)
-		// Use manual layout like other buttons in MapView
 		planningModeButton.translatesAutoresizingMaskIntoConstraints = true
-		if #available(iOS 13.0, *) {
-			// Use binoculars icon for "free map" exploration mode
-			let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .medium)
-			let exploreImage = UIImage(systemName: "binoculars.fill", withConfiguration: config)
-			planningModeButton.setImage(exploreImage, for: .normal)
-		} else {
-			planningModeButton.setTitle("Plan", for: .normal)
-		}
+		let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .medium)
+		let exploreImage = UIImage(systemName: "binoculars.fill", withConfiguration: config)
+		planningModeButton.setImage(exploreImage, for: .normal)
 		planningModeButton.backgroundColor = UIColor(white: 1.0, alpha: 0.9)
 		planningModeButton.tintColor = UIColor.systemBlue
 		planningModeButton.layer.cornerRadius = 22
@@ -784,263 +470,118 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		planningModeButton.addTarget(self, action: #selector(togglePlanningMode), for: .touchUpInside)
 		addSubview(planningModeButton)
 
-		progressIndicator.color = UIColor.green
-
-		locationManagerExtraneousNotification = true // flag that we're going to receive a bogus notification from CL
-		locationManager.delegate = self
-		locationManager.pausesLocationUpdatesAutomatically = false
-		locationManager.allowsBackgroundLocationUpdates = gpsInBackground && displayGpxLogs
-		if #available(iOS 11.0, *) {
-			locationManager.showsBackgroundLocationIndicator = true
-		}
-		locationManager.activityType = .other
-
-		rulerView.mapView = self
-		//    _rulerView.layer.zPosition = Z_RULER;
-
-		// set up action button
-		editControl.isHidden = true
-		editControl.isSelected = false
-		editControl.selectedSegmentIndex = Int(UISegmentedControl.noSegment)
-		editControl.setTitleTextAttributes(
-			[
-				NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .headline)
-			],
-			for: .normal)
-		editControl.layer.zPosition = ZLAYER.TOOLBAR.rawValue
-		editControl.layer.cornerRadius = 4.0
-#if targetEnvironment(macCatalyst)
-		// We add a constraint in the storyboard to make the edit control buttons taller
-		// so they're easier to push, but on Mac the constraints doesn't work correctly
-		// and the buttons look ugly, so remove it.
-		if let height = editControl.constraints.first(where: {
-			$0.firstAttribute == .height && $0.constant == 43.0
-		}) {
-			editControl.removeConstraint(height)
-		}
-#endif
-
-		// long press for selecting from multiple objects (for multipolygon members)
-		let longPress = UILongPressGestureRecognizer(target: self, action: #selector(screenLongPressGesture(_:)))
-		longPress.delegate = self
-		addGestureRecognizer(longPress)
-
-		// two-finger rotation
-		let rotationGesture = UIRotationGestureRecognizer(target: self, action: #selector(handleRotationGesture(_:)))
-		rotationGesture.delegate = self
-		addGestureRecognizer(rotationGesture)
-
-		// long-press on + for adding nodes via taps
-		addNodeButtonLongPressGestureRecognizer = UILongPressGestureRecognizer(
-			target: self,
-			action: #selector(plusButtonLongPressHandler(_:)))
-		addNodeButtonLongPressGestureRecognizer?.minimumPressDuration = 0.001
-		addNodeButtonLongPressGestureRecognizer?.delegate = self
-		if let addNodeButtonLongPressGestureRecognizer = addNodeButtonLongPressGestureRecognizer {
-			addNodeButton.addGestureRecognizer(addNodeButtonLongPressGestureRecognizer)
-		}
-
-		if #available(iOS 13.4, macCatalyst 13.4, *) {
-			// pan gesture to recognize mouse-wheel scrolling (zoom) on iPad and Mac Catalyst
-			let scrollWheelGesture = UIPanGestureRecognizer(
-				target: self,
-				action: #selector(handleScrollWheelGesture(_:)))
-			scrollWheelGesture.allowedScrollTypesMask = .discrete
-			scrollWheelGesture.maximumNumberOfTouches = 0
-			addGestureRecognizer(scrollWheelGesture)
-		}
-
-		mapMarkerDatabase.mapData = editorLayer.mapData
-
-		// center button
-		centerOnGPSButton.isHidden = true
-
-		// dPadView
-		dPadView.delegate = self
-		dPadView.layer.zPosition = ZLAYER.D_PAD.rawValue
-		dPadView.isHidden = true
-
-		// error message label
-		flashLabel.font = UIFont.preferredFont(forTextStyle: .title3)
-		flashLabel.layer.cornerRadius = 5
-		flashLabel.layer.masksToBounds = true
-		flashLabel.layer.zPosition = ZLAYER.FLASH.rawValue
-		flashLabel.isHidden = true
-
-		// magnifying glass
-		magnifyingGlass = MagnifyingGlass(sourceView: self, radius: 70.0, scale: 2.0)
-		superview!.addSubview(magnifyingGlass)
-		magnifyingGlass.setPosition(.topLeft, animated: false)
-		magnifyingGlass.isHidden = true
-
-		// Support zoom via tap and drag
-		tapAndDragGesture = TapAndDragGesture(target: self, action: #selector(handleTapAndDragGesture(_:)))
-		tapAndDragGesture.delegate = self
-		tapAndDragGesture.delaysTouchesBegan = false
-		tapAndDragGesture.delaysTouchesEnded = false
-		addGestureRecognizer(tapAndDragGesture)
+		// Create unnamed roads toggle button
+		unnamedRoadsButton = UIButton(type: .system)
+		unnamedRoadsButton.translatesAutoresizingMaskIntoConstraints = true
+		let roadConfig = UIImage.SymbolConfiguration(pointSize: 22, weight: .medium)
+		let roadImage = UIImage(systemName: "road.lanes", withConfiguration: roadConfig)
+		unnamedRoadsButton.setImage(roadImage, for: .normal)
+		unnamedRoadsButton.backgroundColor = UIColor(white: 1.0, alpha: 0.9)
+		unnamedRoadsButton.tintColor = UIColor.systemBlue
+		unnamedRoadsButton.layer.cornerRadius = 22
+		unnamedRoadsButton.layer.shadowColor = UIColor.black.cgColor
+		unnamedRoadsButton.layer.shadowOffset = CGSize(width: 0, height: 2)
+		unnamedRoadsButton.layer.shadowOpacity = 0.3
+		unnamedRoadsButton.layer.shadowRadius = 3
+		unnamedRoadsButton.addTarget(self, action: #selector(toggleUnnamedRoads), for: .touchUpInside)
+		addSubview(unnamedRoadsButton)
+		updateUnnamedRoadsButtonAppearance()
 
 		// these need to be loaded late because assigning to them changes the view
+		displayGpxTracks = UserPrefs.shared.mapViewEnableBreadCrumb.value ?? false
+		displayDataOverlayLayers = UserPrefs.shared.mapViewEnableDataOverlay.value ?? false
+		enableTurnRestriction = UserPrefs.shared.mapViewEnableTurnRestriction.value ?? false
+
+		currentRegion = RegionInfoForLocation.fromUserPrefs() ?? RegionInfoForLocation.none
+
+		UserPrefs.shared.tileOverlaySelections.onChange.subscribe(self) { [weak self] _ in
+			guard let self = self else { return }
+			self.updateTileOverlayLayers(latLon: viewPort.screenCenterLatLon())
+			self.updateUnnamedRoadsButtonAppearance()
+		}
+
+		editorLayer.whiteText = !aerialLayer.isHidden
+
+		// We need to kick the viewState so layers are hidden/unhidden correctly
+		viewState = .EDITORAERIAL
+		viewState = .BASEMAP
 		viewState = MapViewState(rawValue: UserPrefs.shared.mapViewState.value ?? -999)
 			?? MapViewState.EDITORAERIAL
 		viewOverlayMask = MapViewOverlays(rawValue: UserPrefs.shared.mapViewOverlays.value ?? 0)
 
-		enableRotation = UserPrefs.shared.mapViewEnableRotation.value ?? true
-		enableBirdsEye = UserPrefs.shared.mapViewEnableBirdsEye.value ?? false
-		displayGpxLogs = UserPrefs.shared.mapViewEnableBreadCrumb.value ?? false
-		displayDataOverlayLayer = UserPrefs.shared.mapViewEnableDataOverlay.value ?? false
-		enableTurnRestriction = UserPrefs.shared.mapViewEnableTurnRestriction.value ?? false
+		mapMarkerDatabase.mapData = editorLayer.mapData
 
-		if let loc = CurrentRegion.fromUserPrefs() {
-			currentRegion = loc
-		} else {
-			currentRegion = CurrentRegion(latLon: LatLon(x: 0, y: 0), country: "", regions: [])
+		MainActor.runAfter(nanoseconds: 2000_000000) {
+			self.updateCurrentRegionForLocationUsingCountryCoder()
+			self.promptForBetterBackgroundImagery()
+			self.checkForChangedTileOverlayLayers()
 		}
-		DispatchQueue.main.asyncAfter(deadline: .now() + 2.0,
-		                              execute: {
-		                              	self.updateCurrentRegionForLocationUsingCountryCoder()
-		                              	self.promptForBetterBackgroundImagery()
-		                              })
 
-		updateAerialAttributionButton()
-
-		editorLayer.whiteText = !aerialLayer.isHidden
-	}
-
-	func viewDidAppear() {
-		// Only want to run this once. On older versions of iOS viewDidAppear is called multiple times
-		if !windowPresented {
-			windowPresented = true
-
-			// get current location
-			if let lat = UserPrefs.shared.view_latitude.value,
-			   let lon = UserPrefs.shared.view_longitude.value,
-			   let scale = UserPrefs.shared.view_scale.value
-			{
-				setTransformFor(latLon: LatLon(latitude: lat, longitude: lon),
-				                scale: scale)
-			} else {
-				let rc = OSMRect(layer.bounds)
-				screenFromMapTransform = OSMTransform.translation(rc.origin.x + rc.size.width / 2 - 128,
-				                                                  rc.origin.y + rc.size.height / 2 - 128)
-				// turn on GPS which will move us to current location
-				mainViewController.setGpsState(GPS_STATE.LOCATION)
-			}
-
-			// get notes
-			updateMapMarkersFromServer(withDelay: 0, including: [])
-		}
+		// get notes, etc.
+		updateMapMarkersFromServer(withDelay: 1.0, including: [])
 	}
 
 	func acceptsFirstResponder() -> Bool {
 		return true
 	}
 
-	func tileOverlayLayers() -> [MercatorTileLayer] {
-		return backgroundLayers.filter {
-			if case let .tileLayer(layer) = $0 {
-				return layer.tileServer.overlay
-			}
-			return false
-		} as! [MercatorTileLayer]
-	}
-
-	func updateTileOverlayLayers() {
-		let serverIdents = UserPrefs.shared.tileOverlaySelections.value ?? []
+	func updateTileOverlayLayers(latLon: LatLon) {
+		let overlaysIdList = UserPrefs.shared.tileOverlaySelections.value ?? []
 
 		// if they toggled display of the noname layer we need to refresh the editor layer
-		if serverIdents.contains(TileServer.noName.identifier) != useUnnamedRoadHalo() {
+		if overlaysIdList.contains(TileServer.noName.identifier) != useUnnamedRoadHalo() {
 			editorLayer.clearCachedProperties()
 		}
 
-		// remove any layers no longer displayed
-		let removals = backgroundLayers.filter { layer in
-			guard case let .tileLayer(layer) = layer,
-			      layer.tileServer.overlay
+		// remove any overlay layers no longer displayed
+		allLayers = allLayers.filter { layer in
+			// make sure it's a tile server and an overlay
+			guard let tileServer = layer.hasTileServer,
+			      tileServer.overlay
 			else {
-				return false
+				return true // keep layer
 			}
-			if displayDataOverlayLayer, serverIdents.contains(layer.tileServer.identifier) {
-				return false
+			// check it isn't a valid overlay for the user selection and is in current region
+			if displayDataOverlayLayers,
+			   overlaysIdList.contains(tileServer.identifier),
+			   tileServer.coversLocation(latLon)
+			{
+				return true // keep layer
 			}
-			return true
-		}
-		for layer in removals {
-			backgroundLayers.removeAll(where: { $0 == layer })
-			switch layer {
-			case let .otherLayer(layer):
-				layer.removeFromSuperlayer()
-			case let .tileLayer(layer):
-				layer.removeFromSuperlayer()
-			case let .tileView(view):
-				view.removeFromSuperview()
-			}
+			// remove layer
+			layer.removeFromSuper()
+			return false
 		}
 
-		if displayDataOverlayLayer {
+		if displayDataOverlayLayers {
 			// create any overlay layers the user had enabled
-			for ident in serverIdents {
-				if backgroundLayers.contains(where: {
-					guard case let .tileLayer(layer) = $0 else { return false }
-					return layer.tileServer.identifier == ident
+			for ident in overlaysIdList {
+				if allLayers.contains(where: {
+					$0.hasTileServer?.identifier == ident
 				}) {
 					// already have it
 					continue
 				}
 				guard let tileServer = tileServerList.serviceWithIdentifier(ident) else {
 					// server doesn't exist anymore
-					var list = serverIdents
+					var list = overlaysIdList
 					list.removeAll(where: { $0 == ident })
 					UserPrefs.shared.tileOverlaySelections.value = list
 					continue
 				}
+				guard tileServer.coversLocation(latLon) else {
+					continue
+				}
 
-				let layer = MercatorTileLayer(mapView: self)
+				let layer = MercatorTileLayer(viewPort: viewPort, progress: mainView)
 				layer.zPosition = ZLAYER.GPX.rawValue
 				layer.tileServer = tileServer
 				layer.isHidden = false
-				backgroundLayers.append(.tileLayer(layer))
+				allLayers.append(layer)
 				self.layer.addSublayer(layer)
 			}
 		}
-		layoutSubviews()
-	}
-
-	func save() {
-		// save preferences first
-		let latLon = screenCenterLatLon()
-		let scale = screenFromMapTransform.scale()
-#if false && DEBUG
-		assert(scale > 1.0)
-#endif
-		UserPrefs.shared.view_scale.value = scale
-		UserPrefs.shared.view_latitude.value = latLon.lat
-		UserPrefs.shared.view_longitude.value = latLon.lon
-
-		UserPrefs.shared.mapViewState.value = viewState.rawValue
-		UserPrefs.shared.mapViewOverlays.value = viewOverlayMask.rawValue
-
-		UserPrefs.shared.mapViewEnableRotation.value = enableRotation
-		UserPrefs.shared.mapViewEnableBirdsEye.value = enableBirdsEye
-		UserPrefs.shared.mapViewEnableBreadCrumb.value = displayGpxLogs
-		UserPrefs.shared.mapViewEnableDataOverlay.value = displayDataOverlayLayer
-		UserPrefs.shared.mapViewEnableTurnRestriction.value = enableTurnRestriction
-		UserPrefs.shared.automaticCacheManagement.value = enableAutomaticCacheManagement
-
-		currentRegion.saveToUserPrefs()
-
-		UserPrefs.shared.synchronize()
-
-		tileServerList.save()
-		gpxLayer.saveActiveTrack()
-
-		// then save data
-		editorLayer.save()
-	}
-
-	@objc func applicationWillTerminate(_ notification: Notification) {
-		voiceAnnouncement?.removeAll()
-		save()
+		setNeedsLayout()
 	}
 
 	// MARK: - Planning Mode
@@ -1061,17 +602,36 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		guard !isInPlanningMode else { return }
 
 		// Save current state
-		let currentCenter = screenCenterLatLon()
-		let currentScale = screenFromMapTransform.scale()
+		let currentCenter = viewPort.screenCenterLatLon()
+		let currentScale = viewPort.mapTransform.scale()
 		planningModeSavedState = PlanningModeSavedState(
 			viewState: viewState,
 			centerLatLon: currentCenter,
-			scale: currentScale
+			scale: currentScale,
+			editorWasHidden: editorLayer.isHidden,
+			aerialWasHidden: aerialLayer.isHidden,
+			basemapWasHidden: basemapLayer.isHidden
 		)
 
-		// Switch to aerial-only (satellite) view
 		isInPlanningMode = true
-		viewState = .AERIAL
+
+		// Directly manipulate layers for planning mode without changing viewState
+		// This avoids the complex side effects of viewStateWillChangeTo
+		CATransaction.begin()
+		CATransaction.setAnimationDuration(0.3)
+
+		// Show aerial, hide editor and basemap
+		editorLayer.isHidden = true
+		aerialLayer.isHidden = false
+		basemapLayer.isHidden = true
+
+		// Hide editor-related UI elements
+		mainView.aerialAlignmentButton.isHidden = true
+		mainView.dPadView.isHidden = true
+		mainView.userInstructionLabel.isHidden = true
+		quadDownloadLayer?.isHidden = true
+
+		CATransaction.commit()
 
 		// Update button appearance to indicate active planning mode
 		updatePlanningModeButtonAppearance()
@@ -1087,11 +647,24 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 
 		isInPlanningMode = false
 
-		// Restore view state
-		viewState = savedState.viewState
+		// Restore layers to their previous state
+		CATransaction.begin()
+		CATransaction.setAnimationDuration(0.3)
+
+		editorLayer.isHidden = savedState.editorWasHidden
+		aerialLayer.isHidden = savedState.aerialWasHidden
+		basemapLayer.isHidden = savedState.basemapWasHidden
+
+		// Restore UI elements based on restored view state
+		let showAerialControls = !aerialLayer.isHidden && !editorLayer.isHidden
+		mainView.aerialAlignmentButton.isHidden = !showAerialControls
+		mainView.userInstructionLabel.isHidden = true
+		quadDownloadLayer?.isHidden = editorLayer.isHidden
+
+		CATransaction.commit()
 
 		// Restore position and zoom
-		setTransformFor(latLon: savedState.centerLatLon, scale: savedState.scale)
+		viewPort.setTransformFor(latLon: savedState.centerLatLon, scale: savedState.scale)
 
 		// Clear saved state
 		planningModeSavedState = nil
@@ -1117,13 +690,52 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		}
 	}
 
+	// MARK: - Unnamed Roads Toggle
+
+	/// Toggle the unnamed roads overlay on/off
+	@objc func toggleUnnamedRoads() {
+		var overlays = UserPrefs.shared.tileOverlaySelections.value ?? []
+		let identifier = TileServer.noName.identifier
+
+		if overlays.contains(identifier) {
+			// Remove unnamed roads overlay
+			overlays.removeAll { $0 == identifier }
+		} else {
+			// Add unnamed roads overlay
+			overlays.append(identifier)
+		}
+
+		UserPrefs.shared.tileOverlaySelections.value = overlays
+		updateUnnamedRoadsButtonAppearance()
+
+		// Provide haptic feedback
+		let feedback = UIImpactFeedbackGenerator(style: .light)
+		feedback.impactOccurred()
+	}
+
+	/// Update the unnamed roads button appearance based on whether the overlay is active
+	private func updateUnnamedRoadsButtonAppearance() {
+		let overlays = UserPrefs.shared.tileOverlaySelections.value ?? []
+		let isActive = overlays.contains(TileServer.noName.identifier)
+
+		if isActive {
+			// Active state: green background, white icon
+			unnamedRoadsButton.backgroundColor = UIColor.systemGreen
+			unnamedRoadsButton.tintColor = UIColor.white
+		} else {
+			// Inactive state: white background, blue icon
+			unnamedRoadsButton.backgroundColor = UIColor(white: 1.0, alpha: 0.9)
+			unnamedRoadsButton.tintColor = UIColor.systemBlue
+		}
+	}
+
 	override func layoutSubviews() {
 		super.layoutSubviews()
 
 		// Position planning button manually - below the helpButton (info button) in upper left
-		if planningModeButton != nil, helpButton != nil, let helpSuperview = helpButton.superview {
+		if planningModeButton != nil, mainView.helpButton != nil, let helpSuperview = mainView.helpButton.superview {
 			// Convert helpButton's frame from its parent's coordinate space to MapView's coordinate space
-			let helpFrameInMapView = helpSuperview.convert(helpButton.frame, to: self)
+			let helpFrameInMapView = helpSuperview.convert(mainView.helpButton.frame, to: self)
 			// Position planning button lower (52pt below = 8pt gap + 44pt extra)
 			let xPos = helpFrameInMapView.origin.x
 			let yPos = helpFrameInMapView.origin.y + helpFrameInMapView.size.height + 52
@@ -1131,8 +743,17 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			bringSubviewToFront(planningModeButton)
 		}
 
+		// Position unnamed roads button below planning mode button
+		if unnamedRoadsButton != nil, planningModeButton != nil {
+			let planningFrame = planningModeButton.frame
+			let xPos = planningFrame.origin.x
+			let yPos = planningFrame.origin.y + planningFrame.size.height + 8 // 8pt gap
+			unnamedRoadsButton.frame = CGRect(x: xPos, y: yPos, width: 44, height: 44)
+			bringSubviewToFront(unnamedRoadsButton)
+		}
+
 		// Position zoom label at TOP CENTER between Bing attribution and compass
-		if let label = zoomLevelLabel, let compass = compassButton {
+		if let label = zoomLevelLabel, let compass = mainView.compassButton {
 			let labelWidth: CGFloat = 60
 			let labelHeight: CGFloat = 24
 
@@ -1159,23 +780,23 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		let bounds = self.bounds
 
 		// update bounds of layers
-		for bg in backgroundLayers {
+		for bg in allLayers {
 			switch bg {
-			case let .otherLayer(layer):
+			case let layer as CALayer:
 				layer.frame = bounds
 				layer.bounds = bounds
-			case let .tileLayer(layer):
-				layer.frame = bounds
-				layer.bounds = bounds
-			case let .tileView(view):
+			case let view as UIView:
 				view.frame = bounds
 				view.bounds = bounds.offsetBy(dx: bounds.width / 2, dy: bounds.height / 2)
+			default:
+				fatalError()
 			}
 		}
 
 		crossHairs.position = bounds.center()
 
-		statusBarBackground.isHidden = UIApplication.shared.isStatusBarHidden
+		let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+		statusBarBackground.isHidden = windowScene?.statusBarManager?.isStatusBarHidden ?? false
 	}
 
 	override var bounds: CGRect {
@@ -1198,7 +819,7 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		super.traitCollectionDidChange(previousTraitCollection)
 		if #available(iOS 13.0, *),
 		   traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection),
-		   case let .tileLayer(view) = basemapLayer
+		   let view = basemapLayer as? MercatorTileLayer
 		{
 			view.updateDarkMode()
 		}
@@ -1206,146 +827,19 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 
 	// MARK: Utility
 
-	func isFlipped() -> Bool {
-		return true
-	}
-
 	func updateAerialAttributionButton() {
 		let service = aerialLayer.tileServer
-		let icon = service.attributionIcon(height: aerialServiceLogo.frame.size.height,
-		                                   completion: {
-		                                   	self.updateAerialAttributionButton()
+		let icon = service.attributionIcon(height: mainView.aerialServiceLogo.frame.size.height,
+		                                   completion: { [weak self] in
+		                                   	self?.updateAerialAttributionButton()
 		                                   })
-		aerialServiceLogo.isHidden = aerialLayer.isHidden || (service.attributionString.isEmpty && icon == nil)
-		if !aerialServiceLogo.isHidden {
-			let gap = icon != nil && service.attributionString.count > 0 ? " " : ""
-			aerialServiceLogo.setImage(icon, for: .normal)
-			aerialServiceLogo.setTitle(gap + service.attributionString, for: .normal)
-		}
-	}
+		mainView.aerialServiceLogo.isHidden = aerialLayer.isHidden
+			|| (service.attributionString.isEmpty && icon == nil)
 
-	func showAlert(_ title: String, message: String?) {
-		let alertError = UIAlertController(title: title,
-		                                   message: message,
-		                                   preferredStyle: .alert)
-		alertError.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel, handler: nil))
-		mainViewController.present(alertError, animated: true)
-	}
-
-	func flashMessage(title: String?, message: String, duration: TimeInterval) {
-		let MAX_ALPHA: CGFloat = 0.8
-
-		if let attrText = NSMutableAttributedString(withHtmlString: message,
-		                                            textColor: UIColor.white,
-		                                            backgroundColor: UIColor.black),
-			attrText.length > 0
-		{
-			if let title = title {
-				let attrTitle = NSMutableAttributedString(string: title + "\n\n", attributes: [
-					.foregroundColor: UIColor.white,
-					.backgroundColor: UIColor.black
-				])
-				attrTitle.append(attrText)
-				flashLabel.attributedText = attrTitle
-			} else {
-				flashLabel.attributedText = attrText
-			}
-		} else {
-			if let title = title {
-				flashLabel.text = title + "\n\n" + message
-			} else {
-				flashLabel.text = message
-			}
-		}
-
-		if flashLabel.isHidden {
-			// animate in
-			flashLabel.alpha = 0.0
-			flashLabel.isHidden = false
-			UIView.animate(withDuration: 0.25, animations: {
-				self.flashLabel.alpha = MAX_ALPHA
-			})
-		} else {
-			// already displayed
-			flashLabel.layer.removeAllAnimations()
-			flashLabel.alpha = MAX_ALPHA
-		}
-
-		DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: {
-			UIView.animate(withDuration: 0.35, animations: {
-				self.flashLabel.alpha = 0.0
-			}) { finished in
-				if finished, self.flashLabel.layer.presentation()?.opacity == 0.0 {
-					self.flashLabel.isHidden = true
-				}
-			}
-		})
-	}
-
-	func flashMessage(title: String?, message: String) {
-		flashMessage(title: title, message: message, duration: 0.7)
-	}
-
-	func presentError(title: String?, error: Error, flash: Bool) {
-		if lastErrorDate == nil || Date().timeIntervalSince(lastErrorDate ?? Date()) > 3.0 {
-			var title = title ?? NSLocalizedString("Error", comment: "")
-			var text = error.localizedDescription
-
-			var isNetworkError = false
-			var ignoreButton: String?
-			let userInfo = (error as NSError).userInfo
-			if userInfo["NSErrorFailingURLKey"] != nil {
-				isNetworkError = true
-			}
-			if let underError = userInfo["NSUnderlyingError"] as? NSError,
-			   (underError.domain as CFString) == kCFErrorDomainCFNetwork
-			{
-				isNetworkError = true
-			}
-			if let error = error as? UrlSessionError,
-			   case let .badStatusCode(_, html) = error,
-			   html.count > 20
-			{
-				text = html
-			}
-
-			if isNetworkError {
-				if let ignoreNetworkErrorsUntilDate = ignoreNetworkErrorsUntilDate {
-					if Date().timeIntervalSince(ignoreNetworkErrorsUntilDate) >= 0 {
-						self.ignoreNetworkErrorsUntilDate = nil
-					}
-				}
-				if ignoreNetworkErrorsUntilDate != nil {
-					return
-				}
-				title = NSLocalizedString("Network error", comment: "")
-				ignoreButton = NSLocalizedString("Ignore", comment: "")
-			}
-
-			if flash {
-				flashMessage(title: title, message: text, duration: 0.9)
-			} else {
-				let alertError = UIAlertController(title: title, message: text, preferredStyle: .alert)
-				if let attrText = NSMutableAttributedString(withHtmlString: text,
-				                                            textColor: UIColor.black,
-				                                            backgroundColor: UIColor.white)
-				{
-					alertError.setValue(attrText, forKey: "attributedMessage")
-				}
-				alertError.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""),
-				                                   style: .cancel, handler: nil))
-				if let ignoreButton = ignoreButton {
-					alertError.addAction(UIAlertAction(title: ignoreButton, style: .default, handler: { [self] _ in
-						// ignore network errors for a while
-						ignoreNetworkErrorsUntilDate = Date().addingTimeInterval(5 * 60.0)
-					}))
-				}
-				mainViewController.present(alertError, animated: true)
-			}
-		}
-		if !flash {
-			lastErrorDate = Date()
-		}
+		let gap = icon != nil && service.attributionString.count > 0 ? " " : ""
+		let title = gap + service.attributionString
+		mainView.aerialServiceLogo.setImage(icon, for: .normal)
+		mainView.aerialServiceLogo.setTitle(title, for: .normal)
 	}
 
 	func ask(toRate uploadCount: Int) {
@@ -1376,7 +870,7 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 				handler: { [self] _ in
 					showInAppStore()
 				}))
-			mainViewController.present(alertViewRateApp, animated: true)
+			mainView.present(alertViewRateApp, animated: true)
 		}
 	}
 
@@ -1411,14 +905,29 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		let aerial = aerialLayer.tileServer
 		if aerial.isBingAerial() {
 			// present bing metadata
-			mainViewController.performSegue(withIdentifier: "BingMetadataSegue", sender: self)
+			mainView.performSegue(withIdentifier: "BingMetadataSegue", sender: self)
 		} else if aerial.attributionUrl.count > 0 {
 			// open the attribution url
 			if let url = URL(string: aerial.attributionUrl) {
 				let safariViewController = SFSafariViewController(url: url)
-				mainViewController.present(safariViewController, animated: true)
+				mainView.present(safariViewController, animated: true)
 			}
 		}
+	}
+
+	private func checkForChangedTileOverlayLayers() {
+		// If the user has overlay imagery enabled that is no longer present at this location
+		// then remove it.
+		// Check if we've moved a long distance from the last check
+		let latLon = viewPort.screenCenterLatLon()
+		if let plist = UserPrefs.shared.latestOverlayCheckLatLon.value,
+		   let prevLatLon = LatLon(plist),
+		   GreatCircleDistance(latLon, prevLatLon) < 10 * 1000
+		{
+			return
+		}
+		updateTileOverlayLayers(latLon: latLon)
+		UserPrefs.shared.latestOverlayCheckLatLon.value = latLon.plist
 	}
 
 	private func promptForBetterBackgroundImagery() {
@@ -1427,21 +936,23 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		}
 
 		// Check if we've moved a long distance from the last check
-		let latLon = screenCenterLatLon()
-		if let prevLatLonData = UserPrefs.shared.latestAerialCheckLatLon.value,
-		   let prevLatLon = try? PropertyListDecoder().decode(LatLon.self, from: prevLatLonData),
+		let latLon = viewPort.screenCenterLatLon()
+		if let plist = UserPrefs.shared.latestAerialCheckLatLon.value,
+		   let prevLatLon = LatLon(plist),
 		   GreatCircleDistance(latLon, prevLatLon) < 10 * 1000
 		{
 			return
 		}
 
+		// check whether we need to change aerial imagery
 		if !tileServerList.currentServer.coversLocation(latLon) {
 			// current imagery layer doesn't exist at current location
 			let best = tileServerList.bestService(at: latLon) ?? tileServerList.builtinServers()[0]
 			tileServerList.currentServer = best
 			setAerialTileServer(best)
-		} else if mapTransform.zoom() < 15 {
-			// return here instead of updating last check location
+		} else if viewPort.mapTransform.zoom() < 15 {
+			// the user has zoomed out, so don't bother them until they zoom in.
+			// return here instead of updating last check location.
 			return
 		} else if !tileServerList.currentServer.best,
 		          tileServerList.currentServer.isGlobalImagery(),
@@ -1469,10 +980,10 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			                              	self.tileServerList.currentServer = best
 			                              	self.setAerialTileServer(best)
 			                              }))
-			mainViewController.present(alert, animated: true)
+			mainView.present(alert, animated: true)
 		}
 
-		UserPrefs.shared.latestAerialCheckLatLon.value = try? PropertyListEncoder().encode(latLon)
+		UserPrefs.shared.latestAerialCheckLatLon.value = latLon.plist
 	}
 
 	func updateCurrentRegionForLocationUsingCountryCoder() {
@@ -1481,27 +992,78 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		}
 
 		// if we moved a significant distance then check our location
-		let latLon = screenCenterLatLon()
+		let latLon = viewPort.screenCenterLatLon()
 		if GreatCircleDistance(latLon, currentRegion.latLon) < 10 * 1000 {
 			return
 		}
 
-		let regions = CountryCoder.shared.regionsAt(latLon)
-		currentRegion = CurrentRegion(latLon: latLon,
-		                              country: CountryCoder.countryforRegions(regions),
-		                              regions: CountryCoder.regionsStringsForRegions(regions))
+		currentRegion = CountryCoder.shared.regionInfoFor(latLon: latLon)
 	}
 
-	func unnamedRoadLayer() -> MercatorTileLayer? {
-		let noName = TileServer.noName.identifier
-		for layer in backgroundLayers {
-			if case let .tileLayer(layer) = layer,
-			   layer.tileServer.identifier == noName
-			{
-				return layer
-			}
+	func noNameLayer() -> LayerOrView? {
+		return allLayers.first(where: { $0.hasTileServer == TileServer.noName })
+	}
+
+	// MARK: ViewPort changed
+
+	func mapTransformDidChange() {
+		// we could move the blink outline similar to pushpin, but it's complicated and less important
+		unblinkObject()
+
+		// Determine if we've zoomed out enough to disable editing
+		// We can only compute a precise surface area size at high zoom since it's possible
+		// for the screen to be larger than the earth
+		let area = viewPort.mapTransform.zoom() > 8
+			? SurfaceAreaOfRect(viewPort.boundingLatLonForScreen())
+			: Double.greatestFiniteMagnitude
+		var isZoomedOut = area > 2.0 * 1000 * 1000
+		if !editorLayer.isHidden,
+		   !editorLayer.atVisibleObjectLimit,
+		   area < 1000.0 * 1000 * 1000
+		{
+			isZoomedOut = false
 		}
-		return nil
+		viewStateZoomedOut = isZoomedOut
+
+		// Track zoom threshold for hybrid aerial/basemap mode
+		let currentZoom = viewPort.mapTransform.zoom()
+		let oldPastThreshold = viewStatePastZoomThreshold
+		let newPastThreshold = currentZoom < MapView.aerialBasemapZoomThreshold
+
+		// Only trigger state change when actually crossing the threshold (not on every zoom change)
+		if oldPastThreshold != newPastThreshold {
+			// Pass the new threshold so the function can calculate the correct new state
+			viewStateWillChangeTo(viewState, overlays: viewOverlayMask, zoomedOut: viewStateZoomedOut, pastZoomThreshold: newPastThreshold)
+			// Update the instance variable after the function call
+			viewStatePastZoomThreshold = newPastThreshold
+		}
+
+		// Update zoom level display
+		zoomLevelLabel?.updateZoom(currentZoom)
+
+		updateCurrentRegionForLocationUsingCountryCoder()
+		promptForBetterBackgroundImagery()
+		checkForChangedTileOverlayLayers()
+
+		// notify user if pushpin goes off-screen
+		if let pushPin {
+			let isInside = bounds.contains(pushPin.arrowPoint)
+			if pushPinIsOnscreen,
+			   !isInside,
+			   !pushPin.isDragging
+			{
+				// generate feedback if the user scrolled the pushpin off the screen
+				let feedback = UINotificationFeedbackGenerator()
+				feedback.notificationOccurred(.warning)
+			}
+			pushPinIsOnscreen = isInside
+		}
+
+		// We moved to a new location so update markers
+		updateMapMarkerButtonPositions()
+
+		// This does a more expensive update, but debounced
+		updateMapMarkersFromServer(withDelay: 0, including: [])
 	}
 
 	// MARK: Rotate object
@@ -1521,7 +1083,7 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		let radiusInner: CGFloat = 70
 		let radiusOuter: CGFloat = 90
 		let arrowWidth: CGFloat = 60
-		let center = mapTransform.screenPoint(forLatLon: rotateObjectCenter, birdsEye: true)
+		let center = viewPort.mapTransform.screenPoint(forLatLon: rotateObjectCenter, birdsEye: true)
 		let path = UIBezierPath(
 			arcCenter: center,
 			radius: radiusInner,
@@ -1539,6 +1101,7 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		layer.addSublayer(rotateObjectOverlay)
 
 		isRotateObjectMode = (rotateObjectOverlay, rotateObjectCenter)
+		objectRotationGesture.isEnabled = true
 	}
 
 	func endObjectRotation() {
@@ -1546,6 +1109,7 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		placePushpinForSelection()
 		editorLayer.dragState.confirmDrag = false
 		isRotateObjectMode = nil
+		objectRotationGesture.isEnabled = false
 	}
 
 	func viewStateWillChangeTo(_ state: MapViewState, overlays: MapViewOverlays, zoomedOut: Bool, pastZoomThreshold: Bool? = nil) {
@@ -1587,47 +1151,45 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 
 		locatorLayer.isHidden = !newOverlays.contains(.LOCATOR) || locatorLayer.tileServer.apiKey == ""
 
-		aerialAlignmentButton.isHidden = true
-		dPadView.isHidden = true
+		mainView.aerialAlignmentButton.isHidden = true
+		mainView.dPadView.isHidden = true
 
 		switch newState {
 		case MapViewState.EDITOR:
 			editorLayer.isHidden = false
 			aerialLayer.isHidden = true
 			basemapLayer.isHidden = true
-			userInstructionLabel.isHidden = true
 			editorLayer.whiteText = true
 		case MapViewState.EDITORAERIAL:
 			aerialLayer.tileServer = tileServerList.currentServer
 			editorLayer.isHidden = false
 			aerialLayer.isHidden = false
 			basemapLayer.isHidden = true
-			userInstructionLabel.isHidden = true
 			editorLayer.whiteText = true
-			aerialAlignmentButton.isHidden = false
+			mainView.aerialAlignmentButton.isHidden = false
 		case MapViewState.AERIAL:
 			aerialLayer.tileServer = tileServerList.currentServer
 			editorLayer.isHidden = true
 			aerialLayer.isHidden = false
 			basemapLayer.isHidden = true
-			userInstructionLabel.isHidden = true
 		case MapViewState.BASEMAP:
 			editorLayer.isHidden = true
 			aerialLayer.isHidden = true
 			basemapLayer.isHidden = false
-			// Show "Zoom to Edit" when the underlying state supports editing
-			userInstructionLabel.isHidden = state != .EDITOR && state != .EDITORAERIAL && state != .EDITORAERIALBASEMAP
-			if !userInstructionLabel.isHidden {
-				userInstructionLabel.text = NSLocalizedString("Zoom to Edit", comment: "")
-			}
 		case MapViewState.EDITORAERIALBASEMAP:
 			// This case is handled by StateFor converting to EDITORAERIAL or BASEMAP
 			// It should not reach here, but Swift requires exhaustive switch
 			break
 		}
+
+		mainView.userInstructionLabel.isHidden = (state != .EDITOR && state != .EDITORAERIAL && state != .EDITORAERIALBASEMAP) || !zoomedOut
+		if !mainView.userInstructionLabel.isHidden {
+			mainView.userInstructionLabel.text = NSLocalizedString("Zoom to Edit", comment: "")
+		}
+
 		quadDownloadLayer?.isHidden = editorLayer.isHidden
 
-		if let noName = unnamedRoadLayer() {
+		if var noName = noNameLayer() {
 			noName.isHidden = !editorLayer.isHidden
 		}
 
@@ -1640,9 +1202,9 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		}
 
 		// enable/disable editing buttons based on visibility
-		mainViewController.updateUndoRedoButtonState()
+		mainView.updateUndoRedoButtonState()
 		updateAerialAttributionButton()
-		addNodeButton.isHidden = editorLayer.isHidden
+		mainView.addNodeButton.isHidden = editorLayer.isHidden
 
 		editorLayer.whiteText = !aerialLayer.isHidden
 	}
@@ -1655,116 +1217,22 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		updateAerialAlignmentButton()
 	}
 
-	func metersPerPixel() -> Double {
-		return mapTransform.metersPerPixel(atScreenPoint: crossHairs.position)
-	}
-
-	func distance(from: CGPoint, to: CGPoint) -> Double {
-		return mapTransform.distance(from: from, to: to)
-	}
-
-	func boundingMapRectForScreen() -> OSMRect {
-		let rc = OSMRect(layer.bounds)
-		return mapTransform.boundingMapRect(forScreenRect: rc)
-	}
-
-	func screenLatLonRect() -> OSMRect {
-		let rc = boundingMapRectForScreen()
-		let rect = MapTransform.latLon(forMapRect: rc)
-		return rect
-	}
-
-	func screenCenterLatLon() -> LatLon {
-		return mapTransform.latLon(forScreenPoint: centerPoint())
-	}
-
-	// MARK: Set location
-
-	// Try not to call this directly, since scale isn't something exposed.
-	// Use one of the centerOn() functions instead.
-	private func setTransformFor(latLon: LatLon, scale: Double? = nil) {
-		var lat = latLon.lat
-		lat = min(lat, MapTransform.latitudeLimit)
-		lat = max(lat, -MapTransform.latitudeLimit)
-		let latLon2 = LatLon(latitude: lat, longitude: latLon.lon)
-		let point = mapTransform.screenPoint(forLatLon: latLon2, birdsEye: false)
-		let center = crossHairs.position
-		let delta = CGPoint(x: center.x - point.x, y: center.y - point.y)
-		adjustOrigin(by: delta)
-
-		if let scale = scale {
-			let ratio = scale / screenFromMapTransform.scale()
-			adjustZoom(by: CGFloat(ratio), aroundScreenPoint: crossHairs.position)
-		}
-	}
-
-	// center without changing zoom
-	func centerOn(latLon: LatLon) {
-		setTransformFor(latLon: latLon, scale: nil)
-	}
-
-	func centerOn(latLon: LatLon, zoom: Double) {
-		let scale = pow(2.0, zoom)
-		setTransformFor(latLon: latLon,
-		                scale: scale)
-	}
-
-	func centerOn(latLon: LatLon, metersWide: Double) {
-		let degrees = metersToDegrees(meters: metersWide, latitude: latLon.lat)
-		let scale = 360 / (degrees / 2)
-		setTransformFor(latLon: latLon,
-		                scale: scale)
-	}
-
-	func centerOn(_ location: MapLocation) {
-		let zoom = location.zoom > 0 ? location.zoom : 21.0
-		let latLon = LatLon(latitude: location.latitude, longitude: location.longitude)
-		centerOn(latLon: latLon,
-		         zoom: zoom)
-		let rotation = location.direction * .pi / 180.0 + screenFromMapTransform.rotation()
-		rotate(by: CGFloat(-rotation), aroundScreenPoint: crossHairs.position)
-		if let state = location.viewState {
-			viewState = state
-		}
-	}
-
 	// MARK: Discard stale data
 
 	func discardStaleData() {
 		if enableAutomaticCacheManagement {
 			let changed = editorLayer.mapData.discardStaleData()
 			if changed {
-				flashMessage(title: nil, message: NSLocalizedString("Cache trimmed", comment: ""))
+				MessageDisplay.shared.flashMessage(title: nil, message: NSLocalizedString("Cache trimmed", comment: ""))
 				editorLayer.updateMapLocation() // download data if necessary
 			}
 		}
 	}
 
-	// MARK: Progress indicator
-
-	func progressIncrement(_ delta: Int = 1) {
-		if progressActive.value() == 0, delta > 0 {
-			progressIndicator.startAnimating()
-		}
-		progressActive.increment(delta)
-	}
-
-	func progressDecrement() {
-		progressActive.decrement()
-		if progressActive.value() == 0 {
-			progressIndicator.stopAnimating()
-		}
-#if DEBUG
-		if progressActive.value() < 0 {
-			print("progressDecrement = \(progressActive.value())")
-		}
-#endif
-	}
-
 	// MARK: Aerial imagery alignment
 
 	@IBAction func aerialAlignmentPressed(_ sender: Any) {
-		dPadView.isHidden = !dPadView.isHidden
+		mainView.dPadView.isHidden = !mainView.dPadView.isHidden
 	}
 
 	func updateAerialAlignmentButton() {
@@ -1776,8 +1244,8 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			buttonText = String(format: "(%.1f,%.1f)", arguments: [offset.x, offset.y])
 		}
 		UIView.performWithoutAnimation {
-			aerialAlignmentButton.setTitle(buttonText, for: .normal)
-			aerialAlignmentButton.layoutIfNeeded()
+			mainView.aerialAlignmentButton.setTitle(buttonText, for: .normal)
+			mainView.aerialAlignmentButton.layoutIfNeeded()
 		}
 	}
 
@@ -1790,151 +1258,19 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 
 	// MARK: GPS and Location Manager
 
-	func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-		if locationManagerExtraneousNotification {
-			// filter out extraneous notification we get when initializing CL
-			//
-			locationManagerExtraneousNotification = false
-			return
-		}
-
-		var ok = false
-		switch status {
-		case .authorizedAlways, .authorizedWhenInUse:
-			ok = true
-		case .notDetermined, .restricted, .denied:
-			fallthrough
-		default:
-			ok = false
-		}
-		mainViewController.setGpsState(ok ? .LOCATION : .NONE)
-	}
-
-	@IBAction func center(onGPS sender: Any) {
-		if gpsState == .NONE {
-			return
-		}
-
-		userOverrodeLocationPosition = false
-		if let location = locationManager.location {
-			centerOn(latLon: LatLon(location.coordinate))
+	func moveToLocation(_ location: MapLocation) {
+		let zoom = location.zoom > 0 ? location.zoom : 21.0
+		let latLon = LatLon(latitude: location.latitude, longitude: location.longitude)
+		let rotation = location.direction * .pi / 180.0
+		viewPort.centerOn(latLon: latLon,
+		                  zoom: zoom,
+		                  rotation: rotation)
+		if let state = location.viewState {
+			viewState = state
 		}
 	}
 
-	@IBAction func compassPressed(_ sender: Any) {
-		switch gpsState {
-		case .HEADING:
-			gpsState = .LOCATION
-			rotateToNorth()
-		case .LOCATION:
-			gpsState = .HEADING
-			rotateToHeading()
-		case .NONE:
-			rotateToNorth()
-		}
-	}
-
-	func updateUserLocationIndicator(_ location: CLLocation?) {
-		if !locationBallLayer.isHidden {
-			// set new position
-			guard let location = location ?? locationManager.location else { return }
-			let coord = LatLon(location.coordinate)
-			var point = mapTransform.screenPoint(forLatLon: coord, birdsEye: true)
-			point = mapTransform.wrappedScreenPoint(point, screenBounds: bounds)
-			locationBallLayer.position = point
-
-			// set location accuracy
-			let meters = location.horizontalAccuracy
-			var pixels = CGFloat(meters / metersPerPixel())
-			if pixels == 0.0 {
-				pixels = 100.0
-			}
-			locationBallLayer.radiusInPixels = pixels
-		}
-	}
-
-	func heading(for clHeading: CLHeading) -> Double {
-		var heading = clHeading.trueHeading * .pi / 180
-		switch UIApplication.shared.statusBarOrientation {
-		case .portraitUpsideDown:
-			heading += .pi
-		case .landscapeLeft:
-			heading += .pi / 2
-		case .landscapeRight:
-			heading -= .pi / 2
-		case .portrait:
-			fallthrough
-		default:
-			break
-		}
-		return heading
-	}
-
-	func updateHeadingSmoothed(_ heading: Double, accuracy: Double) {
-		let screenAngle = screenFromMapTransform.rotation()
-
-		if gpsState == .HEADING {
-			// rotate to new heading
-			let center = centerPoint()
-			let delta = -(heading + screenAngle)
-			rotate(by: CGFloat(delta), aroundScreenPoint: center)
-		} else if !locationBallLayer.isHidden {
-			// rotate location ball
-			locationBallLayer.headingAccuracy = CGFloat(accuracy * (.pi / 180))
-			locationBallLayer.showHeading = true
-			locationBallLayer.heading = CGFloat(heading + screenAngle - .pi / 2)
-		}
-	}
-
-	private var locationManagerSmoothHeading = 0.0
-	func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-		let accuracy = newHeading.headingAccuracy
-		let heading = self.heading(for: newHeading)
-
-		DisplayLink.shared.addName("smoothHeading", block: { [self] in
-			var delta = heading - self.locationManagerSmoothHeading
-			if delta > .pi {
-				delta -= 2 * .pi
-			} else if delta < -.pi {
-				delta += 2 * .pi
-			}
-			delta *= 0.15
-			if abs(delta) < 0.001 {
-				self.locationManagerSmoothHeading = heading
-			} else {
-				self.locationManagerSmoothHeading += delta
-			}
-			updateHeadingSmoothed(self.locationManagerSmoothHeading, accuracy: accuracy)
-			if heading == self.locationManagerSmoothHeading {
-				DisplayLink.shared.removeName("smoothHeading")
-			}
-		})
-	}
-
-	@objc func locationUpdated(to newLocation: CLLocation) {
-		if gpsState == .NONE {
-			// sometimes we get a notification after turning off notifications
-			DLog("discard location notification")
-			return
-		}
-
-		if newLocation.timestamp < Date(timeIntervalSinceNow: -10.0) {
-			// its old data
-			DLog("discard old GPS data: \(newLocation.timestamp), \(Date())\n")
-			return
-		}
-
-		// check if we moved an appreciable distance
-		let p1 = LatLon(newLocation.coordinate)
-		let p2 = LatLon(currentLocation.coordinate)
-		let delta = GreatCircleDistance(p1, p2)
-		if !locationBallLayer.isHidden, delta < 0.1,
-		   abs(newLocation.horizontalAccuracy - currentLocation.horizontalAccuracy) < 1.0
-		{
-			return
-		}
-		currentLocation = newLocation
-
+	private func locationUpdated(to newLocation: CLLocation) {
 		if let voiceAnnouncement = voiceAnnouncement,
 		   !editorLayer.isHidden
 		{
@@ -1945,110 +1281,28 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			gpxLayer.addPoint(newLocation)
 		}
 
-		if gpsState == .NONE {
-			locating = false
-		}
-
-		if !userOverrodeLocationPosition,
+		if !mainView.userOverrodeLocationPosition,
 		   UIApplication.shared.applicationState == .active
 		{
 			// move view to center on new location
-			if userOverrodeLocationZoom {
-				centerOn(latLon: LatLon(newLocation.coordinate))
+			if mainView.userOverrodeLocationZoom {
+				viewPort.centerOn(latLon: LatLon(newLocation.coordinate),
+				                  zoom: nil,
+				                  rotation: nil)
 			} else {
-				centerOn(latLon: LatLon(newLocation.coordinate),
-				         metersWide: 20.0)
+				viewPort.centerOn(latLon: LatLon(newLocation.coordinate),
+				                  metersWide: 20.0)
 			}
-		}
-
-		if let pushPin = pushPin {
-			let pp = mapTransform.latLon(forScreenPoint: pushPin.arrowPoint)
-			pushPin.arrowPoint = mapTransform.screenPoint(forLatLon: pp, birdsEye: true)
-		}
-
-		updateUserLocationIndicator(newLocation)
-	}
-
-	func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-		for location in locations {
-			locationUpdated(to: location)
-		}
-	}
-
-	func locationManagerDidPauseLocationUpdates(_ manager: CLLocationManager) {
-		print("GPS paused by iOS\n")
-	}
-
-	func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-		var error = error
-		let controller = mainViewController
-		if (error as? CLError)?.code == CLError.Code.denied {
-			controller.setGpsState(GPS_STATE.NONE)
-			if !isLocationSpecified() {
-				// go home
-				centerOn(latLon: LatLon(latitude: 47.6858, longitude: -122.1917),
-				         metersWide: 50.0)
-			}
-			var text = String.localizedStringWithFormat(
-				NSLocalizedString(
-					"Ensure Location Services is enabled and you have granted this application access.\n\nError: %@",
-					comment: ""),
-				error.localizedDescription)
-			text = NSLocalizedString("The current location cannot be determined: ", comment: "") + text
-			error = NSError(domain: "Location", code: 100, userInfo: [
-				NSLocalizedDescriptionKey: text
-			])
-			presentError(title: nil, error: error, flash: false)
-		} else {
-			// driving through a tunnel or something
-			let text = NSLocalizedString("Location unavailable", comment: "")
-			error = NSError(domain: "Location", code: 100, userInfo: [
-				NSLocalizedDescriptionKey: text
-			])
-			presentError(title: nil, error: error, flash: true)
 		}
 	}
 
 	// MARK: Undo/Redo
 
-	func placePushpinForSelection(at point: CGPoint? = nil) {
-		guard let selection = editorLayer.selectedPrimary
-		else {
-			removePin()
-			return
-		}
-
-		// Make sure editor is visible
-		switch viewState {
-		case .AERIAL, .BASEMAP:
-			viewState = .EDITORAERIAL
-		case .EDITOR, .EDITORAERIAL, .EDITORAERIALBASEMAP:
-			break
-		}
-
-		let loc: LatLon
-		if let point = point {
-			let latLon = mapTransform.latLon(forScreenPoint: point)
-			loc = selection.latLonOnObject(forLatLon: latLon)
-		} else {
-			loc = selection.selectionPoint()
-		}
-
-		let point = mapTransform.screenPoint(forLatLon: loc, birdsEye: true)
-		placePushpin(at: point, object: selection)
-
-		if viewStateZoomedOut {
-			// set location and zoom in
-			centerOn(latLon: loc, metersWide: 30.0)
-		} else if !bounds.contains(pushPin!.arrowPoint) {
-			// set location without changing zoom
-			centerOn(latLon: loc)
-		}
-	}
-
 	@IBAction func undo(_ sender: Any?) {
 		if editorLayer.isHidden {
-			flashMessage(title: nil, message: NSLocalizedString("Editing layer not visible", comment: ""))
+			MessageDisplay.shared.flashMessage(
+				title: nil,
+				message: NSLocalizedString("Editing layer not visible", comment: ""))
 			return
 		}
 		// if just dropped a pin then undo removes the pin
@@ -2063,178 +1317,13 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 
 	@IBAction func redo(_ sender: Any?) {
 		if editorLayer.isHidden {
-			flashMessage(title: nil, message: NSLocalizedString("Editing layer not visible", comment: ""))
+			MessageDisplay.shared.flashMessage(
+				title: nil,
+				message: NSLocalizedString("Editing layer not visible", comment: ""))
 			return
 		}
 		removePin()
 		editorLayer.redo()
-	}
-
-	// MARK: Resize & movement
-
-	func isLocationSpecified() -> Bool {
-		return !(screenFromMapTransform == .identity)
-	}
-
-	func adjustOrigin(by delta: CGPoint) {
-		if delta.x == 0.0, delta.y == 0.0 {
-			return
-		}
-
-		let o = OSMTransform.translation(Double(delta.x), Double(delta.y))
-		let t = screenFromMapTransform.concat(o)
-		screenFromMapTransform = t
-	}
-
-	func adjustZoom(by ratio: CGFloat, aroundScreenPoint zoomCenter: CGPoint) {
-		guard ratio != 1.0,
-		      isRotateObjectMode == nil
-		else {
-			return
-		}
-
-		let maxZoomIn = Double(Int(1) << 30)
-
-		let scale = screenFromMapTransform.scale()
-		var ratio = Double(ratio)
-		if ratio * scale < 1.0 {
-			ratio = 1.0 / scale
-		}
-		if ratio * scale > maxZoomIn {
-			ratio = maxZoomIn / scale
-		}
-
-		let offset = mapTransform.mapPoint(forScreenPoint: OSMPoint(zoomCenter), birdsEye: false)
-		var t = screenFromMapTransform
-		t = t.translatedBy(dx: offset.x, dy: offset.y)
-		t = t.scaledBy(ratio)
-		t = t.translatedBy(dx: -offset.x, dy: -offset.y)
-		screenFromMapTransform = t
-	}
-
-	func rotate(by angle: CGFloat, aroundScreenPoint zoomCenter: CGPoint) {
-		if angle == 0.0 {
-			return
-		}
-
-		let offset = mapTransform.mapPoint(forScreenPoint: OSMPoint(zoomCenter), birdsEye: false)
-		var t = screenFromMapTransform
-		t = t.translatedBy(dx: offset.x, dy: offset.y)
-		t = t.rotatedBy(Double(angle))
-		t = t.translatedBy(dx: -offset.x, dy: -offset.y)
-		screenFromMapTransform = t
-
-		let screenAngle = screenFromMapTransform.rotation()
-		compassButton.rotate(angle: CGFloat(screenAngle))
-		if !locationBallLayer.isHidden {
-			if gpsState == .HEADING,
-			   abs(locationBallLayer.heading - -.pi / 2) < 0.0001
-			{
-				// don't pin location ball to North until we've animated our rotation to north
-				locationBallLayer.heading = -.pi / 2
-			} else {
-				if let heading = locationManager.heading {
-					let heading = self.heading(for: heading)
-					locationBallLayer.heading = CGFloat(screenAngle + heading - .pi / 2)
-				}
-			}
-		}
-	}
-
-	func animateRotation(by deltaHeading: Double, aroundPoint center: CGPoint) {
-		var deltaHeading = deltaHeading
-		// don't rotate the long way around
-		while deltaHeading < -.pi {
-			deltaHeading += 2 * .pi
-		}
-		while deltaHeading > .pi {
-			deltaHeading -= 2 * .pi
-		}
-
-		if abs(deltaHeading) < 0.00001 {
-			return
-		}
-
-		let startTime = CACurrentMediaTime()
-
-		let duration = 0.4
-		var prevHeading: Double = 0
-		weak var weakSelf = self
-		DisplayLink.shared.addName(DisplayLinkHeading, block: {
-			if let myself = weakSelf {
-				var elapsedTime = CACurrentMediaTime() - startTime
-				if elapsedTime > duration {
-					elapsedTime = CFTimeInterval(duration) // don't want to over-rotate
-				}
-				// Rotate using an ease-in/out curve. This ensures that small changes in direction don't cause jerkiness.
-				// result = interpolated value, t = current time, b = initial value, c = delta value, d = duration
-				func easeInOutQuad(_ t: Double, _ b: Double, _ c: Double, _ d: Double) -> Double {
-					var t = t
-					t /= d / 2
-					if t < 1 {
-						return c / 2 * t * t + b
-					}
-					t -= 1
-					return -c / 2 * (t * (t - 2) - 1) + b
-				}
-				let miniHeading = easeInOutQuad(elapsedTime, 0, deltaHeading, duration)
-				myself.rotate(by: CGFloat(miniHeading - prevHeading), aroundScreenPoint: center)
-				prevHeading = miniHeading
-				if elapsedTime >= duration {
-					DisplayLink.shared.removeName(DisplayLinkHeading)
-				}
-			}
-		})
-	}
-
-	func rotateBirdsEye(by angle: Double) {
-		var angle = angle
-		// limit maximum rotation
-		var t = screenFromMapTransform
-		let maxRotation = Double(65 * (Double.pi / 180))
-#if TRANSFORM_3D
-		let currentRotation = atan2(t.m23, t.m22)
-#else
-		let currentRotation = Double(mapTransform.birdsEyeRotation)
-#endif
-		if currentRotation + angle > maxRotation {
-			angle = maxRotation - currentRotation
-		}
-		if currentRotation + Double(angle) < 0 {
-			angle = -currentRotation
-		}
-
-		let offset = mapTransform.mapPoint(forScreenPoint: OSMPoint(centerPoint()), birdsEye: false)
-
-		t = t.translatedBy(dx: offset.x, dy: offset.y)
-#if TRANSFORM_3D
-		t = CATransform3DRotate(t, delta, 1.0, 0.0, 0.0)
-#else
-		mapTransform.birdsEyeRotation += angle
-#endif
-		t = t.translatedBy(dx: -offset.x, dy: -offset.y)
-		screenFromMapTransform = t
-
-		if !locationBallLayer.isHidden {
-			updateUserLocationIndicator(nil)
-		}
-	}
-
-	func rotateToNorth() {
-		// Rotate to face North
-		let center = centerPoint()
-		let rotation = screenFromMapTransform.rotation()
-		animateRotation(by: -rotation, aroundPoint: center)
-	}
-
-	func rotateToHeading() {
-		// Rotate to face current compass heading
-		if let heading = locationManager.heading {
-			let center = centerPoint()
-			let screenAngle = screenFromMapTransform.rotation()
-			let heading = self.heading(for: heading)
-			animateRotation(by: -(screenAngle + heading), aroundPoint: center)
-		}
 	}
 
 	// MARK: Key presses
@@ -2242,7 +1331,7 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 	/// Offers the option to either merge tags or replace them with the copied tags.
 	/// - Parameter sender: nil
 	override func paste(_ sender: Any?) {
-		editorLayer.pasteTags()
+		editorLayer.pasteTags(string: nil)
 	}
 
 	override func delete(_ sender: Any?) {
@@ -2268,18 +1357,63 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 	}
 #endif
 
+	// UIPasteControl stops initializing itself correctly after the app has been in the
+	// background several hours, so to get around this we instantiate UIPasteControl once
+	// and reuse the same button as needed. We need light and dark versions of it because
+	// the control doesn't update it's appearance dynamically when switching between modes.
+	static func pasteButtonWith(style: UIUserInterfaceStyle) -> UIControl? {
+		// Special case for paste button that accesses the clipboard
+		if #available(iOS 16.0, *) {
+			let trait = UITraitCollection(userInterfaceStyle: style)
+			let bgColor = MapView.editToolbarBackgroundColor.resolvedColor(with: trait)
+			let fgColor = MapView.editToolbarForegroundColor.resolvedColor(with: trait)
+
+			let configuration = UIPasteControl.Configuration()
+			configuration.baseBackgroundColor = bgColor
+			configuration.baseForegroundColor = fgColor
+			configuration.cornerStyle = .dynamic
+			configuration.displayMode = .labelOnly
+			let pasteButton = UIPasteControl(configuration: configuration)
+			pasteButton.translatesAutoresizingMaskIntoConstraints = false
+			pasteButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+			pasteButton.setContentCompressionResistancePriority(.required, for: .vertical)
+			pasteButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+			pasteButton.setContentHuggingPriority(.required, for: .vertical)
+			return pasteButton
+		} else {
+			return nil
+		}
+	}
+
+	static let editToolbarBackgroundColor = UIColor.systemBackground
+	static let editToolbarForegroundColor = UIColor.label
+	let editToolbarPasteButtonLight: UIView? = pasteButtonWith(style: .light)
+	let editToolbarPasteButtonDark: UIView? = pasteButtonWith(style: .dark)
+
+	/// Check if Split operation is available (middle node of a way, or any node on closed way)
+	private func isSplitAvailable() -> Bool {
+		guard let selectedWay = editorLayer.selectedWay,
+		      let selectedNode = editorLayer.selectedNode
+		else { return false }
+
+		// Split is available for closed ways (can split at any node)
+		// or for open ways where the node is not an endpoint
+		return selectedWay.isClosed() ||
+			(selectedNode != selectedWay.nodes.first && selectedNode != selectedWay.nodes.last)
+	}
+
 	// show/hide edit control based on selection
 	func updateEditControl() {
 		let show = pushPin != nil || editorLayer.selectedPrimary != nil
-		editControl.isHidden = !show
+		editToolbar.isHidden = !show
+		mainView.rulerView.isHidden = show
 		if show {
+			let backgroundColor = UIColor.systemBackground
+			let foregroundColor = UIColor.label
+			editToolbar.backgroundColor = backgroundColor
 			if editorLayer.selectedPrimary == nil {
 				// brand new node
-				if editorLayer.canPasteTags() {
-					editControlActions = [.EDITTAGS, .ADDNOTE, .PASTETAGS]
-				} else {
-					editControlActions = [.EDITTAGS, .ADDNOTE]
-				}
+				editControlActions = [.EDITTAGS, .ADDNOTE, .PASTETAGS]
 			} else {
 				if let relation = editorLayer.selectedPrimary?.isRelation() {
 					if relation.isRestriction() {
@@ -2290,25 +1424,72 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 						editControlActions = [.EDITTAGS, .PASTETAGS]
 					}
 				} else {
-                    editControlActions = [.EDITTAGS, .PASTETAGS, .DELETE, .REVERSE, .TOGGLEONEWAY, .RESTRICT, .MORE]
-				}
-			}
-			editControl.removeAllSegments()
-			for action in editControlActions {
-				let title: String = action.actionTitle(abbreviated: true)
-				editControl.insertSegment(withTitle: title,
-				                          at: editControl.numberOfSegments,
-				                          animated: false)
-			}
-			// mark segment labels as adjustsFontSizeToFitWidth
-			for segment in editControl.subviews {
-				for label in segment.subviews {
-					guard let label = label as? UILabel else {
-						continue
+					// Show SPLIT on main toolbar when available (middle node of way), otherwise DELETE
+					if isSplitAvailable() {
+						editControlActions = [.EDITTAGS, .PASTETAGS, .SPLIT, .REVERSE, .TOGGLEONEWAY, .RESTRICT, .MORE]
+					} else {
+						editControlActions = [.EDITTAGS, .PASTETAGS, .DELETE, .REVERSE, .TOGGLEONEWAY, .RESTRICT, .MORE]
 					}
-					label.adjustsFontSizeToFitWidth = true
 				}
 			}
+
+			func editToolbarItemForAction(_ action: EDIT_ACTION) -> UIControl {
+				if action == .PASTETAGS,
+				   #available(iOS 16.0, *),
+				   !ProcessInfo.processInfo.isMacCatalystApp
+				{
+					// Special case for paste that accesses the clipboard
+					let pasteButton = traitCollection.userInterfaceStyle == .light
+						? editToolbarPasteButtonLight as! UIPasteControl
+						: editToolbarPasteButtonDark as! UIPasteControl
+					pasteButton.target = editorLayer
+					return pasteButton
+				} else {
+					let titleIcon = action.actionTitle(abbreviated: true)
+					let button = ButtonClosure(type: .system)
+					button.translatesAutoresizingMaskIntoConstraints = false
+					button.setTitle(titleIcon.label, for: .normal)
+					button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
+					button.titleLabel?.adjustsFontForContentSizeCategory = true
+					button.backgroundColor = backgroundColor
+					button.setTitleColor(foregroundColor, for: .normal)
+					button.layer.cornerRadius = editToolbar.layer.cornerRadius
+					button.layer.masksToBounds = true
+					button.setContentHuggingPriority(.defaultLow, for: .vertical)
+					button.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
+					button.backgroundColor = backgroundColor
+					button.onTap = { [weak self] _ in
+						self?.editorLayer.performEdit(action)
+					}
+					return button
+				}
+			}
+			var actions: [UIView] = editControlActions.map {
+				editToolbarItemForAction($0)
+			}
+
+			// add spacers between UIButtons (but not UIPasteControl since it provides it's own space
+			var index = 0
+			while index < actions.count - 1 {
+				if actions[index] is UIButton, actions[index + 1] is UIButton {
+					let spacer = UIView()
+					spacer.translatesAutoresizingMaskIntoConstraints = false
+					spacer.widthAnchor.constraint(equalToConstant: 12).isActive = true
+					actions.insert(spacer, at: index + 1)
+					index += 1 // Skip over the spacer
+				}
+				index += 1
+			}
+			let spacer1 = UIView()
+			spacer1.translatesAutoresizingMaskIntoConstraints = false
+			spacer1.widthAnchor.constraint(equalToConstant: 6).isActive = true
+			actions.insert(spacer1, at: 0)
+			let spacer2 = UIView()
+			spacer2.translatesAutoresizingMaskIntoConstraints = false
+			spacer2.widthAnchor.constraint(equalToConstant: 12).isActive = true
+			actions.append(spacer2)
+
+			editToolbar.controls = actions
 		}
 	}
 
@@ -2319,44 +1500,29 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			return
 		}
 
-		let actionSheet = UIAlertController(
-			title: NSLocalizedString("Perform Action", comment: ""),
-			message: nil,
-			preferredStyle: .actionSheet)
+		let actionSheet = CustomActionSheetController(title: nil, message: nil)
 		for value in actionList {
-			let title = value.actionTitle()
-			actionSheet.addAction(UIAlertAction(title: title, style: .default, handler: { [self] _ in
-				editorLayer.performEdit(value)
-			}))
+			let titleIcon = value.actionTitle()
+			actionSheet.addAction(title: titleIcon.label,
+			                      image: titleIcon.image,
+			                      handler: {
+			                      	self.editorLayer.performEdit(value)
+			                      })
 		}
-		actionSheet.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""),
-		                                    style: .cancel,
-		                                    handler: nil))
-		mainViewController.present(actionSheet, animated: true)
+		actionSheet.addAction(title: NSLocalizedString("Cancel", comment: ""),
+		                      image: nil,
+		                      isCancel: true,
+		                      handler: nil)
+		mainView.present(actionSheet, animated: true)
 
 		// compute location for action sheet to originate
-		var button = editControl.bounds
-		let segmentWidth = button.size.width /
-			CGFloat(editControl.numberOfSegments) // hack because we can't get the frame for an individual segment
-		button.origin.x += button.size.width - segmentWidth
-		button.size.width = segmentWidth
-		actionSheet.popoverPresentationController?.sourceView = editControl
-		actionSheet.popoverPresentationController?.sourceRect = button
-	}
-
-	@IBAction func editControlAction(_ sender: Any) {
-		// get the selected button: has to be done before modifying the node/way selection
-		guard let segmentedControl = sender as? UISegmentedControl else { return }
-		let segment = segmentedControl.selectedSegmentIndex
-		if segment >= 0, segment < editControlActions.count {
-			let action = editControlActions[segment]
-			editorLayer.performEdit(action)
-		}
-		segmentedControl.selectedSegmentIndex = UISegmentedControl.noSegment
+		let trigger = editToolbar.controls.last!
+		actionSheet.popoverPresentationController?.sourceView = trigger
+		actionSheet.popoverPresentationController?.sourceRect = trigger.bounds
 	}
 
 	@IBAction func presentTagEditor(_ sender: Any?) {
-		mainViewController.performSegue(withIdentifier: "poiSegue", sender: nil)
+		mainView.performSegue(withIdentifier: "poiSegue", sender: nil)
 	}
 
 	// Turn restriction panel
@@ -2365,26 +1531,29 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		      let pushPin = pushPin
 		else { return }
 
-		let showRestrictionEditor: (() -> Void) = { [self] in
-			guard let myVc = mainViewController.storyboard?
-				.instantiateViewController(withIdentifier: "TurnRestrictController") as? TurnRestrictController
+		func showRestrictionEditor() {
+			guard
+				let myVc = TurnRestrictController.instantiate()
 			else { return }
 			myVc.centralNode = editorLayer.selectedNode
 			myVc.modalPresentationStyle = UIModalPresentationStyle.overCurrentContext
-			mainViewController.present(myVc, animated: true)
+			mainView.present(myVc, animated: true)
 
 			// if GPS is running don't keep moving around
-			userOverrodeLocationPosition = true
+			mainView.userOverrodeLocationPosition = true
+
+			// ensure view is loaded before we access frame info
+			myVc.loadViewIfNeeded()
 
 			// scroll view so intersection stays visible
 			let rc = myVc.viewWithTitle.frame
 			let pt = pushPin.arrowPoint
 			let delta = CGPoint(x: Double(bounds.midX - pt.x), y: Double(bounds.midY - rc.size.height / 2 - pt.y))
-			adjustOrigin(by: delta)
+			viewPort.adjustOrigin(by: delta)
 		}
 
 		// check if this is a fancy relation type we don't support well
-		let restrictionEditWarning: ((OsmNode?) -> Void) = { [self] viaNode in
+		func restrictionEditWarning(viaNode: OsmNode?) {
 			var warn = false
 			if let parentRelations = viaNode?.parentRelations {
 				for relation in parentRelations {
@@ -2409,11 +1578,10 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 				                              handler: { _ in
 				                              	showRestrictionEditor()
 				                              }))
-				alert
-					.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""),
-					                         style: .cancel,
-					                         handler: nil))
-				mainViewController.present(alert, animated: true)
+				alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""),
+				                              style: .cancel,
+				                              handler: nil))
+				mainView.present(alert, animated: true)
 			} else {
 				showRestrictionEditor()
 			}
@@ -2421,13 +1589,13 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 
 		// if we currently have a relation selected then select the via node instead
 
-		if let relation = selectedPrimary.isRelation() {
-			let fromWay = relation.member(byRole: "from")?.obj?.isWay()
-			let viaNode = relation.member(byRole: "via")?.obj?.isNode()
-
-			if viaNode == nil {
+		if let relation = selectedPrimary as? OsmRelation {
+			let fromWay = relation.member(byRole: "from")?.obj as? OsmWay
+			guard
+				let viaNode = relation.member(byRole: "via")?.obj as? OsmNode
+			else {
 				// not supported yet
-				showAlert(
+				MessageDisplay.shared.showAlert(
 					NSLocalizedString("Unsupported turn restriction type", comment: ""),
 					message: NSLocalizedString(
 						"This app does not yet support editing turn restrictions without a node as the 'via' member",
@@ -2439,10 +1607,49 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			editorLayer.selectedNode = viaNode
 			if editorLayer.selectedNode != nil {
 				placePushpinForSelection()
-				restrictionEditWarning(editorLayer.selectedNode)
+				restrictionEditWarning(viaNode: editorLayer.selectedNode)
 			}
 		} else if selectedPrimary.isNode() != nil {
-			restrictionEditWarning(editorLayer.selectedNode)
+			restrictionEditWarning(viaNode: editorLayer.selectedNode)
+		}
+	}
+
+	// MARK: PushPin
+
+	func placePushpinForSelection(at point: CGPoint? = nil) {
+		guard let selection = editorLayer.selectedPrimary
+		else {
+			removePin()
+			return
+		}
+
+		// Make sure editor is visible
+		switch viewState {
+		case .AERIAL, .BASEMAP:
+			viewState = .EDITORAERIAL
+		case .EDITOR, .EDITORAERIAL, .EDITORAERIALBASEMAP:
+			break
+		}
+
+		let loc: LatLon
+		if let point = point {
+			let latLon = viewPort.mapTransform.latLon(forScreenPoint: point)
+			loc = selection.latLonOnObject(forLatLon: latLon)
+		} else {
+			loc = selection.selectionPoint()
+		}
+
+		let point = viewPort.mapTransform.screenPoint(forLatLon: loc, birdsEye: true)
+		placePushpin(at: point, object: selection)
+
+		if viewStateZoomedOut {
+			// set location and zoom in
+			viewPort.centerOn(latLon: loc, metersWide: 30.0)
+		} else if !bounds.contains(pushPin!.arrowPoint) {
+			// set location without changing zoom
+			viewPort.centerOn(latLon: loc,
+			                  zoom: nil,
+			                  rotation: nil)
 		}
 	}
 
@@ -2455,94 +1662,98 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		magnifyingGlass.isHidden = true
 	}
 
-	private func pushpinDragCallbackFor(object: OsmBaseObject) -> PushPinViewDragCallback {
-		weak var object = object
-		return { [weak self] state, dx, dy in
-			guard let self = self else { return }
-			switch state {
-			case .ended, .cancelled, .failed:
-				DisplayLink.shared.removeName("dragScroll")
-				let isRotate = self.isRotateObjectMode != nil
-				if isRotate {
-					self.endObjectRotation()
-				}
-				self.unblinkObject()
-				if let object = object {
-					self.editorLayer.dragFinish(object: object, isRotate: isRotate)
-				}
+	// This function gets called by the pushpin when the user is dragging it.
+	// If the pin is attached to an editor object we drag the object.
+	// If the pin is being dragged off the edge of the
+	// screen we scroll the screen to keep the pin in bounds.
+	func onPushPinDrag(pushPin: PushPinView, state: UIPanGestureRecognizer.State,
+	                   object: OsmBaseObject?,
+	                   dx: Double, dy: Double)
+	{
+		switch state {
+		case .ended, .cancelled, .failed:
 
-			case .began:
-				if let pos = self.pushPin?.arrowPoint {
-					self.editorLayer.dragBegin(from: pos.minus(CGPoint(x: dx, y: dy)))
-				}
-				fallthrough // begin state can have movement
-			case .changed:
-				// define the drag function
-				let dragObjectToPushpin: (() -> Void) = { [weak object] in
-					if let object = object,
-					   let pos = self.pushPin?.arrowPoint
-					{
-						self.editorLayer.dragContinue(object: object,
-						                              toPoint: pos,
-						                              isRotateObjectMode: self.isRotateObjectMode)
-					}
-				}
-
-				// scroll screen if too close to edge
-				let MinDistanceSide: CGFloat = 40.0
-				let MinDistanceTop = MinDistanceSide + 10.0
-				let MinDistanceBottom = MinDistanceSide + 120.0
-				let arrow = self.pushPin?.arrowPoint ?? .zero
-				let screen = self.bounds
-				let SCROLL_SPEED: CGFloat = 10.0
-				var scrollx: CGFloat = 0
-				var scrolly: CGFloat = 0
-
-				if arrow.x < (screen.origin.x + MinDistanceSide) {
-					scrollx = -SCROLL_SPEED
-				} else if arrow.x > screen.origin.x + screen.size.width - MinDistanceSide {
-					scrollx = SCROLL_SPEED
-				}
-				if arrow.y < screen.origin.y + MinDistanceTop {
-					scrolly = -SCROLL_SPEED
-				} else if arrow.y > screen.origin.y + screen.size.height - MinDistanceBottom {
-					scrolly = SCROLL_SPEED
-				}
-
-				if scrollx != 0.0 || scrolly != 0.0 {
-					// if we're dragging at a diagonal then scroll diagonally as well, in the direction the user is dragging
-					let center = self.centerPoint()
-					let v = Sub(OSMPoint(arrow), OSMPoint(center)).unitVector()
-					scrollx = SCROLL_SPEED * CGFloat(v.x)
-					scrolly = SCROLL_SPEED * CGFloat(v.y)
-
-					// scroll the screen to keep pushpin centered
-					var prevTime = TimeInterval(CACurrentMediaTime())
-					DisplayLink.shared.addName("dragScroll", block: { [self] in
-						let now = TimeInterval(CACurrentMediaTime())
-						let duration = now - prevTime
-						prevTime = now
-						// scale to 60 FPS assumption, need to move farther if framerate is slow
-						let sx = scrollx * CGFloat(duration) * 60.0
-						let sy = scrolly * CGFloat(duration) * 60.0
-						self.adjustOrigin(by: CGPoint(x: -sx, y: -sy))
-						// update position of blink layer
-						if let pt = self.blinkLayer?.position.withOffset(-sx, -sy) {
-							self.blinkLayer?.position = pt
-						}
-						dragObjectToPushpin()
-					})
-				} else {
-					DisplayLink.shared.removeName("dragScroll")
-				}
-
-				// move the object
-				dragObjectToPushpin()
-
-				self.magnifyingGlass.setSourceCenter(arrow, in: self, visible: !self.aerialLayer.isHidden)
-			default:
-				break
+			DisplayLink.shared.removeName("dragScroll")
+			let isRotate = self.isRotateObjectMode != nil
+			if isRotate {
+				self.endObjectRotation()
 			}
+			self.unblinkObject()
+			if let object {
+				self.editorLayer.dragFinish(object: object, isRotate: isRotate)
+			}
+		case .began:
+			self.editorLayer.dragBegin(from: pushPin.arrowPoint.minus(CGPoint(x: dx, y: dy)))
+			fallthrough // begin state can have movement
+		case .changed:
+			// define the drag function
+			func dragObjectToPushpin() {
+				if let object {
+					self.editorLayer.dragContinue(object: object,
+					                              toPoint: pushPin.arrowPoint,
+					                              isRotateObjectMode: self.isRotateObjectMode)
+				}
+			}
+
+			// scroll screen if too close to edge
+			let MinDistanceSide: CGFloat = 40.0
+			let MinDistanceTop = MinDistanceSide + self.safeAreaInsets.top
+			let MinDistanceBottom = MinDistanceSide + 120.0
+			let arrow = pushPin.arrowPoint
+			let screen = self.bounds
+			let SCROLL_SPEED: CGFloat = 10.0
+			var scrollx: CGFloat = 0
+			var scrolly: CGFloat = 0
+
+			if arrow.x < (screen.origin.x + MinDistanceSide) {
+				scrollx = -SCROLL_SPEED
+			} else if arrow.x > screen.origin.x + screen.size.width - MinDistanceSide {
+				scrollx = SCROLL_SPEED
+			}
+			if arrow.y < screen.origin.y + MinDistanceTop {
+				scrolly = -SCROLL_SPEED
+			} else if arrow.y > screen.origin.y + screen.size.height - MinDistanceBottom {
+				scrolly = SCROLL_SPEED
+			}
+
+			if scrollx != 0.0 || scrolly != 0.0 {
+				// if we're dragging at a diagonal then scroll diagonally as well, in the direction the user is dragging
+				let center = viewPort.screenCenterPoint()
+				let v = Sub(OSMPoint(arrow), OSMPoint(center)).unitVector()
+				scrollx = SCROLL_SPEED * CGFloat(v.x)
+				scrolly = SCROLL_SPEED * CGFloat(v.y)
+
+				// scroll the screen to keep pushpin on-screen
+				var prevTime = TimeInterval(CACurrentMediaTime())
+				DisplayLink.shared.addName("dragScroll", block: { [self] in
+					let now = TimeInterval(CACurrentMediaTime())
+					let duration = now - prevTime
+					prevTime = now
+					// scale to 60 FPS assumption, need to move farther if framerate is slow
+					let sx = scrollx * CGFloat(duration) * 60.0
+					let sy = scrolly * CGFloat(duration) * 60.0
+					self.viewPort.adjustOrigin(by: CGPoint(x: -sx, y: -sy))
+					// because we moved the screen the pushpin is now back on-screen, but
+					// for smooth continuous operation we put the pushpin back off-screen:
+					let newArrowPoint = pushPin.arrowPoint.withOffset(sx, sy)
+					pushPin.location = viewPort.mapTransform.latLon(forScreenPoint: newArrowPoint)
+
+					// update position of blink layer
+					if let pt = self.blinkLayer?.position.withOffset(-sx, -sy) {
+						self.blinkLayer?.position = pt
+					}
+					dragObjectToPushpin()
+					self.magnifyingGlass.setSourceCenter(arrow, in: self, visible: !self.aerialLayer.isHidden)
+				})
+			} else {
+				DisplayLink.shared.removeName("dragScroll")
+			}
+
+			// move the object
+			dragObjectToPushpin()
+			self.magnifyingGlass.setSourceCenter(arrow, in: self, visible: !self.aerialLayer.isHidden)
+		default:
+			break
 		}
 	}
 
@@ -2551,20 +1762,14 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 
 		editorLayer.dragState.confirmDrag = false
 		let pushpinView = PushPinView()
+		pushpinView.viewPort = viewPort
 		pushPin = pushpinView
 		refreshPushpinText()
-		pushpinView.layer.zPosition = ZLAYER.PUSHPIN.rawValue
-		pushpinView.arrowPoint = point
+		pushpinView.location = viewPort.mapTransform.latLon(forScreenPoint: point)
+		addSubview(pushpinView)
 
-		if let object = object {
-			pushpinView.dragCallback = pushpinDragCallbackFor(object: object)
-		} else {
-			pushpinView.dragCallback = { _, _, _ in
-				self.magnifyingGlass.setSourceCenter(
-					pushpinView.arrowPoint,
-					in: self,
-					visible: !self.aerialLayer.isHidden)
-			}
+		pushpinView.dragCallback = { [weak self, weak object] pushPin, state, dx, dy in
+			self?.onPushPinDrag(pushPin: pushPin, state: state, object: object, dx: dx, dy: dy)
 		}
 
 		if object == nil {
@@ -2607,8 +1812,6 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			magnifyingGlass.setSourceCenter(pushpinView.arrowPoint, in: self, visible: !aerialLayer.isHidden)
 		}
 
-		addSubview(pushpinView)
-
 		updateEditControl()
 	}
 
@@ -2616,6 +1819,10 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		let text = editorLayer.selectedPrimary?.friendlyDescription() ?? NSLocalizedString("(new object)", comment: "")
 		pushPin?.text = text
 	}
+
+	var blinkObject: OsmBaseObject? // used for creating a moving dots animation during selection
+	var blinkSegment = 0
+	var blinkLayer: CAShapeLayer?
 
 	func unblinkObject() {
 		blinkLayer?.removeFromSuperlayer()
@@ -2639,7 +1846,7 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		// create a layer for the object
 		let path = CGMutablePath()
 		if let node = object as? OsmNode {
-			let center = mapTransform.screenPoint(forLatLon: node.latLon, birdsEye: true)
+			let center = viewPort.mapTransform.screenPoint(forLatLon: node.latLon, birdsEye: true)
 			var rect = CGRect(x: center.x, y: center.y, width: 0, height: 0)
 			rect = rect.insetBy(dx: -10, dy: -10)
 			path.addEllipse(in: rect, transform: .identity)
@@ -2648,14 +1855,14 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 				assert(way.nodes.count >= segment + 2)
 				let n1 = way.nodes[segment]
 				let n2 = way.nodes[segment + 1]
-				let p1 = mapTransform.screenPoint(forLatLon: n1.latLon, birdsEye: true)
-				let p2 = mapTransform.screenPoint(forLatLon: n2.latLon, birdsEye: true)
+				let p1 = viewPort.mapTransform.screenPoint(forLatLon: n1.latLon, birdsEye: true)
+				let p2 = viewPort.mapTransform.screenPoint(forLatLon: n2.latLon, birdsEye: true)
 				path.move(to: CGPoint(x: p1.x, y: p1.y))
 				path.addLine(to: CGPoint(x: p2.x, y: p2.y))
 			} else {
 				var isFirst = true
 				for node in way.nodes {
-					let pt = mapTransform.screenPoint(forLatLon: node.latLon, birdsEye: true)
+					let pt = viewPort.mapTransform.screenPoint(forLatLon: node.latLon, birdsEye: true)
 					if isFirst {
 						path.move(to: CGPoint(x: pt.x, y: pt.y))
 					} else {
@@ -2714,15 +1921,17 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			if viewOverlayMask.contains(.QUESTS) {
 				including.insert(.quest)
 			}
-			if displayGpxLogs {
+			if displayGpxTracks {
 				including.insert(.gpx)
+			}
+			if displayDataOverlayLayers {
+				including.insert(.geojson)
 			}
 		} else if !viewOverlayMask.contains(.QUESTS) {
 			including.remove(.quest)
 		}
 
-		mapMarkerDatabase.updateRegion(screenLatLonRect(),
-		                               withDelay: delay,
+		mapMarkerDatabase.updateRegion(withDelay: delay,
 		                               mapData: editorLayer.mapData,
 		                               including: including,
 		                               completion: {
@@ -2777,9 +1986,9 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		let button = marker.button!
 		button.isHidden = false
 		let offsetX = (marker is KeepRightMarker) || (marker is FixmeMarker) ? 0.00001 : 0.0
-		let pos = mapTransform.screenPoint(forLatLon: LatLon(latitude: marker.latLon.lat,
-		                                                     longitude: marker.latLon.lon + offsetX),
-		                                   birdsEye: true)
+		let pos = viewPort.mapTransform.screenPoint(forLatLon: LatLon(latitude: marker.latLon.lat,
+		                                                              longitude: marker.latLon.lon + offsetX),
+		                                            birdsEye: true)
 		if pos.x.isInfinite || pos.y.isInfinite {
 			return false
 		}
@@ -2814,35 +2023,42 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			editorLayer.selectedRelation = object.isRelation()
 
 			let pt = object.latLonOnObject(forLatLon: marker.latLon)
-			let point = mapTransform.screenPoint(forLatLon: pt, birdsEye: true)
+			let point = viewPort.mapTransform.screenPoint(forLatLon: pt, birdsEye: true)
 			placePushpin(at: point, object: object)
 		}
 
-		if (marker is WayPointMarker) || (marker is KeepRightMarker) {
-			let comment = (marker as? WayPointMarker)?.description ?? (marker as? KeepRightMarker)?.description ?? ""
-			let title = marker is WayPointMarker ? "Waypoint" : "Keep Right"
-
-			// use regular alertview
-			let alertKeepRight = UIAlertController(title: title, message: comment, preferredStyle: .alert)
-			alertKeepRight.addAction(
-				UIAlertAction(title: NSLocalizedString("OK", comment: ""),
-				              style: .cancel,
-				              handler: { _ in
-				              }))
-			if let marker = marker as? KeepRightMarker {
-				alertKeepRight.addAction(
-					UIAlertAction(title: NSLocalizedString("Ignore", comment: ""),
-					              style: .default,
-					              handler: { [self] _ in
-					              	// they want to hide this button from now on
-					              	marker.ignore()
-					              	editorLayer.selectedNode = nil
-					              	editorLayer.selectedWay = nil
-					              	editorLayer.selectedRelation = nil
-					              	removePin()
-					              }))
+		if (marker is WayPointMarker) || (marker is KeepRightMarker) || (marker is GeoJsonMarker) {
+			let comment: NSAttributedString
+			let title: String
+			switch marker {
+			case let marker as WayPointMarker:
+				title = "Waypoint"
+				comment = marker.description
+			case let marker as GeoJsonMarker:
+				title = "GeoJSON"
+				comment = NSAttributedString(string: marker.description)
+			case let marker as KeepRightMarker:
+				title = "Keep Right"
+				comment = NSAttributedString(string: marker.description)
+			default:
+				title = ""
+				comment = NSAttributedString(string: "")
 			}
-			mainViewController.present(alertKeepRight, animated: true)
+
+			let alert = AlertPopup(title: title, message: comment)
+			if let marker = marker as? KeepRightMarker {
+				alert.addAction(
+					title: NSLocalizedString("Ignore", comment: ""),
+					handler: { [self] in
+						// they want to hide this button from now on
+						marker.ignore()
+						editorLayer.selectedNode = nil
+						editorLayer.selectedWay = nil
+						editorLayer.selectedRelation = nil
+						removePin()
+					})
+			}
+			mainView.present(alert, animated: true)
 		} else if let object = object {
 			// Fixme marker or Quest marker
 			if !editorLayer.isHidden {
@@ -2862,7 +2078,7 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 						sheet.detents = [.medium(), .large()]
 						sheet.delegate = self
 					}
-					mainViewController.present(vc, animated: true)
+					mainView.present(vc, animated: true)
 				} else {
 					presentTagEditor(nil)
 				}
@@ -2881,10 +2097,10 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 				                              message: text,
 				                              preferredStyle: .alert)
 				alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-				mainViewController.present(alert, animated: true)
+				mainView.present(alert, animated: true)
 			}
 		} else if let note = marker as? OsmNoteMarker {
-			mainViewController.performSegue(withIdentifier: "NotesSegue", sender: note)
+			mainView.performSegue(withIdentifier: "NotesSegue", sender: note)
 		}
 	}
 
@@ -2900,7 +2116,7 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			let newPin = CGPoint(x: bounds.midX,
 			                     y: (bounds.minY + bounds.center().y) / 2)
 			let translation = newPin.minus(pin)
-			adjustOrigin(by: translation)
+			viewPort.adjustOrigin(by: translation)
 		}
 	}
 
@@ -2928,13 +2144,6 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		_ gestureRecognizer: UIGestureRecognizer,
 		shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool
 	{
-		if gestureRecognizer == addNodeButtonLongPressGestureRecognizer ||
-			otherGestureRecognizer == addNodeButtonLongPressGestureRecognizer
-		{
-			// if holding down the + button then always allow other gestures to proceeed
-			return true
-		}
-
 		if gestureRecognizer is UILongPressGestureRecognizer ||
 			otherGestureRecognizer is UILongPressGestureRecognizer
 		{
@@ -2942,109 +2151,12 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			return false
 		}
 
-		if (gestureRecognizer is UIPanGestureRecognizer && otherGestureRecognizer is TapAndDragGesture) ||
-			(gestureRecognizer is TapAndDragGesture && otherGestureRecognizer is UIPanGestureRecognizer)
-		{
-			// Tap-and-drag is a shortcut for zooming, so it's not compatible with the Pan gesture
-			return false
-		} else if gestureRecognizer is TapAndDragGesture {
-			return true
-		}
-
 		if gestureRecognizer is UITapGestureRecognizer || otherGestureRecognizer is UITapGestureRecognizer {
 			// don't register taps during panning/zooming/rotating
 			return false
 		}
 
-		// allow other things so we can pan/zoom/rotate simultaneously
 		return true
-	}
-
-	@objc func handlePanGesture(_ pan: UIPanGestureRecognizer) {
-		userOverrodeLocationPosition = true
-
-		if pan.state == .began {
-			// start pan
-			DisplayLink.shared.removeName(DisplayLinkPanning)
-			// disable frame rate test if active
-			automatedFramerateTestActive = false
-		} else if pan.state == .changed {
-			// move pan
-			if SHOW_3D {
-				// multi-finger drag to initiate 3-D view
-				if enableBirdsEye, pan.numberOfTouches == 3 {
-					let translation = pan.translation(in: self)
-					let delta = Double(-translation.y / 40 / 180 * .pi)
-					rotateBirdsEye(by: delta)
-					return
-				}
-			}
-			let translation = pan.translation(in: self)
-			adjustOrigin(by: translation)
-			pan.setTranslation(CGPoint(x: 0, y: 0), in: self)
-		} else if pan.state == .ended || pan.state == .cancelled {
-			// cancelled occurs when we throw an error dialog
-			let duration = 0.5
-
-			// finish pan with inertia
-			let initialVelecity = pan.velocity(in: self)
-			if hypot(initialVelecity.x, initialVelecity.y) < 100.0 {
-				// don't use inertia for small movements because it interferes with dropping the pin precisely
-			} else {
-				let startTime = CACurrentMediaTime()
-				let displayLink = DisplayLink.shared
-				displayLink.addName(DisplayLinkPanning, block: {
-					let timeOffset = CACurrentMediaTime() - startTime
-					if timeOffset >= duration {
-						displayLink.removeName(DisplayLinkPanning)
-					} else {
-						var translation = CGPoint()
-						let t = timeOffset / duration // time [0..1]
-						translation.x = CGFloat(1 - t) * initialVelecity.x * CGFloat(displayLink.duration())
-						translation.y = CGFloat(1 - t) * initialVelecity.y * CGFloat(displayLink.duration())
-						self.adjustOrigin(by: translation)
-					}
-				})
-			}
-			updateMapMarkersFromServer(withDelay: CGFloat(duration), including: [])
-		} else if pan.state == .failed {
-			DLog("pan gesture failed")
-		} else {
-			DLog("pan gesture \(pan.state)")
-		}
-	}
-
-	// unfortunately macCatalyst does't handle setting pinch.scale correctly, so
-	// we need to track the previous scale
-	var prevousPinchScale = 0.0
-
-	@objc func handlePinchGesture(_ pinch: UIPinchGestureRecognizer) {
-		switch pinch.state {
-		case .began:
-			prevousPinchScale = 1.0
-			fallthrough
-		case .changed:
-			userOverrodeLocationZoom = true
-
-			DisplayLink.shared.removeName(DisplayLinkPanning)
-
-#if targetEnvironment(macCatalyst)
-			// On Mac we want to zoom around the screen center, not the cursor.
-			// This is better determined by testing for indirect touches, but
-			// that information isn't exposed by the gesture recognizer.
-			// If we're zooming via mouse then we'll follow the zoom path, not the pinch path.
-			let zoomCenter = crossHairs.position
-#else
-			let zoomCenter = pinch.location(in: self)
-#endif
-			let scale = pinch.scale / prevousPinchScale
-			adjustZoom(by: scale, aroundScreenPoint: zoomCenter)
-			prevousPinchScale = pinch.scale
-		case .ended:
-			updateMapMarkersFromServer(withDelay: 0, including: [])
-		default:
-			break
-		}
 	}
 
 	var tapAndDragSelections: EditorMapLayer.Selections?
@@ -3058,38 +2170,37 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			if let tapAndDragSelections = tapAndDragSelections {
 				editorLayer.selections = tapAndDragSelections
 				if let tapAndDragPushpinLatLon = tapAndDragPushpinLatLon {
-					let pt = mapTransform.screenPoint(forLatLon: tapAndDragPushpinLatLon, birdsEye: true)
+					let pt = viewPort.mapTransform.screenPoint(forLatLon: tapAndDragPushpinLatLon, birdsEye: true)
 					placePushpinForSelection(at: pt)
 				} else {
 					removePin()
 				}
 				self.tapAndDragSelections = nil
 			}
-
 		case .changed:
-			userOverrodeLocationZoom = true
+			mainView.userOverrodeLocationZoom = true
 
 			DisplayLink.shared.removeName(DisplayLinkPanning)
 
 			let delta = tapAndDrag.translation(in: self)
 			let scale = 1.0 - delta.y * 0.01
-			let zoomCenter = centerPoint()
-			adjustZoom(by: scale, aroundScreenPoint: zoomCenter)
+			let zoomCenter = viewPort.screenCenterPoint()
+			viewPort.adjustZoom(by: scale, aroundScreenPoint: zoomCenter)
 		case .ended:
-			updateMapMarkersFromServer(withDelay: 0, including: [])
+			break
 		default:
 			break
 		}
 	}
 
 	/// Invoked to select an object on the screen
-	@IBAction func screenTapGesture(_ tap: UITapGestureRecognizer) {
+	@objc func handleTapGesture(_ tap: UITapGestureRecognizer) {
 		switch tap.state {
 		case .ended:
 			// we don't want the initial tap of a tap-and-drag to change object selection
 			tapAndDragSelections = editorLayer.selections
 			if let pushPin = pushPin {
-				tapAndDragPushpinLatLon = mapTransform.latLon(forScreenPoint: pushPin.arrowPoint)
+				tapAndDragPushpinLatLon = viewPort.mapTransform.latLon(forScreenPoint: pushPin.arrowPoint)
 			} else {
 				tapAndDragPushpinLatLon = nil
 			}
@@ -3100,32 +2211,12 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 			}
 
 			let point = tap.location(in: self)
-			if plusButtonTimestamp != 0.0 {
+			if mainView.plusButtonTimestamp != 0.0 {
 				// user is doing a long-press on + button
 				editorLayer.addNode(at: point)
 			} else {
 				editorLayer.selectObjectAtPoint(point)
 			}
-		default:
-			break
-		}
-	}
-
-	@objc func plusButtonLongPressHandler(_ recognizer: UILongPressGestureRecognizer) {
-		switch recognizer.state {
-		case .began:
-			plusButtonTimestamp = TimeInterval(CACurrentMediaTime())
-		case .ended:
-			if CACurrentMediaTime() - plusButtonTimestamp < 0.5 {
-				// treat as tap, but make sure it occured inside the button
-				let touch = recognizer.location(in: recognizer.view)
-				if recognizer.view?.bounds.contains(touch) ?? false {
-					editorLayer.addNode(at: crossHairs.position)
-				}
-			}
-			plusButtonTimestamp = 0.0
-		case .cancelled, .failed:
-			plusButtonTimestamp = 0.0
 		default:
 			break
 		}
@@ -3139,78 +2230,30 @@ final class MapView: UIView, MapViewProgress, CLLocationManagerDelegate, UIActio
 		}
 	}
 
+	// user rotating an OSM object
 	@IBAction func handleRotationGesture(_ rotationGesture: UIRotationGestureRecognizer) {
-		if let rotate = isRotateObjectMode {
-			// Rotate object on screen
-			if rotationGesture.state == .began {
-				editorLayer.rotateBegin()
-			} else if rotationGesture.state == .changed {
-				editorLayer.rotateContinue(delta: rotationGesture.rotation, rotate: rotate)
-			} else {
-				// ended
-				endObjectRotation()
-				editorLayer.rotateFinish()
-			}
+		guard let rotate = isRotateObjectMode else {
 			return
 		}
-
-		// Rotate screen
-		if enableRotation {
-			switch rotationGesture.state {
-			case .began:
-				break // ignore
-			case .changed:
-#if targetEnvironment(macCatalyst)
-				// On Mac we want to rotate around the screen center, not the cursor.
-				// This is better determined by testing for indirect touches, but
-				// that information isn't exposed by the gesture recognizer.
-				let centerPoint = crossHairs.position
-#else
-				let centerPoint = rotationGesture.location(in: self)
-#endif
-				let angle = rotationGesture.rotation
-				rotate(by: angle, aroundScreenPoint: centerPoint)
-				rotationGesture.rotation = 0.0
-
-				if gpsState == .HEADING {
-					gpsState = .LOCATION
-				}
-			case .ended:
-				updateMapMarkersFromServer(withDelay: 0, including: [])
-			default:
-				break // ignore
-			}
+		// Rotate object on screen
+		if rotationGesture.state == .began {
+			editorLayer.rotateBegin()
+		} else if rotationGesture.state == .changed {
+			editorLayer.rotateContinue(delta: rotationGesture.rotation, rotate: rotate)
+		} else {
+			// ended
+			endObjectRotation()
+			editorLayer.rotateFinish()
 		}
 	}
 
 	func updateSpeechBalloonPosition() {}
-
-	// MARK: Mouse movment
-
-	@objc func handleScrollWheelGesture(_ pan: UIPanGestureRecognizer) {
-		if pan.state == .changed {
-			let delta = pan.translation(in: self)
-			var center = pan.location(in: self)
-			center.y -= delta.y
-			let zoom = delta.y >= 0 ? (1000.0 + delta.y) / 1000.0 : 1000.0 / (1000.0 - delta.y)
-			adjustZoom(by: zoom, aroundScreenPoint: center)
-		}
-	}
-
-	func rightClick(atLocation location: CGPoint) {
-		// right-click is equivalent to holding + and clicking
-		editorLayer.addNode(at: location)
-	}
 }
 
 // MARK: EditorMapLayerOwner delegate methods
 
 // EditorMap extensions
 extension MapView: EditorMapLayerOwner {
-	func setScreenFromMap(transform: OSMTransform) {
-		screenFromMapTransform = transform
-	}
-
 	func didUpdateObject() {
 		refreshPushpinText()
 		updateMapMarkerButtonPositions()
@@ -3225,16 +2268,12 @@ extension MapView: EditorMapLayerOwner {
 		mapMarkerDatabase.didSelectObject(editorLayer.selectedPrimary)
 	}
 
-	func centerPoint() -> CGPoint {
-		return bounds.center()
-	}
-
 	func useTurnRestrictions() -> Bool {
 		return enableTurnRestriction
 	}
 
 	func useUnnamedRoadHalo() -> Bool {
-		return unnamedRoadLayer() != nil
+		return noNameLayer() != nil
 	}
 
 	func useAutomaticCacheManagement() -> Bool {
@@ -3245,30 +2284,11 @@ extension MapView: EditorMapLayerOwner {
 		return pushPin
 	}
 
-	func presentAlert(alert: UIAlertController, location: MenuLocation) {
-		switch location {
-		case .none:
-			break
-		case .editBar:
-			var button = editControl.bounds
-			let segmentWidth = button.size.width
-				/ CGFloat(editControl.numberOfSegments) // hack because we can't get the frame for an individual segment
-			button.origin.x += button.size.width - 2 * segmentWidth
-			button.size.width = segmentWidth
-			alert.popoverPresentationController?.sourceView = editControl
-			alert.popoverPresentationController?.sourceRect = button
-		case let .rect(rc):
-			alert.popoverPresentationController?.sourceView = self
-			alert.popoverPresentationController?.sourceRect = rc
-		}
-		mainViewController.present(alert, animated: true)
-	}
-
 	func addNote() {
 		if let pushpinView = pushPin {
-			let pos = mapTransform.latLon(forScreenPoint: pushpinView.arrowPoint)
+			let pos = viewPort.mapTransform.latLon(forScreenPoint: pushpinView.arrowPoint)
 			let note = OsmNoteMarker(latLon: pos)
-			mainViewController.performSegue(withIdentifier: "NotesSegue", sender: note)
+			mainView.performSegue(withIdentifier: "NotesSegue", sender: note)
 			removePin()
 		}
 	}

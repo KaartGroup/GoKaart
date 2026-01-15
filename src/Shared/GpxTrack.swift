@@ -35,11 +35,12 @@ final class GpxPoint: NSObject, NSSecureCoding {
 	}
 
 	convenience init(withXML pt: DDXMLNode) throws {
-		guard let pt = pt as? DDXMLElement,
-		      let lat2 = pt.attribute(forName: "lat")?.stringValue,
-		      let lon2 = pt.attribute(forName: "lon")?.stringValue,
-		      let lat = Double(lat2),
-		      let lon = Double(lon2)
+		guard
+			let pt = pt as? DDXMLElement,
+			let lat2 = pt.attribute(forName: "lat")?.stringValue,
+			let lon2 = pt.attribute(forName: "lon")?.stringValue,
+			let lat = Double(lat2),
+			let lon = Double(lon2)
 		else {
 			throw GpxError.badGpxFormat
 		}
@@ -95,7 +96,7 @@ final class GpxPoint: NSObject, NSSecureCoding {
 		elevation = aDecoder.decodeDouble(forKey: "ele")
 		timestamp = aDecoder.decodeObject(of: NSDate.self, forKey: "time") as? Date
 		name = aDecoder.decodeObject(forKey: "name") as? String ?? ""
-		desc = ""
+		desc = aDecoder.decodeObject(forKey: "desc") as? String ?? ""
 		extensions = []
 		super.init()
 	}
@@ -107,6 +108,7 @@ final class GpxPoint: NSObject, NSSecureCoding {
 		aCoder.encode(elevation, forKey: "ele")
 		aCoder.encode(timestamp, forKey: "time")
 		aCoder.encode(name, forKey: "name")
+		aCoder.encode(desc, forKey: "desc")
 	}
 }
 
@@ -149,13 +151,25 @@ final class GpxTrack: NSObject, NSSecureCoding {
 
 	var geoJSON: GeoJSONFeature {
 		if geoJSONFeature == nil {
-			let geom = GeoJSONGeometry(geometry: .lineString(points: points.map { $0.latLon }))
+			let geom = points.count >= 2
+				? GeoJSONGeometry(geometry: .lineString(points: points.map { $0.latLon }))
+				: nil
 			geoJSONFeature = GeoJSONFeature(type: "Feature",
 			                                id: name,
 			                                geometry: geom,
 			                                properties: nil)
 		}
 		return geoJSONFeature!
+	}
+
+	func isEqual(to track: GpxTrack) -> Bool {
+		return name == track.name &&
+			points.count == track.points.count &&
+			points.first?.latLon == track.points.first?.latLon &&
+			points.last?.latLon == track.points.last?.latLon &&
+			wayPoints.count == track.wayPoints.count &&
+			wayPoints.first?.latLon == track.wayPoints.first?.latLon &&
+			wayPoints.last?.latLon == track.wayPoints.last?.latLon
 	}
 
 	func addPoint(_ location: CLLocation) {
@@ -200,16 +214,14 @@ final class GpxTrack: NSObject, NSSecureCoding {
 	convenience init(rect: CGRect) {
 		self.init()
 		let track = GpxTrack()
-		let nw = CLLocation(latitude: CLLocationDegrees(rect.origin.y), longitude: CLLocationDegrees(rect.origin.x))
-		let ne = CLLocation(
-			latitude: CLLocationDegrees(rect.origin.y),
-			longitude: CLLocationDegrees(rect.origin.x + rect.size.width))
-		let se = CLLocation(
-			latitude: CLLocationDegrees(rect.origin.y + rect.size.height),
-			longitude: CLLocationDegrees(rect.origin.x + rect.size.width))
-		let sw = CLLocation(
-			latitude: CLLocationDegrees(rect.origin.y + rect.size.height),
-			longitude: CLLocationDegrees(rect.origin.x))
+		let nw = CLLocation(latitude: CLLocationDegrees(rect.origin.y),
+		                    longitude: CLLocationDegrees(rect.origin.x))
+		let ne = CLLocation(latitude: CLLocationDegrees(rect.origin.y),
+		                    longitude: CLLocationDegrees(rect.origin.x + rect.size.width))
+		let se = CLLocation(latitude: CLLocationDegrees(rect.origin.y + rect.size.height),
+		                    longitude: CLLocationDegrees(rect.origin.x + rect.size.width))
+		let sw = CLLocation(latitude: CLLocationDegrees(rect.origin.y + rect.size.height),
+		                    longitude: CLLocationDegrees(rect.origin.x))
 		track.addPoint(nw)
 		track.addPoint(ne)
 		track.addPoint(se)
@@ -325,8 +337,9 @@ final class GpxTrack: NSObject, NSSecureCoding {
 		creationDate = trkPoints.first?.timestamp ?? wptPoints.first?.timestamp ?? Date()
 	}
 
-	convenience init(xmlFile path: String) throws {
-		guard let data = NSData(contentsOfFile: path) as Data?
+	convenience init(xmlFile url: URL) throws {
+		guard
+			let data = try? Data(contentsOf: url)
 		else {
 			throw GpxError.noData
 		}
@@ -345,6 +358,19 @@ final class GpxTrack: NSObject, NSSecureCoding {
 			}
 		}
 		return distance
+	}
+
+	func center() -> LatLon? {
+		if let wayPoint = wayPoints.first {
+			return wayPoint.latLon
+		} else {
+			// get midpoint
+			let mid = points.count / 2
+			guard mid < points.count else {
+				return nil
+			}
+			return points[mid].latLon
+		}
 	}
 
 	func fileName() -> String {

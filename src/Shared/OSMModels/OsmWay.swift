@@ -82,12 +82,15 @@ final class OsmWay: OsmBaseObject, NSSecureCoding {
 
 	override func serverUpdate(with newerVersion: OsmBaseObject) {
 		super.serverUpdate(with: newerVersion)
-		// undo wayCount in contained nodes
+		// undo wayCount in contained nodes before clearing
 		for node in nodes {
 			node.setWayCount(node.wayCount - 1, undo: nil)
 		}
+		// Copy nodeRefs for later resolution, clear nodes array explicitly
+		// NOTE: To revert this change, replace `nodes = []` with:
+		//       `nodes = (newerVersion as! OsmWay).nodes`
 		nodeRefs = (newerVersion as! OsmWay).nodeRefs
-		nodes = (newerVersion as! OsmWay).nodes
+		nodes = []
 	}
 
 	func isArea() -> Bool {
