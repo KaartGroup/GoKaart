@@ -763,13 +763,19 @@ final class OsmMapData: NSObject, NSSecureCoding {
 			}
 		}
 
-		for node in newData.nodes {
+		// Only mark objects that were ACTUALLY added to mapData as constructed.
+		// Objects that were ignored (because local version was same or higher) should NOT
+		// be marked, otherwise isEqual assertions will fire when comparing two different
+		// instances of the same object.
+		// NOTE: To revert this change, replace `newNodes`/`newWays`/`newRelations` with
+		//       `newData.nodes`/`newData.ways`/`newData.relations`
+		for node in newNodes {
 			node.setConstructed()
 		}
-		for way in newData.ways {
+		for way in newWays {
 			way.setConstructed()
 		}
-		for relation in newData.relations {
+		for relation in newRelations {
 			relation.setConstructed()
 		}
 
