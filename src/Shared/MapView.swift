@@ -491,13 +491,14 @@ final class MapView: UIView, UIActionSheetDelegate,
 		displayGpxTracks = UserPrefs.shared.mapViewEnableBreadCrumb.value ?? false
 		displayDataOverlayLayers = UserPrefs.shared.mapViewEnableDataOverlay.value ?? false
 		enableTurnRestriction = UserPrefs.shared.mapViewEnableTurnRestriction.value ?? false
+		unnamedRoadHaloEnabled = UserPrefs.shared.mapViewEnableUnnamedRoadHalo.value ?? false
+		updateUnnamedRoadsButtonAppearance()
 
 		currentRegion = RegionInfoForLocation.fromUserPrefs() ?? RegionInfoForLocation.none
 
 		UserPrefs.shared.tileOverlaySelections.onChange.subscribe(self) { [weak self] _ in
 			guard let self = self else { return }
 			self.updateTileOverlayLayers(latLon: viewPort.screenCenterLatLon())
-			self.updateUnnamedRoadsButtonAppearance()
 		}
 
 		editorLayer.whiteText = !aerialLayer.isHidden
@@ -527,11 +528,6 @@ final class MapView: UIView, UIActionSheetDelegate,
 
 	func updateTileOverlayLayers(latLon: LatLon) {
 		let overlaysIdList = UserPrefs.shared.tileOverlaySelections.value ?? []
-
-		// if they toggled display of the noname layer we need to refresh the editor layer
-		if overlaysIdList.contains(TileServer.noName.identifier) != useUnnamedRoadHalo() {
-			editorLayer.clearCachedProperties()
-		}
 
 		// remove any overlay layers no longer displayed
 		allLayers = allLayers.filter { layer in
@@ -693,19 +689,19 @@ final class MapView: UIView, UIActionSheetDelegate,
 	// MARK: - Unnamed Roads Toggle
 
 	/// Toggle the unnamed roads overlay on/off
+	/// Tracks whether unnamed road halo is enabled (separate from Poole.ch tile overlay)
+	private var unnamedRoadHaloEnabled: Bool = false
+
 	@objc func toggleUnnamedRoads() {
-		var overlays = UserPrefs.shared.tileOverlaySelections.value ?? []
-		let identifier = TileServer.noName.identifier
+		// Toggle the local red halo only - don't use Poole.ch tile overlay (it has unwanted white border)
+		unnamedRoadHaloEnabled = !unnamedRoadHaloEnabled
 
-		if overlays.contains(identifier) {
-			// Remove unnamed roads overlay
-			overlays.removeAll { $0 == identifier }
-		} else {
-			// Add unnamed roads overlay
-			overlays.append(identifier)
-		}
+		// Save preference
+		UserPrefs.shared.mapViewEnableUnnamedRoadHalo.value = unnamedRoadHaloEnabled
 
-		UserPrefs.shared.tileOverlaySelections.value = overlays
+		// Clear cached properties so the halo gets redrawn
+		editorLayer.clearCachedProperties()
+
 		updateUnnamedRoadsButtonAppearance()
 
 		// Provide haptic feedback
@@ -713,12 +709,9 @@ final class MapView: UIView, UIActionSheetDelegate,
 		feedback.impactOccurred()
 	}
 
-	/// Update the unnamed roads button appearance based on whether the overlay is active
+	/// Update the unnamed roads button appearance based on whether the halo is active
 	private func updateUnnamedRoadsButtonAppearance() {
-		let overlays = UserPrefs.shared.tileOverlaySelections.value ?? []
-		let isActive = overlays.contains(TileServer.noName.identifier)
-
-		if isActive {
+		if unnamedRoadHaloEnabled {
 			// Active state: green background, white icon
 			unnamedRoadsButton.backgroundColor = UIColor.systemGreen
 			unnamedRoadsButton.tintColor = UIColor.white
@@ -2273,7 +2266,7 @@ extension MapView: EditorMapLayerOwner {
 	}
 
 	func useUnnamedRoadHalo() -> Bool {
-		return noNameLayer() != nil
+		return unnamedRoadHaloEnabled
 	}
 
 	func useAutomaticCacheManagement() -> Bool {

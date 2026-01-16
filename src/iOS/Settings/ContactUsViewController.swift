@@ -55,7 +55,7 @@ class ContactUsViewController: UITableViewController, MFMailComposeViewControlle
 				let mail = MFMailComposeViewController()
 				mail.mailComposeDelegate = self
 				mail.setSubject("\(AppDelegate.appName) \(AppDelegate.appVersion) feedback")
-				mail.setToRecipients(["bryceco@yahoo.com"])
+				mail.setToRecipients(["chris.housset@kaart.com"])
 				var body = "Device: \(deviceModel())\n"
 				body += "iOS version: \(UIDevice.current.systemVersion)\n"
 				if let name = appDelegate.userName {
