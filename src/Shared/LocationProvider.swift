@@ -119,6 +119,22 @@ final class LocationProvider: NSObject, CLLocationManagerDelegate {
 		locationManager.requestAlwaysAuthorization()
 	}
 
+	/// Ensure location updates are flowing without touching map UI state.
+	/// Used by vehicle tracking which needs locations regardless of gpsState.
+	func ensureUpdatingLocation() {
+		let status: CLAuthorizationStatus
+		if #available(iOS 14.0, *) {
+			status = locationManager.authorizationStatus
+		} else {
+			status = CLLocationManager.authorizationStatus()
+		}
+		guard status == .authorizedAlways || status == .authorizedWhenInUse else {
+			locationManager.requestWhenInUseAuthorization()
+			return
+		}
+		locationManager.startUpdatingLocation()
+	}
+
 	func stop() {
 		locationManager.stopUpdatingLocation()
 		locationManager.stopUpdatingHeading()
