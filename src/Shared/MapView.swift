@@ -125,6 +125,9 @@ final class MapView: UIView, UIActionSheetDelegate,
 	/// Button to toggle unnamed roads overlay (below planning mode button)
 	private(set) var unnamedRoadsButton: UIButton!
 
+	/// Button to toggle power naming mode (below unnamed roads button)
+	private(set) var powerNamingButton: UIButton!
+
 	private var magnifyingGlass: MagnifyingGlass!
 
 	private var editControlActions: [EDIT_ACTION] = []
@@ -232,8 +235,10 @@ final class MapView: UIView, UIActionSheetDelegate,
 	var displayGpxTracks = false {
 		didSet {
 			gpxLayer.isHidden = !displayGpxTracks
+			let recording = gpxLayer.activeTrack != nil
+			let trackingActive = UserPrefs.shared.vehicleTrackingEnabled.value == true
 			LocationProvider.shared.allowsBackgroundLocationUpdates
-				= GpxLayer.recordTracksInBackground && displayGpxTracks
+				= trackingActive || (GpxLayer.recordTracksInBackground && (displayGpxTracks || recording))
 		}
 	}
 
@@ -487,12 +492,30 @@ final class MapView: UIView, UIActionSheetDelegate,
 		addSubview(unnamedRoadsButton)
 		updateUnnamedRoadsButtonAppearance()
 
+		// Create power naming toggle button
+		powerNamingButton = UIButton(type: .system)
+		powerNamingButton.translatesAutoresizingMaskIntoConstraints = true
+		let namingConfig = UIImage.SymbolConfiguration(pointSize: 22, weight: .medium)
+		let namingImage = UIImage(systemName: "character.textbox", withConfiguration: namingConfig)
+		powerNamingButton.setImage(namingImage, for: .normal)
+		powerNamingButton.backgroundColor = UIColor(white: 1.0, alpha: 0.9)
+		powerNamingButton.tintColor = UIColor.systemBlue
+		powerNamingButton.layer.cornerRadius = 22
+		powerNamingButton.layer.shadowColor = UIColor.black.cgColor
+		powerNamingButton.layer.shadowOffset = CGSize(width: 0, height: 2)
+		powerNamingButton.layer.shadowOpacity = 0.3
+		powerNamingButton.layer.shadowRadius = 3
+		powerNamingButton.addTarget(self, action: #selector(togglePowerNaming), for: .touchUpInside)
+		addSubview(powerNamingButton)
+
 		// these need to be loaded late because assigning to them changes the view
 		displayGpxTracks = UserPrefs.shared.mapViewEnableBreadCrumb.value ?? false
 		displayDataOverlayLayers = UserPrefs.shared.mapViewEnableDataOverlay.value ?? false
 		enableTurnRestriction = UserPrefs.shared.mapViewEnableTurnRestriction.value ?? false
 		unnamedRoadHaloEnabled = UserPrefs.shared.mapViewEnableUnnamedRoadHalo.value ?? false
 		updateUnnamedRoadsButtonAppearance()
+		powerNamingEnabled = UserPrefs.shared.mapViewEnablePowerNaming.value ?? false
+		updatePowerNamingButtonAppearance()
 
 		currentRegion = RegionInfoForLocation.fromUserPrefs() ?? RegionInfoForLocation.none
 
@@ -692,6 +715,14 @@ final class MapView: UIView, UIActionSheetDelegate,
 	/// Tracks whether unnamed road halo is enabled (separate from Poole.ch tile overlay)
 	private var unnamedRoadHaloEnabled: Bool = false
 
+	// MARK: - Power Naming
+
+	/// Whether power naming mode is active (tap highway → auto-open tag editor with name focused)
+	private(set) var powerNamingEnabled: Bool = false
+
+	/// Flag consumed by the tag editor to auto-focus the name field
+	var powerNamingAutoFocusName: Bool = false
+
 	@objc func toggleUnnamedRoads() {
 		// Toggle the local red halo only - don't use Poole.ch tile overlay (it has unwanted white border)
 		unnamedRoadHaloEnabled = !unnamedRoadHaloEnabled
@@ -722,6 +753,30 @@ final class MapView: UIView, UIActionSheetDelegate,
 		}
 	}
 
+	@objc func togglePowerNaming() {
+		powerNamingEnabled = !powerNamingEnabled
+		UserPrefs.shared.mapViewEnablePowerNaming.value = powerNamingEnabled
+		updatePowerNamingButtonAppearance()
+
+		// Also enable unnamed road halos when power naming turns on
+		if powerNamingEnabled, !unnamedRoadHaloEnabled {
+			toggleUnnamedRoads()
+		}
+
+		let feedback = UIImpactFeedbackGenerator(style: .light)
+		feedback.impactOccurred()
+	}
+
+	private func updatePowerNamingButtonAppearance() {
+		if powerNamingEnabled {
+			powerNamingButton.backgroundColor = UIColor.systemGreen
+			powerNamingButton.tintColor = UIColor.white
+		} else {
+			powerNamingButton.backgroundColor = UIColor(white: 1.0, alpha: 0.9)
+			powerNamingButton.tintColor = UIColor.systemBlue
+		}
+	}
+
 	override func layoutSubviews() {
 		super.layoutSubviews()
 
@@ -743,6 +798,15 @@ final class MapView: UIView, UIActionSheetDelegate,
 			let yPos = planningFrame.origin.y + planningFrame.size.height + 8 // 8pt gap
 			unnamedRoadsButton.frame = CGRect(x: xPos, y: yPos, width: 44, height: 44)
 			bringSubviewToFront(unnamedRoadsButton)
+		}
+
+		// Position power naming button below unnamed roads button
+		if powerNamingButton != nil, unnamedRoadsButton != nil {
+			let roadsFrame = unnamedRoadsButton.frame
+			let xPos = roadsFrame.origin.x
+			let yPos = roadsFrame.origin.y + roadsFrame.size.height + 8
+			powerNamingButton.frame = CGRect(x: xPos, y: yPos, width: 44, height: 44)
+			bringSubviewToFront(powerNamingButton)
 		}
 
 		// Position zoom label at TOP CENTER between Bing attribution and compass
@@ -2259,6 +2323,17 @@ extension MapView: EditorMapLayerOwner {
 	func selectionDidChange() {
 		updateEditControl()
 		mapMarkerDatabase.didSelectObject(editorLayer.selectedPrimary)
+
+		// Power Naming: auto-open tag editor for highway ways
+		if powerNamingEnabled,
+		   let way = editorLayer.selectedWay,
+		   way.tags["highway"] != nil
+		{
+			powerNamingAutoFocusName = true
+			DispatchQueue.main.async { [weak self] in
+				self?.presentTagEditor(nil)
+			}
+		}
 	}
 
 	func useTurnRestrictions() -> Bool {

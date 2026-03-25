@@ -37,6 +37,7 @@ final class MainViewController: UIViewController,
 	@IBOutlet var helpButton: UIButton!
 	@IBOutlet var centerOnGPSButton: UIButton!
 	@IBOutlet var addNodeButton: UIButton!
+	@IBOutlet var viewerCameraButton: UIButton!
 	@IBOutlet var rulerView: RulerView!
 	@IBOutlet var aerialAlignmentButton: UIButton!
 	@IBOutlet var dPadView: DPadView!
@@ -126,6 +127,11 @@ final class MainViewController: UIViewController,
 		// long press for quick access to aerial imagery
 		let longPress = UILongPressGestureRecognizer(target: self, action: #selector(displayButtonLongPressGesture(_:)))
 		displayButton.addGestureRecognizer(longPress)
+
+		// Start vehicle tracking if it was enabled
+		if UserPrefs.shared.vehicleTrackingEnabled.value == true {
+			ViewerTrackingService.shared.start()
+		}
 
 		// long-press on + for adding nodes via taps
 		addNodeButtonLongPressGestureRecognizer = UILongPressGestureRecognizer(
@@ -481,6 +487,7 @@ final class MainViewController: UIViewController,
 			redoButton,
 			locationButton,
 			addNodeButton,
+			viewerCameraButton,
 			compassButton,
 			centerOnGPSButton,
 			helpButton,
@@ -495,7 +502,7 @@ final class MainViewController: UIViewController,
 				// corners
 			if view == compassButton || view == mapView.editToolbar {
 				// these buttons take care of themselves
-			} else if view == helpButton || view == addNodeButton {
+			} else if view == helpButton || view == addNodeButton || view == viewerCameraButton {
 				// The button is a circle.
 				let width = view.bounds.size.width
 				view.layer.cornerRadius = width / 2
@@ -846,6 +853,10 @@ final class MainViewController: UIViewController,
 		}
 	}
 
+	@IBAction func viewerCameraPressed(_ sender: Any) {
+		ViewerUploadViewController.presentCapture(from: self)
+	}
+
 	func displayButtonLongPressHandler() {
 		// show the most recently used aerial imagery
 		let tileServerlList = mapView.tileServerList
@@ -922,10 +933,14 @@ final class MainViewController: UIViewController,
 			if gpsState != oldValue {
 				if gpsState == .NONE {
 					centerOnGPSButton.isHidden = true
-					LocationProvider.shared.stop()
 					locationBallView.isHidden = true
 					mapView.voiceAnnouncement?.enabled = false
-					mapView.gpxLayer.endActiveTrack(continuingCurrentTrack: false)
+					// Only stop location and end GPX track if not actively recording
+					if mapView.gpxLayer.activeTrack == nil {
+						LocationProvider.shared.stop()
+					} else {
+						LocationProvider.shared.ensureUpdatingLocation()
+					}
 				} else {
 					userOverrodeLocationPosition = false
 					userOverrodeLocationZoom = false
@@ -935,10 +950,15 @@ final class MainViewController: UIViewController,
 					if oldValue == .NONE {
 						// because recording GPX tracks is cheap we record them any time GPS is enabled
 						mapView.gpxLayer.startNewTrack(continuingCurrentTrack: false)
+						if GpxLayer.recordTracksInBackground {
+							LocationProvider.shared.allowsBackgroundLocationUpdates = true
+							LocationProvider.shared.requestAlwaysAuthIfNeeded()
+						}
 					}
 				}
 
 				updateUploadButtonState()
+				updateGpsButtonState()
 			}
 		}
 	}

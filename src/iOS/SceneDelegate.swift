@@ -220,18 +220,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		// Save preferences in case user force-kills us while we're in background
 		UserPrefs.shared.synchronize()
 
-		if mainView.gpsState != .NONE,
-		   GpxLayer.recordTracksInBackground,
-		   mapView.displayGpxTracks
-		{
-			// Show GPX activity widget
-			if #available(iOS 16.2, *) {
+		let gpxRecording = GpxLayer.recordTracksInBackground && mapView.gpxLayer.activeTrack != nil
+		let trackingActive = UserPrefs.shared.vehicleTrackingEnabled.value == true
+
+		if gpxRecording || trackingActive {
+			// Keep GPS alive in background for active recording or vehicle tracking
+			if gpxRecording {
+				if #available(iOS 16.2, *) {
 #if canImport(ActivityKit) && !targetEnvironment(macCatalyst)
-				GpxTrackWidgetManager.shared.startTrack(fromWidget: false)
+					GpxTrackWidgetManager.shared.startTrack(fromWidget: false)
 #endif
+				}
 			}
-		} else {
-			// turn off GPS tracking
+		} else if mainView.gpsState == .NONE {
+			// No recording, no tracking, no GPS follow — turn off GPS
 			LocationProvider.shared.stop()
 		}
 
@@ -255,7 +257,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		let mainView = AppDelegate.shared.mainView!
 		if mainView.gpsState != .NONE {
 			if GpxLayer.recordTracksInBackground,
-			   mapView.displayGpxTracks
+			   mapView.gpxLayer.activeTrack != nil
 			{
 				// GPS was running in the background
 				LocationProvider.shared.start()

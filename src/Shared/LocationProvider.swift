@@ -73,8 +73,9 @@ final class LocationProvider: NSObject, CLLocationManagerDelegate {
 	}
 
 	@objc func backgroundCollectionSettingChanged(_ notification: Notification) {
+		let gpxRecording = AppDelegate.shared.mapView?.gpxLayer.activeTrack != nil
 		let gpxNeedsBackground = GpxLayer.recordTracksInBackground &&
-			AppDelegate.shared.mapView.displayGpxTracks
+			(AppDelegate.shared.mapView.displayGpxTracks || gpxRecording)
 		let trackingNeedsBackground = UserPrefs.shared.vehicleTrackingEnabled.value == true
 
 		if gpxNeedsBackground || trackingNeedsBackground {
@@ -143,7 +144,8 @@ final class LocationProvider: NSObject, CLLocationManagerDelegate {
 
 	func updateToLocation(_ newLocation: CLLocation) {
 		let trackingActive = UserPrefs.shared.vehicleTrackingEnabled.value == true
-		guard trackingActive || AppDelegate.shared.mainView.gpsState != .NONE else {
+		let gpxRecording = AppDelegate.shared.mapView?.gpxLayer.activeTrack != nil
+		guard trackingActive || gpxRecording || AppDelegate.shared.mainView.gpsState != .NONE else {
 			// sometimes we get a notification after turning off notifications
 			DLog("discard location notification")
 			return

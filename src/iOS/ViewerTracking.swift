@@ -231,11 +231,10 @@ class ViewerTrackingService {
 			"heading": location.course >= 0 ? location.course : 0
 		]
 
-		if hasConnection {
-			Task { await postPing(ping) }
-		} else {
-			savePingToQueue(ping)
-		}
+		// Always save to queue first, then try to drain
+		// This avoids the race where postPing silently fails and pings are lost
+		savePingToQueue(ping)
+		drainQueue()
 	}
 
 	// MARK: - Network
@@ -275,8 +274,14 @@ class ViewerTrackingService {
 		}
 	}
 
+	private var isDraining = false
+
 	private func drainQueue() {
-		guard hasConnection else { return }
+		guard hasConnection else {
+			print("[ViewerTracking] drainQueue: no connection")
+			return
+		}
+		guard !isDraining else { return }
 		guard let vehicleId = UserPrefs.shared.vehicleId.value else { return }
 
 		let files = (try? FileManager.default.contentsOfDirectory(atPath: queueDirectory.path)
@@ -285,11 +290,14 @@ class ViewerTrackingService {
 
 		guard !files.isEmpty else { return }
 
-		// Read all pings
+		isDraining = true
+
+		// Read up to 100 pings at a time to avoid huge payloads
+		let batch = Array(files.prefix(100))
 		var pings: [[String: Any]] = []
 		var fileURLs: [URL] = []
 
-		for filename in files {
+		for filename in batch {
 			let fileURL = queueDirectory.appendingPathComponent(filename)
 			guard let data = try? Data(contentsOf: fileURL),
 			      var ping = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
@@ -297,24 +305,37 @@ class ViewerTrackingService {
 				try? FileManager.default.removeItem(at: fileURL)
 				continue
 			}
-			ping.removeValue(forKey: "vehicle_id") // batch endpoint takes vehicle_id at top level
+			ping.removeValue(forKey: "vehicle_id")
 			pings.append(ping)
 			fileURLs.append(fileURL)
 		}
 
-		guard !pings.isEmpty else { return }
+		guard !pings.isEmpty else {
+			isDraining = false
+			return
+		}
+
+		print("[ViewerTracking] drainQueue: sending batch of \(pings.count) pings")
 
 		Task {
+			defer { isDraining = false }
+
 			guard let token = try? await ViewerAuth.shared.getValidToken(),
 			      let url = URL(string: "\(baseURL)/ping/batch")
-			else { return }
+			else {
+				print("[ViewerTracking] drainQueue: failed to get token or build URL")
+				return
+			}
 
 			let body: [String: Any] = [
 				"vehicle_id": vehicleId,
 				"pings": pings
 			]
 
-			guard let jsonData = try? JSONSerialization.data(withJSONObject: body) else { return }
+			guard let jsonData = try? JSONSerialization.data(withJSONObject: body) else {
+				print("[ViewerTracking] drainQueue: failed to serialize JSON")
+				return
+			}
 
 			var request = URLRequest(url: url)
 			request.httpMethod = "POST"
@@ -323,13 +344,18 @@ class ViewerTrackingService {
 			request.httpBody = jsonData
 
 			do {
-				_ = try await URLSession.shared.data(with: request)
-				// Success — remove all queued files
+				let data = try await URLSession.shared.data(with: request)
+				let resp = String(data: data, encoding: .utf8) ?? ""
+				print("[ViewerTracking] drainQueue: batch sent OK (\(pings.count) pings): \(resp.prefix(100))")
 				for fileURL in fileURLs {
 					try? FileManager.default.removeItem(at: fileURL)
 				}
+				// If more files remain, drain again
+				if files.count > batch.count {
+					drainQueue()
+				}
 			} catch {
-				// Leave for next attempt
+				print("[ViewerTracking] drainQueue: batch failed: \(error)")
 			}
 		}
 	}
