@@ -30,9 +30,11 @@ class GpxTrackTableCell: UITableViewCell, UIActionSheetDelegate {
 		alert.addAction(UIAlertAction(
 			title: NSLocalizedString("Share", comment: "Open iOS sharing sheet"),
 			style: .default, handler: { _ in
-				let creationDate = self.gpxTrack.creationDate
+				let dateFormatter = DateFormatter()
+				dateFormatter.dateFormat = "yyyy-MM-dd_HHmmss"
+				let dateStr = dateFormatter.string(from: self.gpxTrack.creationDate)
 				let appName = AppDelegate.appName
-				let fileName = "\(appName) \(creationDate).gpx"
+				let fileName = "\(appName)_\(dateStr).gpx"
 
 				// get a copy of GPX as a string
 				guard let gpx = self.gpxTrack.gpxXmlString() else { return }
@@ -139,6 +141,7 @@ class GpxTrackExpirationCell: UITableViewCell {
 private let SECTION_CONFIGURE = 0
 private let SECTION_ACTIVE_TRACK = 1
 private let SECTION_PREVIOUS_TRACKS = 2
+private let SECTION_CONTROLS = 3
 
 class GpxViewController: UITableViewController {
 	private var timer: Timer?
@@ -146,6 +149,20 @@ class GpxViewController: UITableViewController {
 
 	@IBAction func cancel(_ sender: Any) {
 		dismiss(animated: true)
+	}
+
+	@objc func gpxRecordingToggled(_ sender: UISwitch) {
+		let mainView = AppDelegate.shared.mainView!
+		if sender.isOn {
+			mainView.startGpxRecording()
+		} else {
+			mainView.stopGpxRecording()
+		}
+		tableView.reloadData()
+	}
+
+	@objc func gpxVisibilityToggled(_ sender: UISwitch) {
+		AppDelegate.shared.mapView?.displayGpxTracks = sender.isOn
 	}
 
 	func updateEditButton() {
@@ -288,11 +305,13 @@ class GpxViewController: UITableViewController {
 	// MARK: - Table view data source
 
 	override func numberOfSections(in tableView: UITableView) -> Int {
-		return 3
+		return 4
 	}
 
 	override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		if section == SECTION_ACTIVE_TRACK {
+		if section == SECTION_CONTROLS {
+			return 2 // Record GPX Track + Show GPX Tracks
+		} else if section == SECTION_ACTIVE_TRACK {
 			// active track
 			return 1
 		} else if section == SECTION_PREVIOUS_TRACKS {
@@ -312,6 +331,8 @@ class GpxViewController: UITableViewController {
 
 	override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
 		switch section {
+		case SECTION_CONTROLS:
+			return "Recording"
 		case SECTION_ACTIVE_TRACK:
 			return NSLocalizedString("Current Track", comment: "current GPX track")
 		case SECTION_PREVIOUS_TRACKS:
@@ -324,6 +345,9 @@ class GpxViewController: UITableViewController {
 	}
 
 	override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+		if section == SECTION_CONTROLS {
+			return "Recording continues regardless of app state until you turn it off."
+		}
 		if section == SECTION_ACTIVE_TRACK {
 			return NSLocalizedString("A GPX Track records your path as you travel along a road or trail", comment: "")
 		}
@@ -333,6 +357,26 @@ class GpxViewController: UITableViewController {
 	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let mapView = AppDelegate.shared.mapView!
 		let gpxLayer = mapView.gpxLayer!
+
+		if indexPath.section == SECTION_CONTROLS {
+			let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
+			cell.selectionStyle = .none
+			let toggle = UISwitch()
+			cell.accessoryView = toggle
+
+			if indexPath.row == 0 {
+				cell.textLabel?.text = "Record GPX Track"
+				toggle.isOn = UserPrefs.shared.gpxRecordingEnabled.value == true
+				toggle.tag = 100
+				toggle.addTarget(self, action: #selector(gpxRecordingToggled(_:)), for: .valueChanged)
+			} else {
+				cell.textLabel?.text = "Show GPX Tracks on Map"
+				toggle.isOn = mapView.displayGpxTracks
+				toggle.tag = 101
+				toggle.addTarget(self, action: #selector(gpxVisibilityToggled(_:)), for: .valueChanged)
+			}
+			return cell
+		}
 
 		if indexPath.section == SECTION_CONFIGURE {
 			// configuration section
@@ -462,7 +506,7 @@ class GpxViewController: UITableViewController {
 	// MARK: - Table view delegate
 
 	override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-		if indexPath.section == SECTION_CONFIGURE {
+		if indexPath.section == SECTION_CONTROLS || indexPath.section == SECTION_CONFIGURE {
 			return nil
 		}
 		if indexPath.section == SECTION_ACTIVE_TRACK, AppDelegate.shared.mapView.gpxLayer.activeTrack == nil {

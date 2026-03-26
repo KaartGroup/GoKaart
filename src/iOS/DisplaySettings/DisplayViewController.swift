@@ -17,7 +17,6 @@ class DisplayViewController: UITableViewController {
 	@IBOutlet var notesSwitch: UISwitch!
 	@IBOutlet var questsSwitch: UISwitch!
 	@IBOutlet var dataOverlaySwitch: UISwitch!
-	@IBOutlet var gpxLoggingSwitch: UISwitch!
 	@IBOutlet var turnRestrictionSwitch: UISwitch!
 	@IBOutlet var objectFiltersSwitch: UISwitch!
 	@IBOutlet var addButtonPosition: UIButton!
@@ -78,18 +77,12 @@ class DisplayViewController: UITableViewController {
 		]
 
 		mainView.enableRotation = rotationSwitch.isOn
-		mapView.displayGpxTracks = gpxLoggingSwitch.isOn
 		mapView.displayDataOverlayLayers = dataOverlaySwitch.isOn
 		mapView.enableTurnRestriction = turnRestrictionSwitch.isOn
 
 		mapView.editorLayer.setNeedsLayout()
 	}
 
-	@IBAction func gpsSwitchChanged(_ sender: Any) {
-		// need this to take effect immediately in case they exit the app without dismissing this controller, and they want GPS enabled in background
-		let mapView = AppDelegate.shared.mapView
-		mapView?.displayGpxTracks = gpxLoggingSwitch.isOn
-	}
 
 	@IBAction func dataOverlaySwitchChanged(_ sender: Any) {
 		// need this to take effect immediately in case they exit the app without dismissing this controller, and they want GPS enabled in background
@@ -125,7 +118,6 @@ class DisplayViewController: UITableViewController {
 		dataOverlaySwitch.isOn = mapView.displayDataOverlayLayers
 
 		rotationSwitch.isOn = mainView.enableRotation
-		gpxLoggingSwitch.isOn = mapView.displayGpxTracks
 		turnRestrictionSwitch.isOn = mapView.enableTurnRestriction
 		objectFiltersSwitch.isOn = mapView.editorLayer.objectFilters.enableObjectFilters
 

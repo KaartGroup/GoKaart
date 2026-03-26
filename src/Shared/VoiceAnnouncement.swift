@@ -69,6 +69,7 @@ class VoiceAnnouncement: NSObject, AVSpeechSynthesizerDelegate {
 	func removeAll() {
 		synthesizer?.stopSpeaking(at: .word)
 		utteranceMap.removeAllObjects()
+		try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
 	}
 
 	func announce(forLocation coord: LatLon) {
@@ -211,6 +212,7 @@ class VoiceAnnouncement: NSObject, AVSpeechSynthesizerDelegate {
 		mapView.editorLayer.selectedNode = nil
 		mapView.editorLayer.selectedWay = nil
 		mapView.editorLayer.selectedRelation = nil
+		try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
 	}
 
 	func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {

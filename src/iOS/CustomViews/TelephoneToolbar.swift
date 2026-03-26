@@ -77,12 +77,14 @@ class TelephoneToolbar: UIControl {
 	                              action: @escaping (UIButton) -> Void) -> UIBarButtonItem
 	{
 		let button = ButtonClosure(type: .custom)
-		button.setTitle(title, for: .normal)
-		button.setTitleColor(UIColor.systemBlue, for: .normal)
-		button.contentEdgeInsets = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
-		button.layer.borderWidth = 1
-		button.layer.cornerRadius = 10
-		button.layer.borderColor = UIColor.systemBlue.cgColor
+		var config = UIButton.Configuration.plain()
+		config.title = title
+		config.baseForegroundColor = .systemBlue
+		config.contentInsets = NSDirectionalEdgeInsets(top: 5, leading: 10, bottom: 5, trailing: 10)
+		config.background.strokeColor = .systemBlue
+		config.background.strokeWidth = 1
+		config.background.cornerRadius = 10
+		button.configuration = config
 		button.onTap = action
 		return UIBarButtonItem(customView: button)
 	}

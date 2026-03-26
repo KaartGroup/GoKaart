@@ -27,6 +27,10 @@ class POITabBarController: UITabBarController {
 		{
 			tabIndex = 0
 		}
+		// Power Naming: force Common Tags tab so name field is visible
+		if appDelegate.mapView.powerNamingAutoFocusName {
+			tabIndex = 0
+		}
 		if selection == nil {
 			// don't show attributes page
 			var vcList = viewControllers!

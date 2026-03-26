@@ -58,6 +58,10 @@ final class PresetDisplayForFeature {
 		return presetAtSection(indexPath.section, row: indexPath.row)
 	}
 
+	func insertSection(_ group: PresetDisplayGroup, at index: Int) {
+		sectionList.insert(group, at: index)
+	}
+
 	class func fieldsFor(featureID: String,
 	                     field fieldGetter: @escaping (_ feature: PresetFeature) -> [String]?) -> [String]
 	{

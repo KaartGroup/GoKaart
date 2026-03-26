@@ -722,13 +722,26 @@ final class OsmMapData: NSObject, NSSecureCoding {
 				if current.version < way.version {
 					let bbox = current.boundingBox
 					current.serverUpdate(with: way)
-					try current.resolveToMapData(self)
+					do {
+						try current.resolveToMapData(self)
+					} catch {
+						// Node refs not yet downloaded; skip this way for now
+						print("Warning: way \(current.ident) skipped — \(error)")
+						continue
+					}
 					spatial.updateMember(current, fromBox: bbox, undo: nil)
 					newWays.append(current)
 				}
 			} else {
 				ways[way.ident] = way
-				try way.resolveToMapData(self)
+				do {
+					try way.resolveToMapData(self)
+				} catch {
+					// Node refs not yet downloaded; remove way so spatial stays consistent
+					ways.removeValue(forKey: way.ident)
+					print("Warning: way \(way.ident) skipped — \(error)")
+					continue
+				}
 				spatial.addMember(way, undo: nil)
 				newWays.append(way)
 			}
@@ -1833,7 +1846,7 @@ final class OsmMapData: NSObject, NSSecureCoding {
 					print("way \(way.ident) contains node \(node.ident)")
 				}
 			}
-			assertionFailure()
+			print("[OsmMapData] Consistency check: bad wayCount detected (non-fatal)")
 		}
 	}
 

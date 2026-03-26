@@ -38644,6 +38644,9 @@
         }
       }
     },
+    "Motorcar" : {
+
+    },
     "move" : {
       "localizations" : {
         "ar" : {
@@ -40302,6 +40305,9 @@
           }
         }
       }
+    },
+    "No GPS data in photo. Ensure location services are enabled." : {
+
     },
     "No Left Turn restriction" : {
       "localizations" : {
@@ -45681,6 +45687,18 @@
           }
         }
       }
+    },
+    "Photo saved. %d photo(s) will upload when connection is restored." : {
+
+    },
+    "Photo saved. %d upload(s) pending." : {
+
+    },
+    "Photo saved. Uploading..." : {
+
+    },
+    "Photo saved. Will upload when connection is restored." : {
+
     },
     "Please wait" : {
       "localizations" : {

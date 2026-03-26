@@ -144,8 +144,10 @@ class ViewerTrackingService {
 
 		print("[ViewerTracking] Attempting registration...")
 
-		let deviceId = UIDevice.current.identifierForVendor?.uuidString ?? UUID().uuidString
-		let vehicleName = UserPrefs.shared.vehicleName.value ?? UIDevice.current.name
+		let vendorId = await MainActor.run { UIDevice.current.identifierForVendor?.uuidString }
+		let deviceId = vendorId ?? UUID().uuidString
+		let deviceName = await MainActor.run { UIDevice.current.name }
+		let vehicleName = UserPrefs.shared.vehicleName.value ?? deviceName
 		let interval = UserPrefs.shared.vehicleTrackingInterval.value ?? 30
 
 		guard let token = try? await ViewerAuth.shared.getValidToken() else {
@@ -153,13 +155,15 @@ class ViewerTrackingService {
 			return
 		}
 
+		let deviceModel = await MainActor.run { UIDevice.current.model }
+		let iosVersion = await MainActor.run { UIDevice.current.systemVersion }
 		let body: [String: Any] = [
 			"device_id": deviceId,
 			"vehicle_name": vehicleName,
 			"org_id": "org_9alzx7S32reIQ86s",
 			"ping_interval_seconds": interval,
-			"device_model": UIDevice.current.model,
-			"ios_version": UIDevice.current.systemVersion,
+			"device_model": deviceModel,
+			"ios_version": iosVersion,
 			"app_version": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
 		]
 

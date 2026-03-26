@@ -194,6 +194,20 @@
                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vCm-kR-9xQ" userLabel="Viewer Camera Button">
+                                <rect key="frame" x="10" y="567" width="60" height="60"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="60" id="cBv-3k-Xw1"/>
+                                    <constraint firstAttribute="height" constant="60" id="dFg-7h-Yz2"/>
+                                </constraints>
+                                <state key="normal" image="camera.fill" catalog="system">
+                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </state>
+                                <connections>
+                                    <action selector="viewerCameraPressed:" destination="2" eventType="touchUpInside" id="pQr-5s-Tw3"/>
+                                </connections>
+                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rdp-7O-8Ad">
                                 <rect key="frame" x="341" y="185" width="42" height="42"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -350,6 +364,8 @@
                             <constraint firstItem="E22-sL-sNt" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="rIB-Dl-aAa" secondAttribute="trailing" constant="8" id="wMn-e4-Bbo"/>
                             <constraint firstItem="rIB-Dl-aAa" firstAttribute="leading" secondItem="JI1-Re-jOt" secondAttribute="trailing" constant="8" id="wRM-5N-olb"/>
                             <constraint firstItem="N5Q-nV-TPG" firstAttribute="centerX" secondItem="P70-Oz-du4" secondAttribute="centerX" id="xCm-XO-ysn"/>
+                            <constraint firstItem="vCm-kR-9xQ" firstAttribute="top" secondItem="53z-ij-akY" secondAttribute="bottom" constant="15" id="xRt-4u-Mn5"/>
+                            <constraint firstItem="vCm-kR-9xQ" firstAttribute="centerX" secondItem="53z-ij-akY" secondAttribute="centerX" id="wYz-8v-Lk3"/>
                             <constraint firstItem="53z-ij-akY" firstAttribute="leading" secondItem="P70-Oz-du4" secondAttribute="leading" constant="10" id="yIe-bo-vcf"/>
                             <constraint firstItem="DFj-Vi-kBz" firstAttribute="centerY" secondItem="2Ka-IT-DQC" secondAttribute="centerY" id="ydk-KN-Rz7"/>
                         </constraints>
@@ -358,6 +374,7 @@
                     <nil key="simulatedTopBarMetrics"/>
                     <connections>
                         <outlet property="addNodeButton" destination="53z-ij-akY" id="X8s-iv-8Kl"/>
+                        <outlet property="viewerCameraButton" destination="vCm-kR-9xQ" id="aKl-mN-oP4"/>
                         <outlet property="aerialAlignmentButton" destination="DFj-Vi-kBz" id="5Ed-eV-oPi"/>
                         <outlet property="aerialServiceLogo" destination="2Ka-IT-DQC" id="iZ8-RY-FEe"/>
                         <outlet property="centerOnGPSButton" destination="Fo4-Nq-pAz" id="GSu-R7-dan"/>

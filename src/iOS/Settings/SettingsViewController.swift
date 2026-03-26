@@ -24,12 +24,17 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 
 		tableView.estimatedRowHeight = 44.0
 		tableView.rowHeight = UITableView.automaticDimension
+
+		setupTrackingFooter()
 	}
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 
 		navigationController?.isNavigationBarHidden = false
+
+		// Refresh tracking button status
+		setupTrackingFooter()
 
 		let preferredLanguageCode = PresetLanguages.preferredPresetLanguageCode
 		let preferredLanguage = PresetLanguages.localLanguageNameForCode(preferredLanguageCode())
@@ -78,5 +83,31 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 				performSegue(withIdentifier: SegueIdentifier.login, sender: self)
 			}
 		}
+	}
+
+	// MARK: - Vehicle Tracking Footer
+
+	private func setupTrackingFooter() {
+		let container = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 60))
+
+		let button = UIButton(type: .system)
+		let enabled = UserPrefs.shared.vehicleTrackingEnabled.value == true
+		button.setTitle("Vehicle Tracking: \(enabled ? "On" : "Off") >", for: .normal)
+		button.titleLabel?.font = .systemFont(ofSize: 16)
+		button.addTarget(self, action: #selector(openTrackingSettings), for: .touchUpInside)
+		button.translatesAutoresizingMaskIntoConstraints = false
+		container.addSubview(button)
+
+		NSLayoutConstraint.activate([
+			button.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+			button.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+		])
+
+		tableView.tableFooterView = container
+	}
+
+	@objc private func openTrackingSettings() {
+		let trackingVC = ViewerTrackingSettingsViewController(style: .grouped)
+		navigationController?.pushViewController(trackingVC, animated: true)
 	}
 }

@@ -92,6 +92,7 @@ final class UserPrefs {
 	let mapViewEnableDataOverlay = Pref<Bool>(key: "mapViewEnableDataOverlay")
 	let mapViewEnableTurnRestriction = Pref<Bool>(key: "mapViewEnableTurnRestriction")
 	let mapViewEnableUnnamedRoadHalo = Pref<Bool>(key: "mapViewEnableUnnamedRoadHalo")
+	let mapViewEnablePowerNaming = Pref<Bool>(key: "mapViewEnablePowerNaming")
 	let latestAerialCheckLatLon = Pref<LatLon.PlistType>(key: "LatestAerialCheckLatLon2")
 	let latestOverlayCheckLatLon = Pref<LatLon.PlistType>(key: "LatestOverlayCheckLatLon")
 	let maximizeFrameRate = Pref<Bool>(key: "maximizeFrameRate")
@@ -100,9 +101,16 @@ final class UserPrefs {
 	let searchHistory = Pref<[String]>(key: "searchHistory", ubiquitous: true)
 
 	// GPX
+	let gpxRecordingEnabled = Pref<Bool>(key: "GpxRecordingEnabled")
 	let gpxRecordsTracksInBackground = Pref<Bool>(key: "GpxTrackBackgroundTracking")
 	let gpxUploadedGpxTracks = Pref<[String: NSNumber]>(key: "GpxUploads")
 	let gpxTracksExpireAfterDays = Pref<Int>(key: "GpxTrackExpirationDays")
+
+	// Vehicle Tracking
+	let vehicleTrackingEnabled = Pref<Bool>(key: "VehicleTrackingEnabled")
+	let vehicleTrackingInterval = Pref<Int>(key: "VehicleTrackingIntervalSeconds")
+	let vehicleName = Pref<String>(key: "VehicleName")
+	let vehicleId = Pref<Int>(key: "ViewerVehicleId")
 
 	// GeoJSON
 	let geoJsonFileList = Pref<[String: Bool]>(key: "GeoJsonFileList")

@@ -6,8 +6,8 @@
 //  Copyright © 2021 Bryce Cogswell. All rights reserved.
 //
 
-import Photos
-import UIKit
+@preconcurrency import Photos
+@preconcurrency import UIKit
 
 /// This extension allows different types of things to the app:
 ///	* Sharing a photo jumps to the location defined in the EXIF
@@ -100,12 +100,17 @@ class ShareViewController: UIViewController, URLSessionTaskDelegate {
 		completionHandler(nil)
 	}
 
+	private nonisolated func loadItem(from provider: NSItemProvider, typeIdentifier: String) async throws -> NSSecureCoding {
+		try await provider.loadItem(forTypeIdentifier: typeIdentifier)
+	}
+
 	func processShareItem() async -> ShareResult {
 		for item in extensionContext?.inputItems ?? [] {
-			for provider in (item as? NSExtensionItem)?.attachments ?? [] {
+			for attachment in (item as? NSExtensionItem)?.attachments ?? [] {
+				nonisolated(unsafe) let provider = attachment
 				if provider.hasItemConformingToTypeIdentifier("public.image") {
 					// A photo
-					if let url = try? await provider.loadItem(forTypeIdentifier: "public.image"),
+					if let url = try? await loadItem(from: provider, typeIdentifier: "public.image"),
 					   let url = url as? URL,
 					   let exif = EXIFInfo(url: url),
 					   let url = urlFor(location: (exif.latitude, exif.longitude),
@@ -124,7 +129,7 @@ class ShareViewController: UIViewController, URLSessionTaskDelegate {
 				} else if provider.hasItemConformingToTypeIdentifier("com.apple.mapkit.map-item") {
 					// An MKMapItem. There should also be a URL we can use instead.
 				} else if provider.hasItemConformingToTypeIdentifier("public.url") {
-					guard let urlData = try? await provider.loadItem(forTypeIdentifier: "public.url") else {
+					guard let urlData = try? await loadItem(from: provider, typeIdentifier: "public.url") else {
 						return .notFound(nil)
 					}
 					// sometimes its a url, other times data containing a url
@@ -141,7 +146,7 @@ class ShareViewController: UIViewController, URLSessionTaskDelegate {
 					}
 					return await commonUrlHandler(for: url)
 				} else if provider.hasItemConformingToTypeIdentifier("public.plain-text") {
-					guard let text = try? await provider.loadItem(forTypeIdentifier: "public.plain-text") else {
+					guard let text = try? await loadItem(from: provider, typeIdentifier: "public.plain-text") else {
 						return .notFound(nil)
 					}
 					if let text = text as? String {

@@ -133,6 +133,11 @@ final class MainViewController: UIViewController,
 			ViewerTrackingService.shared.start()
 		}
 
+		// Resume GPX recording if it was enabled
+		if UserPrefs.shared.gpxRecordingEnabled.value == true {
+			startGpxRecording()
+		}
+
 		// long-press on + for adding nodes via taps
 		addNodeButtonLongPressGestureRecognizer = UILongPressGestureRecognizer(
 			target: self,
@@ -935,11 +940,13 @@ final class MainViewController: UIViewController,
 					centerOnGPSButton.isHidden = true
 					locationBallView.isHidden = true
 					mapView.voiceAnnouncement?.enabled = false
-					// Only stop location and end GPX track if not actively recording
-					if mapView.gpxLayer.activeTrack == nil {
-						LocationProvider.shared.stop()
-					} else {
+					// Only stop location if nothing else needs it
+					let gpxRecording = UserPrefs.shared.gpxRecordingEnabled.value == true
+					let trackingActive = UserPrefs.shared.vehicleTrackingEnabled.value == true
+					if gpxRecording || trackingActive {
 						LocationProvider.shared.ensureUpdatingLocation()
+					} else {
+						LocationProvider.shared.stop()
 					}
 				} else {
 					userOverrodeLocationPosition = false
@@ -947,20 +954,35 @@ final class MainViewController: UIViewController,
 					locationBallView.isHidden = false
 					LocationProvider.shared.start()
 					mapView.voiceAnnouncement?.enabled = true
-					if oldValue == .NONE {
-						// because recording GPX tracks is cheap we record them any time GPS is enabled
-						mapView.gpxLayer.startNewTrack(continuingCurrentTrack: false)
-						if GpxLayer.recordTracksInBackground {
-							LocationProvider.shared.allowsBackgroundLocationUpdates = true
-							LocationProvider.shared.requestAlwaysAuthIfNeeded()
-						}
-					}
 				}
 
 				updateUploadButtonState()
 				updateGpsButtonState()
 			}
 		}
+	}
+
+	// MARK: - GPX Recording (independent of GPS follow)
+
+	func startGpxRecording() {
+		LocationProvider.shared.ensureUpdatingLocation()
+		LocationProvider.shared.allowsBackgroundLocationUpdates = true
+		mapView.gpxLayer.startNewTrack(continuingCurrentTrack: false)
+		mapView.displayGpxTracks = true
+		UserPrefs.shared.gpxRecordingEnabled.value = true
+		print("[GPX] Recording started")
+	}
+
+	func stopGpxRecording() {
+		mapView.gpxLayer.endActiveTrack(continuingCurrentTrack: false)
+		UserPrefs.shared.gpxRecordingEnabled.value = false
+		// Only stop location if nothing else needs it
+		let trackingActive = UserPrefs.shared.vehicleTrackingEnabled.value == true
+		if gpsState == .NONE && !trackingActive {
+			LocationProvider.shared.stop()
+			LocationProvider.shared.allowsBackgroundLocationUpdates = false
+		}
+		print("[GPX] Recording stopped")
 	}
 
 	func headingChanged(_ heading: Double, accuracy: Double) {

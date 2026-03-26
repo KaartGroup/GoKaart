@@ -60,8 +60,8 @@ class RulerView: UIView {
 		let fontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .caption2)
 		let monospacedFontDescriptor = fontDescriptor.addingAttributes([
 			.featureSettings: [[
-				UIFontDescriptor.FeatureKey.featureIdentifier: kNumberSpacingType,
-				UIFontDescriptor.FeatureKey.typeIdentifier: kMonospacedNumbersSelector
+				UIFontDescriptor.FeatureKey.type: kNumberSpacingType,
+				UIFontDescriptor.FeatureKey.selector: kMonospacedNumbersSelector
 			]]
 		])
 		let monospacedFont = UIFont(descriptor: monospacedFontDescriptor, size: font.pointSize)

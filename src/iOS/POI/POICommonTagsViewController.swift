@@ -192,9 +192,11 @@ class POICommonTagsViewController: UITableViewController, UITextFieldDelegate, U
 							objectTags: tabController.keyValueDict,
 							geometry: geometry,
 							update: nil)
+						self.injectPowerNamingMotorcarToggle()
 						self.tableView.reloadData()
 					}
 				})
+			injectPowerNamingMotorcarToggle()
 			computeExtraTags()
 		}
 
@@ -216,6 +218,29 @@ class POICommonTagsViewController: UITableViewController, UITextFieldDelegate, U
 			extraKeys.removeAll(where: { $0 == key })
 		}
 		extraTags.set(extraKeys.map { ($0, dict[$0]!) })
+	}
+
+	/// When power naming is active and the selected object is a highway,
+	/// inject a motorcar yes/no toggle right after the Type+Name section.
+	private func injectPowerNamingMotorcarToggle() {
+		guard AppDelegate.shared.mapView.powerNamingEnabled,
+		      let tabController = tabBarController as? POITabBarController,
+		      let selection = tabController.selection,
+		      selection.tags["highway"] != nil
+		else { return }
+
+		let motorcarKey = PresetsDatabase.shared.yesNoPresetKeyWith(
+			label: NSLocalizedString("Motorcar", comment: ""),
+			type: .check,
+			key: "motorcar",
+			options: nil,
+			defaultValue: nil,
+			placeholder: nil,
+			keyboard: .default,
+			capitalize: .none,
+			autocorrect: .no)
+		let motorcarGroup = PresetDisplayGroup(name: nil, tags: [.key(motorcarKey)], usesBoth: false)
+		allPresets?.insertSection(motorcarGroup, at: 1)
 	}
 
 	// MARK: display
@@ -240,6 +265,26 @@ class POICommonTagsViewController: UITableViewController, UITextFieldDelegate, U
 
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
+
+		// Power Naming: auto-focus the name field
+		let mapView = AppDelegate.shared.mapView!
+		if mapView.powerNamingAutoFocusName {
+			mapView.powerNamingAutoFocusName = false
+			DispatchQueue.main.async { [weak self] in
+				guard let self else { return }
+				for row in 0 ..< self.tableView.numberOfRows(inSection: 0) {
+					let index = IndexPath(row: row, section: 0)
+					if let cell = self.tableView.cellForRow(at: index) as? FeaturePresetCell,
+					   case let .key(presetKey) = cell.presetKey,
+					   presetKey.tagKey == "name"
+					{
+						cell.valueField.becomeFirstResponder()
+						return
+					}
+				}
+			}
+			return
+		}
 
 		if !isMovingToParent {
 			// special case: if this is a new object and the user just selected the feature to be shop/amenity,

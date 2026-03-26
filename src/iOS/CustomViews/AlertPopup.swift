@@ -128,15 +128,14 @@ class AlertPopup: UIViewController {
 		separator.heightAnchor.constraint(equalToConstant: 1.0).isActive = true
 		alertStack.addArrangedSubview(separator)
 
-		cancelButton.setTitle(title, for: .normal)
-		cancelButton.tintColor = .link
+		var config = UIButton.Configuration.plain()
+		config.title = title
+		config.baseForegroundColor = .link
+		config.imagePadding = 8
+		config.imagePlacement = .leading
+		config.background.backgroundColor = .systemBackground
+		cancelButton.configuration = config
 		cancelButton.titleLabel?.font = UIFont.preferredFont(forTextStyle: .callout).bold()
-		cancelButton.imageView?.contentMode = .scaleAspectFit
-		cancelButton.contentHorizontalAlignment = .center
-		cancelButton.semanticContentAttribute = .forceLeftToRight
-		cancelButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8,
-		                                            bottom: 0, right: 8)
-		cancelButton.backgroundColor = .systemBackground
 		cancelButton.layer.cornerRadius = cornerRadius
 
 		cancelButton.onTap = { [weak self] _ in

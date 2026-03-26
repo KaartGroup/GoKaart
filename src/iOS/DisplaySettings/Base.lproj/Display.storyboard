@@ -1327,7 +1327,7 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
                             </tableViewSection>
                             <tableViewSection headerTitle="Overlays" id="8es-4f-sj3">
                                 <cells>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="none" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="Dt6-c9-5sp">
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" id="Dt6-c9-5sp">
                                         <rect key="frame" x="0.0" y="371.5" width="414" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Dt6-c9-5sp" id="cgo-vx-DaW">
@@ -1340,19 +1340,10 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1jq-Mx-hmn">
-                                                    <rect key="frame" x="316.5" y="6.5" width="51" height="31"/>
-                                                    <connections>
-                                                        <action selector="gpsSwitchChanged:" destination="UfZ-fJ-hyB" eventType="valueChanged" id="akt-la-BJd"/>
-                                                    </connections>
-                                                </switch>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstItem="1jq-Mx-hmn" firstAttribute="centerY" secondItem="1f0-8q-yCi" secondAttribute="centerY" id="1MO-KK-Qyq"/>
-                                                <constraint firstItem="1jq-Mx-hmn" firstAttribute="centerY" secondItem="cgo-vx-DaW" secondAttribute="centerY" id="TwA-1a-sTg"/>
-                                                <constraint firstAttribute="trailingMargin" secondItem="1jq-Mx-hmn" secondAttribute="trailing" constant="10" id="dQ2-Xl-i2a"/>
                                                 <constraint firstItem="1f0-8q-yCi" firstAttribute="leading" secondItem="cgo-vx-DaW" secondAttribute="leading" constant="16" id="rXH-bN-Xb6"/>
-                                                <constraint firstItem="1jq-Mx-hmn" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="1f0-8q-yCi" secondAttribute="trailing" constant="10" id="vcm-tK-5oq"/>
+                                                <constraint firstItem="1f0-8q-yCi" firstAttribute="centerY" secondItem="cgo-vx-DaW" secondAttribute="centerY" id="1MO-KK-Qyq"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
@@ -1592,7 +1583,6 @@ Clear the Basemap or Overlay tile caches  to download the latest tiles that refl
                     <connections>
                         <outlet property="addButtonPosition" destination="el8-h8-H1F" id="gtU-mk-rXW"/>
                         <outlet property="dataOverlaySwitch" destination="ChK-1Z-4v8" id="954-PF-6OI"/>
-                        <outlet property="gpxLoggingSwitch" destination="1jq-Mx-hmn" id="Xjp-YQ-1CM"/>
                         <outlet property="notesSwitch" destination="aVH-WM-e7u" id="xGS-hj-vN8"/>
                         <outlet property="objectFiltersSwitch" destination="sdA-WB-aRv" id="Gfo-Ch-zqZ"/>
                         <outlet property="questsSwitch" destination="fC8-R7-fUP" id="X3O-2F-ZfH"/>

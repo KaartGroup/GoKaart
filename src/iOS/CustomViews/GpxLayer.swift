@@ -224,7 +224,7 @@ final class GpxLayer: DrawingLayer, DiskCacheSizeProtocol, DrawingLayerDelegate 
 
 	static var recordTracksInBackground: Bool {
 		get {
-			UserPrefs.shared.gpxRecordsTracksInBackground.value ?? false
+			UserPrefs.shared.gpxRecordsTracksInBackground.value ?? true
 		}
 		set {
 			UserPrefs.shared.gpxRecordsTracksInBackground.value = newValue
