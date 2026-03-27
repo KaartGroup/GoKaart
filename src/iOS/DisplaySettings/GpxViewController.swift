@@ -139,9 +139,9 @@ class GpxTrackExpirationCell: UITableViewCell {
 }
 
 private let SECTION_CONFIGURE = 0
-private let SECTION_ACTIVE_TRACK = 1
-private let SECTION_PREVIOUS_TRACKS = 2
-private let SECTION_CONTROLS = 3
+private let SECTION_CONTROLS = 1
+private let SECTION_ACTIVE_TRACK = 2
+private let SECTION_PREVIOUS_TRACKS = 3
 
 class GpxViewController: UITableViewController {
 	private var timer: Timer?

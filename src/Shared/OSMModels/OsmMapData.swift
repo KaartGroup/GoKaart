@@ -720,28 +720,25 @@ final class OsmMapData: NSObject, NSSecureCoding {
 		for way in newData.ways {
 			if let current = ways[way.ident] {
 				if current.version < way.version {
-					let bbox = current.boundingBox
-					current.serverUpdate(with: way)
-					do {
-						try current.resolveToMapData(self)
-					} catch {
-						// Node refs not yet downloaded; skip this way for now
-						print("Warning: way \(current.ident) skipped — \(error)")
+					// Verify all node refs exist before mutating anything
+					guard let nodeRefs = way.nodeRefs, nodeRefs.allSatisfy({ self.nodes[$0] != nil }) else {
+						print("Warning: way \(current.ident) skipped — missing node refs")
 						continue
 					}
+					let bbox = current.boundingBox
+					current.serverUpdate(with: way)
+					try current.resolveToMapData(self)
 					spatial.updateMember(current, fromBox: bbox, undo: nil)
 					newWays.append(current)
 				}
 			} else {
-				ways[way.ident] = way
-				do {
-					try way.resolveToMapData(self)
-				} catch {
-					// Node refs not yet downloaded; remove way so spatial stays consistent
-					ways.removeValue(forKey: way.ident)
-					print("Warning: way \(way.ident) skipped — \(error)")
+				// Verify all node refs exist before adding
+				guard let refs = way.nodeRefs, refs.allSatisfy({ self.nodes[$0] != nil }) else {
+					print("Warning: way \(way.ident) skipped — missing node refs")
 					continue
 				}
+				ways[way.ident] = way
+				try way.resolveToMapData(self)
 				spatial.addMember(way, undo: nil)
 				newWays.append(way)
 			}
@@ -1583,6 +1580,9 @@ final class OsmMapData: NSObject, NSSecureCoding {
 			_ = relation.resolveToMapData(self)
 		}
 
+		// Clear undo stack — discarded objects invalidate undo history
+		undoManager.removeAllActions()
+
 		consistencyCheck()
 
 		t = CACurrentMediaTime() - t
@@ -1842,7 +1842,7 @@ final class OsmMapData: NSObject, NSSecureCoding {
 			print("node \(node.ident) has bad wayCount: \(index.value)")
 			print("starting wayCount = \(node.wayCount)")
 			for way in ways.values {
-				if way.nodes.contains(node) {
+				if way.nodes.contains(where: { $0 === node }) {
 					print("way \(way.ident) contains node \(node.ident)")
 				}
 			}

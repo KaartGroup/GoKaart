@@ -1012,6 +1012,12 @@ final class MainViewController: UIViewController,
 			} else {
 				gpsState = .HEADING
 			}
+			// Auto-start GPX recording when location is turned on
+			if UserPrefs.shared.gpxRecordingEnabled.value != true {
+				DispatchQueue.main.async { [weak self] in
+					self?.startGpxRecording()
+				}
+			}
 		case GPS_STATE.LOCATION, GPS_STATE.HEADING:
 			gpsState = .NONE
 		}

@@ -68,11 +68,12 @@ private class CameraOverlayView: UIView {
 	}
 
 	let cancelButton = UIButton(type: .system)
-	let shutterButton = makeShutterButton(size: 50)
+	let shutterButton = makeShutterButton(size: 70)
 	let retakeButton = UIButton(type: .system)
 	let acceptButton = UIButton(type: .system)
 
 	private let previewView = UIImageView()
+	private let controlBar = UIView()
 	private var currentState: State = .capturing
 
 	override init(frame: CGRect) {
@@ -119,44 +120,69 @@ private class CameraOverlayView: UIView {
 	}
 
 	private func setupButtons() {
+		// Black bar behind the controls to cover camera passthrough at the bottom
+		controlBar.backgroundColor = .black
+		controlBar.translatesAutoresizingMaskIntoConstraints = false
+		addSubview(controlBar)
+
+		let buttonSize: CGFloat = 44
 		if #available(iOS 13.0, *) {
-			cancelButton.setImage(UIImage(systemName: "xmark.circle"), for: .normal)
-			acceptButton.setImage(UIImage(systemName: "checkmark.circle"), for: .normal)
-			retakeButton.setImage(UIImage(systemName: "arrow.clockwise"), for: .normal)
+			let config = UIImage.SymbolConfiguration(pointSize: 28, weight: .medium)
+			cancelButton.setImage(UIImage(systemName: "xmark.circle", withConfiguration: config), for: .normal)
+			acceptButton.setImage(UIImage(systemName: "checkmark.circle", withConfiguration: config), for: .normal)
+			retakeButton.setImage(UIImage(systemName: "arrow.clockwise", withConfiguration: config), for: .normal)
 		} else {
 			cancelButton.setTitle("Cancel", for: .normal)
 			acceptButton.setTitle("Use Photo", for: .normal)
 			retakeButton.setTitle("Retake", for: .normal)
 		}
+		cancelButton.tintColor = .white
+		retakeButton.tintColor = .white
+		acceptButton.tintColor = .white
+
+		// Add buttons on top of the control bar
 		[shutterButton, cancelButton, retakeButton, acceptButton].forEach { button in
 			button.translatesAutoresizingMaskIntoConstraints = false
 			addSubview(button)
 		}
 
 		NSLayoutConstraint.activate([
-			cancelButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+			// Black bar: from 20pt above shutter to bottom of screen
+			controlBar.leadingAnchor.constraint(equalTo: leadingAnchor),
+			controlBar.trailingAnchor.constraint(equalTo: trailingAnchor),
+			controlBar.topAnchor.constraint(equalTo: shutterButton.topAnchor, constant: -20),
+			controlBar.bottomAnchor.constraint(equalTo: bottomAnchor),
+
+			cancelButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 40),
 			cancelButton.centerYAnchor.constraint(equalTo: shutterButton.centerYAnchor),
+			cancelButton.widthAnchor.constraint(equalToConstant: buttonSize),
+			cancelButton.heightAnchor.constraint(equalToConstant: buttonSize),
 
 			shutterButton.centerXAnchor.constraint(equalTo: centerXAnchor),
-			shutterButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+			shutterButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -30),
 
 			acceptButton.centerXAnchor.constraint(equalTo: centerXAnchor),
 			acceptButton.centerYAnchor.constraint(equalTo: shutterButton.centerYAnchor),
+			acceptButton.widthAnchor.constraint(equalToConstant: buttonSize),
+			acceptButton.heightAnchor.constraint(equalToConstant: buttonSize),
 
-			retakeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-			retakeButton.centerYAnchor.constraint(equalTo: shutterButton.centerYAnchor)
+			retakeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -40),
+			retakeButton.centerYAnchor.constraint(equalTo: shutterButton.centerYAnchor),
+			retakeButton.widthAnchor.constraint(equalToConstant: buttonSize),
+			retakeButton.heightAnchor.constraint(equalToConstant: buttonSize)
 		])
 
-		// Preview after image is captured
+		// Preview after image is captured — fills area above buttons, black background
 		previewView.contentMode = .scaleAspectFit
+		previewView.backgroundColor = .black
 		previewView.isHidden = true
-		addSubview(previewView)
+		insertSubview(previewView, belowSubview: shutterButton)
 		previewView.translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate([
 			previewView.leadingAnchor.constraint(equalTo: leadingAnchor),
 			previewView.trailingAnchor.constraint(equalTo: trailingAnchor),
 			previewView.topAnchor.constraint(equalTo: topAnchor),
-			previewView.bottomAnchor.constraint(equalTo: bottomAnchor)
+			previewView.bottomAnchor.constraint(equalTo: shutterButton.topAnchor, constant: -10)
 		])
 	}
 

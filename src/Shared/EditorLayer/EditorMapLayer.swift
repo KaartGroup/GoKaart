@@ -783,6 +783,24 @@ final class EditorMapLayer: CALayer {
 						layer.properties.lineWidth = layer.lineWidth
 						layers.append(layer)
 					}
+
+					// provide a halo for streets that don't have a name
+					if owner.useUnnamedRoadHalo(), object.isWay()?.needsNoNameHighlight() ?? false {
+						let haloLayer = CAShapeLayerWithProperties()
+						haloLayer.anchorPoint = CGPoint(x: 0, y: 0)
+						haloLayer.position = CGPoint(refPoint)
+						haloLayer.path = path
+						haloLayer.strokeColor = UIColor.red.withAlphaComponent(0.8).cgColor
+						haloLayer.fillColor = nil
+						haloLayer.lineWidth = renderInfo.lineWidth + 12
+						haloLayer.lineCap = DEFAULT_LINECAP
+						haloLayer.lineJoin = DEFAULT_LINEJOIN
+						haloLayer.zPosition = Z_HALO
+						let haloProps = haloLayer.properties
+						haloProps.position = refPoint
+						haloProps.lineWidth = haloLayer.lineWidth
+						layers.append(haloLayer)
+					}
 				}
 			}
 		}
@@ -792,25 +810,6 @@ final class EditorMapLayer: CALayer {
 			let path = object.linePathForObject(withRefPoint: &refPoint)
 
 			if let path = path {
-				// provide a halo for streets that don't have a name
-				if owner.useUnnamedRoadHalo(), renderInfo.lineWidth > 0,
-				   object.isWay()?.needsNoNameHighlight() ?? false
-				{
-					let haloLayer = CAShapeLayerWithProperties()
-					haloLayer.anchorPoint = CGPoint(x: 0, y: 0)
-					haloLayer.position = CGPoint(refPoint)
-					haloLayer.path = path
-					haloLayer.strokeColor = UIColor.red.cgColor
-					haloLayer.fillColor = nil
-					haloLayer.lineWidth = renderInfo.lineWidth + 4
-					haloLayer.lineCap = DEFAULT_LINECAP
-					haloLayer.lineJoin = DEFAULT_LINEJOIN
-					haloLayer.zPosition = Z_HALO
-					let haloProps = haloLayer.properties
-					haloProps.position = refPoint
-					haloProps.lineWidth = haloLayer.lineWidth
-					layers.append(haloLayer)
-				}
 
 				var lineWidth = renderInfo.lineWidth
 				if lineWidth == 0 {
