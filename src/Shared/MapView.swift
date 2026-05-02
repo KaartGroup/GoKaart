@@ -620,6 +620,12 @@ final class MapView: UIView, UIActionSheetDelegate,
 					continue
 				}
 
+				// DISABLED 2026-05-01 per request: stop fetching tiles from poole.ch.
+				// Local halos in EditorMapLayer still work via useUnnamedRoadHalo() reading tileOverlaySelections.
+				if tileServer == TileServer.noName {
+					continue
+				}
+
 				let layer = MercatorTileLayer(viewPort: viewPort, progress: mainView)
 				layer.zPosition = ZLAYER.GPX.rawValue
 				layer.tileServer = tileServer
@@ -767,6 +773,10 @@ final class MapView: UIView, UIActionSheetDelegate,
 		}
 
 		UserPrefs.shared.tileOverlaySelections.value = overlays
+		// DISABLED 2026-05-01: poole.ch tile layer no longer created, so the
+		// auto-refresh inside updateTileOverlayLayers (selection-vs-layer mismatch
+		// branch) is now inert. Trigger an explicit redraw so halos toggle live.
+		editorLayer.clearCachedProperties()
 		updateUnnamedRoadsButtonAppearance()
 
 		// Provide haptic feedback
@@ -2439,7 +2449,9 @@ extension MapView: EditorMapLayerOwner {
 	}
 
 	func useUnnamedRoadHalo() -> Bool {
-		return noNameLayer() != nil
+		// DISABLED 2026-05-01: was `noNameLayer() != nil`. Now reads selections directly
+		// since the tile layer is no longer created (poole.ch calls disabled).
+		return UserPrefs.shared.tileOverlaySelections.value?.contains(TileServer.noName.identifier) ?? false
 	}
 
 	func useAutomaticCacheManagement() -> Bool {
