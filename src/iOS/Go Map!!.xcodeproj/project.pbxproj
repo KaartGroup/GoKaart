@@ -156,6 +156,7 @@
 		02DEDA0F2C0915F800C84DA8 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 02DEDA0E2C0915F800C84DA8 /* Localizable.xcstrings */; };
 		02DFFD1E2BF3E0F0002A0189 /* LocationSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02DFFD1D2BF3E0F0002A0189 /* LocationSet.swift */; };
 		02E049BA2650B0E10028B57F /* Turn Restrictions/TurnRestrictController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D096AF263D4FF500E3B129 /* Turn Restrictions/TurnRestrictController.swift */; };
+		AA0000012D9A000000000001 /* TurnRestrictions.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA0000012D9A000000000004 /* TurnRestrictions.storyboard */; };
 		02E049BB2651BAB90028B57F /* UndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C381C306263FD0E8003142BA /* UndoManager.swift */; };
 		02E049BE2651D1750028B57F /* UndoAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 02E049BD2651D1750028B57F /* UndoAction.m */; };
 		02E6267219973A0700565D62 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02E6267119973A0700565D62 /* Security.framework */; };
@@ -593,6 +594,8 @@
 		C3D096AB263D48F700E3B129 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C3D096AD263D4BFB00E3B129 /* UploadViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadViewController.swift; sourceTree = "<group>"; };
 		C3D096AF263D4FF500E3B129 /* Turn Restrictions/TurnRestrictController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Turn Restrictions/TurnRestrictController.swift"; sourceTree = "<group>"; };
+		AA0000012D9A000000000002 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = "Turn Restrictions/Base.lproj/TurnRestrictions.storyboard"; sourceTree = "<group>"; };
+		AA0000012D9A000000000003 /* mul */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = mul; path = "Turn Restrictions/mul.lproj/TurnRestrictions.xcstrings"; sourceTree = "<group>"; };
 		C3D096B2263D618E00E3B129 /* HeightViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HeightViewController.swift; sourceTree = "<group>"; };
 		C3D096B5263DF82F00E3B129 /* RulerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RulerView.swift; sourceTree = "<group>"; };
 		C3D096B8263DFA2A00E3B129 /* RenderInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RenderInfo.swift; sourceTree = "<group>"; };
@@ -861,6 +864,7 @@
 				02ACBCFF16713F7F00BB4414 /* Shared */,
 				02ACBA3A16713CCB00BB4414 /* Supporting Files */,
 				C3D096AF263D4FF500E3B129 /* Turn Restrictions/TurnRestrictController.swift */,
+				AA0000012D9A000000000004 /* TurnRestrictions.storyboard */,
 				647C150D24268DB7008A9366 /* Upload */,
 			);
 			name = "Go Map!";
@@ -1494,6 +1498,7 @@
 				0287D25229947B2900BEAD9E /* QuestChooser.storyboard in Resources */,
 				023B892B19C148790060CDB5 /* Images.xcassets in Resources */,
 				02079803299470FB00D3C654 /* QuestBuilder.storyboard in Resources */,
+				AA0000012D9A000000000001 /* TurnRestrictions.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1892,6 +1897,15 @@
 			name = MainInterface.storyboard;
 			sourceTree = "<group>";
 		};
+		AA0000012D9A000000000004 /* TurnRestrictions.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				AA0000012D9A000000000002 /* Base */,
+				AA0000012D9A000000000003 /* mul */,
+			);
+			name = TurnRestrictions.storyboard;
+			sourceTree = "<group>";
+		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
@@ -2035,7 +2049,7 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Go Map!!/Go Map!!.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4309;
+				CURRENT_PROJECT_VERSION = 4313;
 				DEVELOPMENT_TEAM = 2STHX823T6;
 				DISPLAY_NAME = "Go Kaart Debug";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -2049,7 +2063,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 4.3.5;
+				MARKETING_VERSION = 4.3.9;
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-DDEBUG ";
 				PRODUCT_BUNDLE_IDENTIFIER = com.kaartgroup.GoKaart;
 				PRODUCT_NAME = "Go Map!!";
@@ -2081,7 +2095,7 @@
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Go Map!!/Go Map!!.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4309;
+				CURRENT_PROJECT_VERSION = 4313;
 				DEVELOPMENT_TEAM = 2STHX823T6;
 				DISPLAY_NAME = "Go Kaart";
 				GCC_OPTIMIZATION_LEVEL = fast;
@@ -2097,7 +2111,7 @@
 					"@executable_path/Frameworks",
 				);
 				LLVM_LTO = YES;
-				MARKETING_VERSION = 4.3.5;
+				MARKETING_VERSION = 4.3.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kaartgroup.GoKaart;
 				PRODUCT_NAME = "Go Map!!";
 				PROVISIONING_PROFILE = "";
@@ -2132,7 +2146,7 @@
 				CODE_SIGN_ENTITLEMENTS = GpxWidget/GpxWidgetExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4309;
+				CURRENT_PROJECT_VERSION = 4313;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 2STHX823T6;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -2148,7 +2162,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 4.3.5;
+				MARKETING_VERSION = 4.3.9;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kaartgroup.GoKaart.GpxWidget;
@@ -2183,7 +2197,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4309;
+				CURRENT_PROJECT_VERSION = 4313;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 2STHX823T6;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -2200,7 +2214,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 4.3.5;
+				MARKETING_VERSION = 4.3.9;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kaartgroup.GoKaart.GpxWidget;
@@ -2231,7 +2245,7 @@
 				CODE_SIGN_ENTITLEMENTS = PhotoShare/PhotoShare.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4309;
+				CURRENT_PROJECT_VERSION = 4313;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 2STHX823T6;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -2245,7 +2259,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 4.3.5;
+				MARKETING_VERSION = 4.3.9;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kaartgroup.GoKaart.PhotoShare;
@@ -2279,7 +2293,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4309;
+				CURRENT_PROJECT_VERSION = 4313;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 2STHX823T6;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -2294,7 +2308,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 4.3.5;
+				MARKETING_VERSION = 4.3.9;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.kaartgroup.GoKaart.PhotoShare;

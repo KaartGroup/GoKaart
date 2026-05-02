@@ -299,7 +299,7 @@ class PanoramaxViewController: UIViewController, UIImagePickerControllerDelegate
 		]
 		photoPicker = PhotoCapture()
 		photoPicker.locationManager = locationManager
-		photoPicker.onCancel = {}
+		photoPicker.onDone = {}
 		photoPicker.onError = {}
 		photoPicker.onAccept = { image, imageData in
 			Task {

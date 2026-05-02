@@ -194,13 +194,9 @@
                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vCm-kR-9xQ" userLabel="Viewer Camera Button">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="vCm-kR-9xQ" userLabel="Viewer Camera Button">
                                 <rect key="frame" x="10" y="567" width="60" height="60"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="60" id="cBv-3k-Xw1"/>
-                                    <constraint firstAttribute="height" constant="60" id="dFg-7h-Yz2"/>
-                                </constraints>
                                 <state key="normal" image="camera.fill" catalog="system">
                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>
@@ -352,7 +348,7 @@
                             <constraint firstItem="Zh9-uC-62t" firstAttribute="top" secondItem="P70-Oz-du4" secondAttribute="top" constant="40" id="iOT-VE-tJF"/>
                             <constraint firstItem="nU5-T2-ADn" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="P70-Oz-du4" secondAttribute="centerX" multiplier="0.35" id="iYx-Jd-It7"/>
                             <constraint firstItem="fss-Ag-fKJ" firstAttribute="top" secondItem="j5Z-hB-i8A" secondAttribute="top" id="jfH-he-UaM"/>
-                            <constraint firstItem="vCm-kR-9xQ" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Fo4-Nq-pAz" secondAttribute="bottom" constant="15" id="lbv-Yq-4tQ"/>
+                            <constraint firstItem="UQ6-Pa-U58" firstAttribute="top" relation="greaterThanOrEqual" secondItem="Fo4-Nq-pAz" secondAttribute="bottom" constant="15" id="lbv-Yq-4tQ"/>
                             <constraint firstItem="Fo4-Nq-pAz" firstAttribute="top" secondItem="rdp-7O-8Ad" secondAttribute="bottom" constant="15" id="nLz-re-rFx"/>
                             <constraint firstItem="E22-sL-sNt" firstAttribute="top" secondItem="P70-Oz-du4" secondAttribute="top" constant="10" id="ppF-tq-PYy"/>
                             <constraint firstItem="P70-Oz-du4" firstAttribute="bottom" secondItem="TJj-HW-GPO" secondAttribute="bottom" constant="65" id="r2v-ah-zmD"/>
@@ -364,8 +360,6 @@
                             <constraint firstItem="E22-sL-sNt" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="rIB-Dl-aAa" secondAttribute="trailing" constant="8" id="wMn-e4-Bbo"/>
                             <constraint firstItem="rIB-Dl-aAa" firstAttribute="leading" secondItem="JI1-Re-jOt" secondAttribute="trailing" constant="8" id="wRM-5N-olb"/>
                             <constraint firstItem="N5Q-nV-TPG" firstAttribute="centerX" secondItem="P70-Oz-du4" secondAttribute="centerX" id="xCm-XO-ysn"/>
-                            <constraint firstItem="UQ6-Pa-U58" firstAttribute="top" secondItem="vCm-kR-9xQ" secondAttribute="bottom" constant="15" id="xRt-4u-Mn5"/>
-                            <constraint firstItem="vCm-kR-9xQ" firstAttribute="centerX" secondItem="UQ6-Pa-U58" secondAttribute="centerX" id="wYz-8v-Lk3"/>
                             <constraint firstItem="53z-ij-akY" firstAttribute="leading" secondItem="P70-Oz-du4" secondAttribute="leading" constant="10" id="yIe-bo-vcf"/>
                             <constraint firstItem="DFj-Vi-kBz" firstAttribute="centerY" secondItem="2Ka-IT-DQC" secondAttribute="centerY" id="ydk-KN-Rz7"/>
                         </constraints>

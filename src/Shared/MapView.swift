@@ -128,6 +128,9 @@ final class MapView: UIView, UIActionSheetDelegate,
 	/// Button to toggle power naming mode (below unnamed roads button)
 	private(set) var powerNamingButton: UIButton!
 
+	/// GPX recording indicator (pulsing red dot + REC label)
+	private(set) var gpxRecordingIndicator: UIView!
+
 	private var magnifyingGlass: MagnifyingGlass!
 
 	private var editControlActions: [EDIT_ACTION] = []
@@ -508,6 +511,26 @@ final class MapView: UIView, UIActionSheetDelegate,
 		powerNamingButton.addTarget(self, action: #selector(togglePowerNaming), for: .touchUpInside)
 		addSubview(powerNamingButton)
 
+		// Create GPX recording indicator
+		gpxRecordingIndicator = UIView()
+		gpxRecordingIndicator.translatesAutoresizingMaskIntoConstraints = true
+		gpxRecordingIndicator.backgroundColor = UIColor(red: 0.9, green: 0.1, blue: 0.1, alpha: 0.85)
+		gpxRecordingIndicator.layer.cornerRadius = 12
+		gpxRecordingIndicator.isHidden = true
+
+		let redDot = UIView(frame: CGRect(x: 8, y: 8, width: 8, height: 8))
+		redDot.backgroundColor = .white
+		redDot.layer.cornerRadius = 4
+		gpxRecordingIndicator.addSubview(redDot)
+
+		let recLabel = UILabel(frame: CGRect(x: 20, y: 2, width: 30, height: 20))
+		recLabel.text = "REC"
+		recLabel.font = UIFont.boldSystemFont(ofSize: 11)
+		recLabel.textColor = .white
+		gpxRecordingIndicator.addSubview(recLabel)
+
+		addSubview(gpxRecordingIndicator)
+
 		// these need to be loaded late because assigning to them changes the view
 		displayGpxTracks = UserPrefs.shared.mapViewEnableBreadCrumb.value ?? true
 		displayDataOverlayLayers = UserPrefs.shared.mapViewEnableDataOverlay.value ?? false
@@ -791,16 +814,63 @@ final class MapView: UIView, UIActionSheetDelegate,
 		}
 	}
 
+	// MARK: - GPX Recording Indicator
+
+	func showGpxRecordingIndicator() {
+		guard let indicator = gpxRecordingIndicator else { return }
+		indicator.isHidden = false
+		indicator.alpha = 1.0
+		let pulse = CABasicAnimation(keyPath: "opacity")
+		pulse.fromValue = 1.0
+		pulse.toValue = 0.3
+		pulse.duration = 0.8
+		pulse.autoreverses = true
+		pulse.repeatCount = .infinity
+		pulse.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+		indicator.layer.add(pulse, forKey: "pulse")
+	}
+
+	func hideGpxRecordingIndicator() {
+		guard let indicator = gpxRecordingIndicator else { return }
+		indicator.layer.removeAnimation(forKey: "pulse")
+		indicator.isHidden = true
+	}
+
 	override func layoutSubviews() {
 		super.layoutSubviews()
 
-		// Position planning button manually - below the helpButton (info button) in upper left
-		if planningModeButton != nil, mainView.helpButton != nil, let helpSuperview = mainView.helpButton.superview {
-			// Convert helpButton's frame from its parent's coordinate space to MapView's coordinate space
+		// Move and restyle camera button to left side, above planning mode
+		if let cameraButton = mainView.viewerCameraButton,
+		   mainView.helpButton != nil,
+		   let helpSuperview = mainView.helpButton.superview
+		{
+			if cameraButton.superview != self {
+				cameraButton.removeFromSuperview()
+				cameraButton.translatesAutoresizingMaskIntoConstraints = true
+				for c in cameraButton.constraints { cameraButton.removeConstraint(c) }
+				let cameraConfig = UIImage.SymbolConfiguration(pointSize: 22, weight: .medium)
+				cameraButton.setImage(UIImage(systemName: "camera.fill", withConfiguration: cameraConfig), for: .normal)
+				cameraButton.backgroundColor = UIColor(white: 1.0, alpha: 0.9)
+				cameraButton.tintColor = UIColor.systemBlue
+				cameraButton.layer.cornerRadius = 22
+				cameraButton.layer.shadowColor = UIColor.black.cgColor
+				cameraButton.layer.shadowOffset = CGSize(width: 0, height: 2)
+				cameraButton.layer.shadowOpacity = 0.3
+				cameraButton.layer.shadowRadius = 3
+				addSubview(cameraButton)
+			}
 			let helpFrameInMapView = helpSuperview.convert(mainView.helpButton.frame, to: self)
-			// Position planning button lower (52pt below = 8pt gap + 44pt extra)
 			let xPos = helpFrameInMapView.origin.x
-			let yPos = helpFrameInMapView.origin.y + helpFrameInMapView.size.height + 52
+			let yPos = helpFrameInMapView.origin.y + helpFrameInMapView.size.height + 30
+			cameraButton.frame = CGRect(x: xPos, y: yPos, width: 44, height: 44)
+			bringSubviewToFront(cameraButton)
+		}
+
+		// Position planning button below camera button
+		if planningModeButton != nil, mainView.viewerCameraButton != nil {
+			let cameraFrame = mainView.viewerCameraButton.frame
+			let xPos = cameraFrame.origin.x
+			let yPos = cameraFrame.origin.y + cameraFrame.size.height + 8
 			planningModeButton.frame = CGRect(x: xPos, y: yPos, width: 44, height: 44)
 			bringSubviewToFront(planningModeButton)
 		}
@@ -828,17 +898,19 @@ final class MapView: UIView, UIActionSheetDelegate,
 			let labelWidth: CGFloat = 60
 			let labelHeight: CGFloat = 24
 
-			// Position at same Y as compass, but centered horizontally
+			// Position at same Y as compass, but centered horizontally on screen
 			if let parentView = label.superview {
 				let compassFrame = compass.superview == parentView ?
 					compass.frame :
 					compass.superview?.convert(compass.frame, to: parentView) ?? compass.frame
 
-				let centerX = parentView.bounds.width / 2.0
+				let screenWidth = UIScreen.main.bounds.width
+				let screenCenter = screenWidth / 2.0
+				let originInParent = parentView.convert(CGPoint(x: screenCenter - labelWidth / 2.0, y: 0), from: nil)
 				let topY = compassFrame.origin.y  // Same Y position as compass
 
 				label.frame = CGRect(
-					x: centerX - (labelWidth / 2.0),
+					x: originInParent.x,
 					y: topY,
 					width: labelWidth,
 					height: labelHeight
@@ -846,6 +918,18 @@ final class MapView: UIView, UIActionSheetDelegate,
 
 				parentView.bringSubviewToFront(label)
 			}
+		}
+
+		// Position GPX recording indicator top center, below zoom label
+		if gpxRecordingIndicator != nil {
+			let indicatorWidth: CGFloat = 54
+			let indicatorHeight: CGFloat = 24
+			let screenWidth = UIScreen.main.bounds.width
+			let centerX = screenWidth / 2.0
+			let topY: CGFloat = (zoomLevelLabel?.frame.maxY ?? 30) + 4
+			let originInSelf = convert(CGPoint(x: centerX - indicatorWidth / 2.0, y: 0), from: nil)
+			gpxRecordingIndicator.frame = CGRect(x: originInSelf.x, y: topY, width: indicatorWidth, height: indicatorHeight)
+			bringSubviewToFront(gpxRecordingIndicator)
 		}
 
 		let bounds = self.bounds

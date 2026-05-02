@@ -6550,6 +6550,22 @@
         }
       }
     },
+    "%d photo(s) saved. %d upload(s) pending." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$d photo(s) saved. %2$d upload(s) pending."
+          }
+        }
+      }
+    },
+    "%d photo(s) saved. Uploading..." : {
+
+    },
+    "%d photo(s) saved. Will upload when connection is restored." : {
+
+    },
     "%ld Days" : {
       "comment" : "One or more days",
       "localizations" : {
@@ -35712,6 +35728,12 @@
     "Location updated to the location and orientation stored in the photo." : {
 
     },
+    "Log Out" : {
+
+    },
+    "Log Out of Viewer" : {
+
+    },
     "Login successful" : {
       "localizations" : {
         "ar" : {
@@ -40305,9 +40327,6 @@
           }
         }
       }
-    },
-    "No GPS data in photo. Ensure location services are enabled." : {
-
     },
     "No Left Turn restriction" : {
       "localizations" : {
@@ -45688,18 +45707,6 @@
         }
       }
     },
-    "Photo saved. %d photo(s) will upload when connection is restored." : {
-
-    },
-    "Photo saved. %d upload(s) pending." : {
-
-    },
-    "Photo saved. Uploading..." : {
-
-    },
-    "Photo saved. Will upload when connection is restored." : {
-
-    },
     "Please wait" : {
       "localizations" : {
         "ar" : {
@@ -49920,6 +49927,9 @@
           }
         }
       }
+    },
+    "Session Complete" : {
+
     },
     "Set" : {
       "comment" : "set tag value",
@@ -54707,6 +54717,9 @@
           }
         }
       }
+    },
+    "This will end your Viewer session. You'll need to log in again to use the camera or tracking features." : {
+
     },
     "To add another member to the relation 'long press' on the way to be added" : {
       "localizations" : {

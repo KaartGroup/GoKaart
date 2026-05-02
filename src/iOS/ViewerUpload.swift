@@ -580,18 +580,28 @@ class ViewerUploadViewController {
 		locationManager.startUpdatingLocation()
 		locationManager.startUpdatingHeading()
 
+		var sessionPhotoCount = 0
+
 		let photoPicker = PhotoCapture()
 		photoPicker.locationManager = locationManager
-		photoPicker.onCancel = {
-			// PhotoCapture dismisses itself — nothing else to do
-		}
 		photoPicker.onError = {
-			// PhotoCapture dismisses itself — nothing else to do
+			// Photo capture failed for this frame — user can retake
 		}
 		photoPicker.onAccept = { image, imageData in
-			// PhotoCapture already dismissed itself; upload from the presenter
+			// Queue each photo for upload without dismissing the camera
+			sessionPhotoCount += 1
 			Task { @MainActor in
-				await handlePhotoAccepted(image: image, imageData: imageData, presenter: presenter)
+				await enqueuePhoto(imageData: imageData)
+			}
+		}
+		photoPicker.onDone = {
+			// Camera session finished — stop location updates and show summary
+			locationManager.stopUpdatingLocation()
+			locationManager.stopUpdatingHeading()
+			if sessionPhotoCount > 0 {
+				Task { @MainActor in
+					showSessionSummary(photoCount: sessionPhotoCount, on: presenter)
+				}
 			}
 		}
 		photoPicker.modalPresentationStyle = .fullScreen
@@ -599,19 +609,13 @@ class ViewerUploadViewController {
 	}
 
 	@MainActor
-	private static func handlePhotoAccepted(image: UIImage, imageData: Data, presenter: UIViewController) async {
+	private static func enqueuePhoto(imageData: Data) async {
 		guard let location = extractLocation(from: imageData) else {
-			showAlert(
-				on: presenter,
-				title: NSLocalizedString("Error", comment: ""),
-				message: NSLocalizedString("No GPS data in photo. Ensure location services are enabled.", comment: "")
-			)
 			return
 		}
 
 		let heading = extractHeading(from: imageData)
 
-		// Reverse geocode synchronously before queueing
 		let geocoder = CLGeocoder()
 		var country = "Unknown"
 		var city = "Unknown"
@@ -620,7 +624,6 @@ class ViewerUploadViewController {
 			city = placemarks.first?.locality ?? "Unknown"
 		}
 
-		// Save to disk queue — upload happens in background
 		ViewerUploadQueue.shared.enqueue(
 			imageData: imageData,
 			location: location,
@@ -629,22 +632,23 @@ class ViewerUploadViewController {
 			country: country,
 			city: city
 		)
+	}
 
+	@MainActor
+	private static func showSessionSummary(photoCount: Int, on presenter: UIViewController) {
 		let pending = ViewerUploadQueue.shared.pendingCount
 		let hasNetwork = ViewerUploadQueue.shared.currentlyConnected
 		let message: String
 		if !hasNetwork {
-			message = pending > 1
-				? String(format: NSLocalizedString("Photo saved. %d photo(s) will upload when connection is restored.", comment: ""), pending)
-				: NSLocalizedString("Photo saved. Will upload when connection is restored.", comment: "")
+			message = String(format: NSLocalizedString("%d photo(s) saved. Will upload when connection is restored.", comment: ""), photoCount)
+		} else if pending > 0 {
+			message = String(format: NSLocalizedString("%d photo(s) saved. %d upload(s) pending.", comment: ""), photoCount, pending)
 		} else {
-			message = pending > 1
-				? String(format: NSLocalizedString("Photo saved. %d upload(s) pending.", comment: ""), pending)
-				: NSLocalizedString("Photo saved. Uploading...", comment: "")
+			message = String(format: NSLocalizedString("%d photo(s) saved. Uploading...", comment: ""), photoCount)
 		}
 		showAlert(
 			on: presenter,
-			title: NSLocalizedString("Success", comment: ""),
+			title: NSLocalizedString("Session Complete", comment: ""),
 			message: message
 		)
 	}

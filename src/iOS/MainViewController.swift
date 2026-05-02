@@ -507,7 +507,7 @@ final class MainViewController: UIViewController,
 				// corners
 			if view == compassButton || view == mapView.editToolbar {
 				// these buttons take care of themselves
-			} else if view == helpButton || view == addNodeButton || view == viewerCameraButton {
+			} else if view == helpButton || view == addNodeButton {
 				// The button is a circle.
 				let width = view.bounds.size.width
 				view.layer.cornerRadius = width / 2
@@ -970,12 +970,14 @@ final class MainViewController: UIViewController,
 		mapView.gpxLayer.startNewTrack(continuingCurrentTrack: false)
 		mapView.displayGpxTracks = true
 		UserPrefs.shared.gpxRecordingEnabled.value = true
+		mapView.showGpxRecordingIndicator()
 		print("[GPX] Recording started")
 	}
 
 	func stopGpxRecording() {
 		mapView.gpxLayer.endActiveTrack(continuingCurrentTrack: false)
 		UserPrefs.shared.gpxRecordingEnabled.value = false
+		mapView.hideGpxRecordingIndicator()
 		// Only stop location if nothing else needs it
 		let trackingActive = UserPrefs.shared.vehicleTrackingEnabled.value == true
 		if gpsState == .NONE && !trackingActive {
@@ -1020,6 +1022,10 @@ final class MainViewController: UIViewController,
 			}
 		case GPS_STATE.LOCATION, GPS_STATE.HEADING:
 			gpsState = .NONE
+			// Auto-stop GPX recording when location is turned off
+			if UserPrefs.shared.gpxRecordingEnabled.value == true {
+				stopGpxRecording()
+			}
 		}
 	}
 

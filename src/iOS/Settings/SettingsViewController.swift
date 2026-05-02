@@ -85,23 +85,40 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 		}
 	}
 
-	// MARK: - Vehicle Tracking Footer
+	// MARK: - Vehicle Tracking & Viewer Footer
 
 	private func setupTrackingFooter() {
-		let container = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 60))
+		let isLoggedIn = ViewerAuth.shared.isLoggedIn
+		let containerHeight: CGFloat = isLoggedIn ? 110 : 60
+		let container = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.width, height: containerHeight))
 
-		let button = UIButton(type: .system)
+		let trackingButton = UIButton(type: .system)
 		let enabled = UserPrefs.shared.vehicleTrackingEnabled.value == true
-		button.setTitle("Vehicle Tracking: \(enabled ? "On" : "Off") >", for: .normal)
-		button.titleLabel?.font = .systemFont(ofSize: 16)
-		button.addTarget(self, action: #selector(openTrackingSettings), for: .touchUpInside)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		container.addSubview(button)
+		trackingButton.setTitle("Vehicle Tracking: \(enabled ? "On" : "Off") >", for: .normal)
+		trackingButton.titleLabel?.font = .systemFont(ofSize: 16)
+		trackingButton.addTarget(self, action: #selector(openTrackingSettings), for: .touchUpInside)
+		trackingButton.translatesAutoresizingMaskIntoConstraints = false
+		container.addSubview(trackingButton)
 
 		NSLayoutConstraint.activate([
-			button.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-			button.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+			trackingButton.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+			trackingButton.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
 		])
+
+		if isLoggedIn {
+			let logoutButton = UIButton(type: .system)
+			logoutButton.setTitle("Log Out of Viewer", for: .normal)
+			logoutButton.titleLabel?.font = .systemFont(ofSize: 16)
+			logoutButton.setTitleColor(.systemRed, for: .normal)
+			logoutButton.addTarget(self, action: #selector(logoutOfViewer), for: .touchUpInside)
+			logoutButton.translatesAutoresizingMaskIntoConstraints = false
+			container.addSubview(logoutButton)
+
+			NSLayoutConstraint.activate([
+				logoutButton.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+				logoutButton.topAnchor.constraint(equalTo: trackingButton.bottomAnchor, constant: 12),
+			])
+		}
 
 		tableView.tableFooterView = container
 	}
@@ -109,5 +126,24 @@ class SettingsViewController: UITableViewController, MFMailComposeViewController
 	@objc private func openTrackingSettings() {
 		let trackingVC = ViewerTrackingSettingsViewController(style: .grouped)
 		navigationController?.pushViewController(trackingVC, animated: true)
+	}
+
+	@objc private func logoutOfViewer() {
+		let alert = UIAlertController(
+			title: NSLocalizedString("Log Out of Viewer", comment: ""),
+			message: NSLocalizedString("This will end your Viewer session. You'll need to log in again to use the camera or tracking features.", comment: ""),
+			preferredStyle: .alert
+		)
+		alert.addAction(UIAlertAction(title: NSLocalizedString("Log Out", comment: ""), style: .destructive) { [weak self] _ in
+			// Stop tracking if active
+			if UserPrefs.shared.vehicleTrackingEnabled.value == true {
+				UserPrefs.shared.vehicleTrackingEnabled.value = false
+				ViewerTrackingService.shared.stop()
+			}
+			ViewerAuth.shared.logout()
+			self?.setupTrackingFooter()
+		})
+		alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel))
+		present(alert, animated: true)
 	}
 }

@@ -67,14 +67,26 @@ private class CameraOverlayView: UIView {
 		case reviewing
 	}
 
-	let cancelButton = UIButton(type: .system)
+	let doneButton = UIButton(type: .system)
 	let shutterButton = makeShutterButton(size: 70)
 	let retakeButton = UIButton(type: .system)
 	let acceptButton = UIButton(type: .system)
 
 	private let previewView = UIImageView()
 	private let controlBar = UIView()
+	private let counterLabel = UILabel()
 	private var currentState: State = .capturing
+
+	var photoCount: Int = 0 {
+		didSet {
+			if photoCount > 0 {
+				counterLabel.text = "\(photoCount) photo\(photoCount == 1 ? "" : "s") taken"
+				counterLabel.isHidden = false
+			} else {
+				counterLabel.isHidden = true
+			}
+		}
+	}
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)
@@ -126,22 +138,24 @@ private class CameraOverlayView: UIView {
 		addSubview(controlBar)
 
 		let buttonSize: CGFloat = 44
-		if #available(iOS 13.0, *) {
-			let config = UIImage.SymbolConfiguration(pointSize: 28, weight: .medium)
-			cancelButton.setImage(UIImage(systemName: "xmark.circle", withConfiguration: config), for: .normal)
-			acceptButton.setImage(UIImage(systemName: "checkmark.circle", withConfiguration: config), for: .normal)
-			retakeButton.setImage(UIImage(systemName: "arrow.clockwise", withConfiguration: config), for: .normal)
-		} else {
-			cancelButton.setTitle("Cancel", for: .normal)
-			acceptButton.setTitle("Use Photo", for: .normal)
-			retakeButton.setTitle("Retake", for: .normal)
-		}
-		cancelButton.tintColor = .white
+		let config = UIImage.SymbolConfiguration(pointSize: 28, weight: .medium)
+		doneButton.setImage(UIImage(systemName: "xmark.circle", withConfiguration: config), for: .normal)
+		acceptButton.setImage(UIImage(systemName: "checkmark.circle", withConfiguration: config), for: .normal)
+		retakeButton.setImage(UIImage(systemName: "arrow.clockwise", withConfiguration: config), for: .normal)
+		doneButton.tintColor = .white
 		retakeButton.tintColor = .white
 		acceptButton.tintColor = .white
 
+		// Photo counter label
+		counterLabel.textColor = .white
+		counterLabel.font = .systemFont(ofSize: 14, weight: .medium)
+		counterLabel.textAlignment = .center
+		counterLabel.isHidden = true
+		counterLabel.translatesAutoresizingMaskIntoConstraints = false
+		addSubview(counterLabel)
+
 		// Add buttons on top of the control bar
-		[shutterButton, cancelButton, retakeButton, acceptButton].forEach { button in
+		[shutterButton, doneButton, retakeButton, acceptButton].forEach { button in
 			button.translatesAutoresizingMaskIntoConstraints = false
 			addSubview(button)
 		}
@@ -153,10 +167,10 @@ private class CameraOverlayView: UIView {
 			controlBar.topAnchor.constraint(equalTo: shutterButton.topAnchor, constant: -20),
 			controlBar.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-			cancelButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 40),
-			cancelButton.centerYAnchor.constraint(equalTo: shutterButton.centerYAnchor),
-			cancelButton.widthAnchor.constraint(equalToConstant: buttonSize),
-			cancelButton.heightAnchor.constraint(equalToConstant: buttonSize),
+			doneButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 40),
+			doneButton.centerYAnchor.constraint(equalTo: shutterButton.centerYAnchor),
+			doneButton.widthAnchor.constraint(equalToConstant: buttonSize),
+			doneButton.heightAnchor.constraint(equalToConstant: buttonSize),
 
 			shutterButton.centerXAnchor.constraint(equalTo: centerXAnchor),
 			shutterButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -30),
@@ -169,7 +183,11 @@ private class CameraOverlayView: UIView {
 			retakeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -40),
 			retakeButton.centerYAnchor.constraint(equalTo: shutterButton.centerYAnchor),
 			retakeButton.widthAnchor.constraint(equalToConstant: buttonSize),
-			retakeButton.heightAnchor.constraint(equalToConstant: buttonSize)
+			retakeButton.heightAnchor.constraint(equalToConstant: buttonSize),
+
+			// Counter label above the control bar
+			counterLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+			counterLabel.bottomAnchor.constraint(equalTo: controlBar.topAnchor, constant: -8),
 		])
 
 		// Preview after image is captured — fills area above buttons, black background
@@ -194,11 +212,18 @@ private class CameraOverlayView: UIView {
 			shutterButton.isHidden = false
 			retakeButton.isHidden = true
 			acceptButton.isHidden = true
+			updateDoneButtonIcon()
 		case .reviewing:
 			shutterButton.isHidden = true
 			retakeButton.isHidden = false
 			acceptButton.isHidden = false
 		}
+	}
+
+	private func updateDoneButtonIcon() {
+		let config = UIImage.SymbolConfiguration(pointSize: 28, weight: .medium)
+		let iconName = photoCount > 0 ? "checkmark.circle" : "xmark.circle"
+		doneButton.setImage(UIImage(systemName: iconName, withConfiguration: config), for: .normal)
 	}
 
 	func showPreview(_ image: UIImage) {
@@ -221,11 +246,15 @@ class PhotoCapture: UIViewController, UIImagePickerControllerDelegate, UINavigat
 	private let overlayView = CameraOverlayView()
 	private var capturedImage: UIImage?
 	private var capturedImageData: Data?
+	private var hasAppliedCameraTransform = false
 
 	var locationManager: CLLocationManager?
+	/// Called for each accepted photo (fires without dismissing the camera)
 	var onAccept: ((UIImage, Data) -> Void)?
-	var onCancel: (() -> Void)?
+	/// Called when the user taps Done to close the camera session
+	var onDone: (() -> Void)?
 	var onError: (() -> Void)?
+	private var photoCount = 0
 
 	override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
 		return .portrait
@@ -250,22 +279,31 @@ class PhotoCapture: UIViewController, UIImagePickerControllerDelegate, UINavigat
 
 		addChild(picker)
 		view.addSubview(picker.view)
-		picker.view.frame = view.bounds
-		overlayView.frame = view.bounds
 		picker.didMove(toParent: self)
-
-		// center picker in screen
-		let screenSize = picker.view.bounds.size
-		let cameraAspectRatio: CGFloat = 4.0 / 3.0 // Typical for iOS camera
-		let previewHeight = screenSize.width * cameraAspectRatio
-		let verticalOffset = (screenSize.height - previewHeight) / 2
-		picker.cameraViewTransform = CGAffineTransform(translationX: 0, y: verticalOffset)
 
 		// Set up overlay transitions
 		overlayView.shutterButton.addTarget(self, action: #selector(shutterTapped), for: .touchUpInside)
 		overlayView.retakeButton.addTarget(self, action: #selector(retakeTapped), for: .touchUpInside)
 		overlayView.acceptButton.addTarget(self, action: #selector(acceptTapped), for: .touchUpInside)
-		overlayView.cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
+		overlayView.doneButton.addTarget(self, action: #selector(doneTapped), for: .touchUpInside)
+	}
+
+	override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+
+		// Update frames to match current (portrait) geometry
+		picker.view.frame = view.bounds
+		overlayView.frame = view.bounds
+
+		// Apply camera transform once after the view has settled into portrait
+		if !hasAppliedCameraTransform, view.bounds.height > view.bounds.width {
+			hasAppliedCameraTransform = true
+			let screenSize = view.bounds.size
+			let cameraAspectRatio: CGFloat = 4.0 / 3.0
+			let previewHeight = screenSize.width * cameraAspectRatio
+			let verticalOffset = (screenSize.height - previewHeight) / 2
+			picker.cameraViewTransform = CGAffineTransform(translationX: 0, y: verticalOffset)
+		}
 	}
 
 	@objc private func shutterTapped() {
@@ -283,17 +321,20 @@ class PhotoCapture: UIViewController, UIImagePickerControllerDelegate, UINavigat
 		if let image = capturedImage,
 		   let data = capturedImageData
 		{
-			dismiss(animated: true)
+			photoCount += 1
+			overlayView.photoCount = photoCount
 			onAccept?(image, data)
-		} else {
-			onError?()
-			dismiss(animated: true)
 		}
+		// Return to capture mode for next photo
+		capturedImage = nil
+		capturedImageData = nil
+		overlayView.hidePreview()
+		overlayView.switchToState(.capturing)
 	}
 
-	@objc private func cancelTapped() {
+	@objc private func doneTapped() {
 		dismiss(animated: true)
-		onCancel?()
+		onDone?()
 	}
 
 	func imagePickerController(_ picker: UIImagePickerController,
@@ -304,7 +345,6 @@ class PhotoCapture: UIViewController, UIImagePickerControllerDelegate, UINavigat
 		let heading = locationManager?.heading
 		guard let image = info[.originalImage] as? UIImage else {
 			onError?()
-			dismiss(animated: true)
 			return
 		}
 		overlayView.showPreview(image)
@@ -316,7 +356,8 @@ class PhotoCapture: UIViewController, UIImagePickerControllerDelegate, UINavigat
 			DispatchQueue.main.sync {
 				guard let data else {
 					self.onError?()
-					self.dismiss(animated: true)
+					self.overlayView.hidePreview()
+					self.overlayView.switchToState(.capturing)
 					return
 				}
 				self.capturedImage = image
