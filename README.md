@@ -1,3 +1,16 @@
+> ## ⚠️ This is **not** Maprizon Mobile
+>
+> You are probably looking for **[`KaartGroup/maprizon-mobile`](https://github.com/KaartGroup/maprizon-mobile)** — the native iOS app for the Maprizon imagery platform, the one on TestFlight, and the one under active development.
+>
+> **This** repository is `KaartGroup/GoKaart`: our fork of the upstream [Go Map!!](https://github.com/bryceco/GoMap) OpenStreetMap editor. Maprizon Mobile was forked *from here* on 2026-08-19 and has been its own product since. This repo is kept only as the untouched upstream reference. **Do not build Maprizon work here — it will not ship anywhere.**
+>
+> There is also `KaartGroup/maprizon-mobile-legacy` (archived): an abandoned earlier attempt at the same migration. Not that one either.
+>
+> | you want | repo |
+> |---|---|
+> | the Maprizon iOS app | `KaartGroup/maprizon-mobile` |
+> | the upstream OSM editor fork | `KaartGroup/GoKaart` ← you are here |
+> | nothing, it's dead | `KaartGroup/maprizon-mobile-legacy` |
 
 # Go Map!!
 
