@@ -1,3 +1,5 @@
+> **Status 2026-10-13: SHIPPED.** Merged to master in 7c007d6ac (2026-05-01) and released in GoKaart 4.4.0 (build 4314). Kept as a record; the open questions at the bottom were never answered on record.
+
 # Disable Poole.ch Tile Calls — Plan
 
 ## Goal

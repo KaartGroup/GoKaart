@@ -1,3 +1,5 @@
+> **Status 2026-10-13: committed as WIP in 1ccf8cdcf (2026-05-01) and on master; shipped in 4.4.0/4.5.0.** Fix 1 ("Log Out of Viewer" in Settings) is in the code. Fixes 2 and 3 were never verified on a device on record. Note the Viewer login itself no longer works: the borrowed Auth0 client secret was removed on 2026-09-03 (5269dbb8b) — see HANDOFF.md.
+
 # Camera Fixes Plan — 3 Issues
 
 ## Fix 1: Viewer Logout UI
