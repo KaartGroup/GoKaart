@@ -2,7 +2,9 @@
 >
 > You are probably looking for **[`KaartGroup/maprizon-mobile`](https://github.com/KaartGroup/maprizon-mobile)** — the native iOS app for the Maprizon imagery platform, the one on TestFlight, and the one under active development.
 >
-> **This** repository is `KaartGroup/GoKaart`: our fork of the upstream [Go Map!!](https://github.com/bryceco/GoMap) OpenStreetMap editor. Maprizon Mobile was forked *from here* on 2026-08-19 and has been its own product since. This repo is kept only as the untouched upstream reference. **Do not build Maprizon work here — it will not ship anywhere.**
+> **This** repository is `KaartGroup/GoKaart`: our fork of the upstream [Go Map!!](https://github.com/bryceco/GoMap) OpenStreetMap editor. Maprizon Mobile was forked *from here* on 2026-08-19 and has been its own product since. This repo is **frozen**: it carries Kaart's own GoKaart customisations (unnamed-road halos, power naming, planning mode, GPX/background tracking, a Viewer camera upload) on top of Go Map!! as of January 2026, and its last TestFlight build was GoKaart 4.5.0 (build 4315, 2026-05-08). It is *not* an untouched copy of upstream. **Do not build Maprizon work here — it will not ship anywhere.** Successor notes: [`HANDOFF.md`](HANDOFF.md).
+>
+> Everything below the banner is upstream Go Map!!'s README. The App Store, TestFlight and gomaposm.com links in it are Bryce Cogswell's, not Kaart's.
 >
 > There is also `KaartGroup/maprizon-mobile-legacy` (archived): an abandoned earlier attempt at the same migration. Not that one either.
 >
